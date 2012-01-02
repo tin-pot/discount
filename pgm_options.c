@@ -60,13 +60,13 @@ static struct _opt {
 
 
 int
-sort_by_name(struct _opt *a, struct _opt *b)
+sort_by_name(const struct _opt *a, const struct _opt *b)
 {
     return strcmp(a->name,b->name);
 }
 
 int
-sort_by_flag(struct _opt *a, struct _opt *b)
+sort_by_flag(const struct _opt *a, const struct _opt *b)
 {
     return a->flag - b->flag;
 }
