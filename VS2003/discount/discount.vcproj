@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="markdown.lib freegetopt.lib"
-				OutputFile="$(OutDir)discount.exe"
+				OutputFile="$(OutDir)markdown.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\freegetopt\$(PlatformName)\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
@@ -80,7 +80,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="markdown.lib freegetopt.lib"
-				OutputFile="$(OutDir)discount.exe"
+				OutputFile="$(OutDir)markdown.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\freegetopt\$(PlatformName)\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
