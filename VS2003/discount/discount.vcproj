@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;..\..;..\getopt"
+				AdditionalIncludeDirectories="..;..\..;..\freegetopt"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;VERSION=&quot;\&quot;2.1.2\&quot;&quot;"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="markdown.lib getopt.lib"
+				AdditionalDependencies="markdown.lib freegetopt.lib"
 				OutputFile="$(OutDir)discount.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\getopt\$(PlatformName)\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\freegetopt\$(PlatformName)\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)discount.pdb"
 				SubSystem="1"
@@ -69,7 +69,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..;..\..;..\getopt"
+				AdditionalIncludeDirectories="..;..\..;..\freegetopt"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;VERSION=&quot;\&quot;2.1.2\&quot;&quot;"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="0"
@@ -79,10 +79,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="markdown.lib getopt.lib"
+				AdditionalDependencies="markdown.lib freegetopt.lib"
 				OutputFile="$(OutDir)discount.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\getopt\$(PlatformName)\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\freegetopt\$(PlatformName)\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

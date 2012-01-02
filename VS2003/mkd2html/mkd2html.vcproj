@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="markdown.lib getopt.lib"
+				AdditionalDependencies="markdown.lib freegetopt.lib"
 				OutputFile="$(OutDir)$(ProjectName).exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\getopt\$(PlatformName)\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\freegetopt\$(PlatformName)\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)mkd2html.pdb"
 				SubSystem="1"
@@ -80,10 +80,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="markdown.lib getopt.lib"
+				AdditionalDependencies="markdown.lib freegetopt.lib"
 				OutputFile="$(OutDir)$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\getopt\$(PlatformName)\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\freegetopt\$(PlatformName)\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
