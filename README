@@ -37,11 +37,10 @@ To install, copy the binaries (in the `Win32/Release`
 directories) into a directory which is in your `PATH`. Don't
 forget to put `getopt.dll` beneath them.
 
-Licenses --------
+Licenses
+--------
 
-**discount**
-
-Discount has a BSD-like license:
+**discount** has a BSD-like license:
 
 > DISCOUNT is free software written by David Parsons
 > <orc@pell.chi.il.us>; it is released under a BSD-style
@@ -50,15 +49,11 @@ Discount has a BSD-like license:
 
 See the `COPYRIGHT` file for details.
 
-**GNU getopt**
-
-GNU getopt is licensed under the
+**GNU getopt** is licensed under the
 [GNU Lesser General Public License][lgpl].
 
 
-**Free Getopt**
-
-Free getopt has a BSD license:
+**Free Getopt** has a BSD-like license:
 
 > Free Getopt
 > Copyright (c)2002-2003 Mark K. Kim
@@ -82,9 +77,7 @@ Free getopt has a BSD license:
 
 See the `LICENSE` file for details.
 
-
-Links
-=====
+* * *
 
 [lgpl]:       http://www.gnu.org/licenses/lgpl-2.1.html         (License text)
 [gruber]:     http://daringfireball.net/projects/markdown/      (John Gruber's "Markdown" page)
