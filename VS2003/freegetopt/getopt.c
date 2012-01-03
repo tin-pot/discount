@@ -104,6 +104,7 @@ int getopt(int argc, char** argv, char* optstr)
 		/* Initialize variables */
 		prev_argv = argv;
 		prev_argc = argc;
+                optind = 1;
 		argv_index = 1;
 		argv_index2 = 1;
 		opt_offset = 1;
@@ -113,6 +114,13 @@ int getopt(int argc, char** argv, char* optstr)
 
 	/* Jump point in case we want to ignore the current argv_index */
 	getopt_top:
+
+        if (optind > argv_index) {
+            if (optind > argc)
+                optind = argc;
+            argv_index = optind;
+            opt_offset = 1;
+        }
 
 	/* Misc. initializations */
 	optarg = NULL;
