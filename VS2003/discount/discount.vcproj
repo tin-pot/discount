@@ -36,7 +36,6 @@
 				Outputs="$(TargetDir)markdown.exe"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="markdown.lib freegetopt.lib"
 				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=""
@@ -83,8 +82,6 @@
 				Outputs="$(TargetDir)markdown.exe"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="markdown.lib freegetopt.lib"
-				OutputFile="$(OutDir)markdown.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)"
 				SubSystem="1"

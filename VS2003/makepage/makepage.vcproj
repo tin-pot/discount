@@ -31,8 +31,6 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="markdown.lib freegetopt.lib"
-				OutputFile="$(OutDir)$(ProjectName).exe"
 				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)makepage.pdb"
@@ -76,8 +74,6 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="markdown.lib freegetopt.lib"
-				OutputFile="$(OutDir)$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)"
 				SubSystem="1"
