@@ -12,20 +12,19 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)\"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)\"
 			IntermediateDirectory="$(OutDir)$(ProjectName).build\"
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;..\..;..\getopt"
+				AdditionalIncludeDirectories="..;..\..;..\freegetopt"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;VERSION=&quot;\&quot;2.1.3\&quot;&quot;"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -52,18 +51,16 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)\"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)\"
 			IntermediateDirectory="$(OutDir)$(ProjectName).build\"
 			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..;..\..;..\getopt"
+				AdditionalIncludeDirectories="..;..\..;..\freegetopt"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;VERSION=&quot;\&quot;2.1.3\&quot;&quot;"
 				RuntimeLibrary="4"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="3"/>
+				WarningLevel="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

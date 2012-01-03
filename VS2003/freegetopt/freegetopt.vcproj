@@ -12,7 +12,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)\"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)\"
 			IntermediateDirectory="$(OutDir)$(ProjectName).build\"
 			ConfigurationType="4"
 			CharacterSet="2">
@@ -24,7 +24,6 @@
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
@@ -54,7 +53,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)\"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)\"
 			IntermediateDirectory="$(OutDir)$(ProjectName).build\"
 			ConfigurationType="4"
 			CharacterSet="2">
@@ -63,10 +62,8 @@
 				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="4"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="TRUE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

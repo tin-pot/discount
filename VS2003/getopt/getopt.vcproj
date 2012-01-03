@@ -12,7 +12,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)\"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)\"
 			IntermediateDirectory="$(OutDir)$(ProjectName).build\"
 			ConfigurationType="2"
 			CharacterSet="2">
@@ -25,11 +25,14 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
 				WarningLevel="3"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"/>
+				Name="VCLinkerTool"
+				AdditionalLibraryDirectories=""
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -53,7 +56,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)\"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)\"
 			IntermediateDirectory="$(OutDir)$(ProjectName).build\"
 			ConfigurationType="2"
 			CharacterSet="2">
@@ -62,14 +65,13 @@
 				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;EXPORTS_GETOPT"
 				RuntimeLibrary="4"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="FALSE"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"/>
+				Name="VCLinkerTool"
+				AdditionalLibraryDirectories=""/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool

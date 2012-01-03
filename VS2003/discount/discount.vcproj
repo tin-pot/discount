@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="discount"
 	ProjectGUID="{0FCF5D8D-CB6B-45B7-BE66-24FF4B13C413}"
+	RootNamespace="discount"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -12,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)\"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)\"
 			IntermediateDirectory="$(OutDir)$(ProjectName).build\"
 			ConfigurationType="1"
 			CharacterSet="2">
@@ -24,20 +25,21 @@
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="4"/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+				Description="Rename discount tool to &quot;markdown.exe&quot;."
+				CommandLine="rename $(TargetPath) markdown.exe"
+				AdditionalDependencies="$(TargetPath)"
+				Outputs="$(TargetDir)markdown.exe"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="markdown.lib freegetopt.lib"
-				OutputFile="$(OutDir)markdown.exe"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\freegetopt\$(PlatformName)\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)discount.pdb"
+				ProgramDatabaseFile=""
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -63,7 +65,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)\"
+			OutputDirectory="..\$(PlatformName)\$(ConfigurationName)\"
 			IntermediateDirectory="$(OutDir)$(ProjectName).build\"
 			ConfigurationType="1"
 			CharacterSet="2">
@@ -72,18 +74,19 @@
 				AdditionalIncludeDirectories="..;..\..;..\freegetopt"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;VERSION=&quot;\&quot;2.1.2\&quot;&quot;"
 				RuntimeLibrary="4"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="3"/>
+				WarningLevel="3"/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCCustomBuildTool"
+				Description="Rename discount tool to &quot;markdown.exe&quot;."
+				CommandLine="rename $(TargetPath) markdown.exe"
+				AdditionalDependencies="$(TargetPath)"
+				Outputs="$(TargetDir)markdown.exe"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="markdown.lib freegetopt.lib"
 				OutputFile="$(OutDir)markdown.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\markdown\$(PlatformName)\$(ConfigurationName)&quot;;&quot;..\freegetopt\$(PlatformName)\$(ConfigurationName)&quot;"
-				GenerateDebugInformation="TRUE"
+				AdditionalLibraryDirectories="$(OutDir)"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
