@@ -503,7 +503,7 @@ islist(Line *t, int *clip, DWORD flags, int *list_type)
     }
 
     if ( (j = nextblank(t,t->dle)) > t->dle ) {
-	if ( T(t->text)[j-1] == '.' ) {
+	if ( T(t->text)[j-1] == '.' || T(t->text)[j-1] == ')') {
 
 	    if ( !(flags & (MKD_NOALPHALIST|MKD_STRICT))
 				    && (j == t->dle + 2)
