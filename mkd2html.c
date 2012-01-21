@@ -145,7 +145,7 @@ char **argv;
 	case 'f':   /* check for -footer */
                     if (strcmp(optarg, "ooter") == 0) {
                         if (argv[optind] == NULL) 
-                            fail("--css argument missing.\n");
+                            fail("--footer argument missing.\n");
 
                         EXPAND(footers) = argv[optind++];
                         break;
@@ -172,14 +172,14 @@ char **argv;
         case 'h':   /* check for -css or -header */
                     if (opt == 'c' && strcmp(optarg, "ss") == 0) {
                         if (argv[optind] == NULL) 
-                            fail("--css argument missing.\n");
+                            fail("-css argument missing.\n");
 
                         EXPAND(css) = argv[optind++];
                         break;
                     } else if (opt == 'h' &&
                                strcmp(optarg, "eader") == 0) {
                         if (argv[optind] == NULL) 
-                            fail("--css argument missing.\n");
+                            fail("-header argument missing.\n");
 
                         EXPAND(headers) = argv[optind++];
                         break;
