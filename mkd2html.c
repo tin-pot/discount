@@ -76,7 +76,7 @@ char **argv;
     STRING(char*) css, headers, footers;
     enum { Transitional, Strict, Iso } doctype = Transitional;
     const char *const docdecl[] = {
-        "-//W3C//DTD HTML 4.01//EN", 
+        "-//W3C//DTD HTML 4.01 Transitional//EN", 
         "-//W3C//DTD HTML 4.01//EN", 
         "ISO/IEC 15445:2000//DTD HTML//EN"
     };
