@@ -21,6 +21,7 @@ $(POSCHDR):
 	@echo ** Done. ***********************************************
 
 $(POSCLIB): $(SOURCES)
+	-mkdir $(OUTDIR)
 	$(RM) $(OBJECTS)
 	$(MAKE) $(OBJECTS)
 	$(AR) $(ARFLAGS) /OUT:$(POSCLIB) $(OBJECTS)
