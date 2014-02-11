@@ -1,0 +1,195 @@
+/*
+ * default.css --
+ *
+ *     A style for code- and wiki- centric texts; colors
+ *     partly inspired from the CodeProject.com style.
+ */
+
+/*
+ * Basic page layout.
+ */
+body {
+  margin-left:   4em;
+  margin-right:  4em;
+  margin-top:    0em;
+  margin-bottom: 4em;
+  font-family: sans-serif;
+}
+
+/*
+ * Block level elements.
+ */
+
+/*
+ * "Code blocks" with distinct background color and
+ * a scroll bar if needed (if the text would overflow
+ * the colored box).
+ */
+pre {
+  margin-left: 2em;
+  padding:     6px;
+  background-color: #FBEDBB;
+  overflow: auto;
+}
+
+
+/*
+ * Headers all have a common special color. The top level
+ * header is centered.
+ */
+h1 {
+  text-align: center;
+}
+
+h1,h2,h3,h4 {
+  color: #F90;
+}
+
+/*
+ * Style for the document abstract (a DIV with class="abstract"):
+ * centered, indented on both sides, oblique.
+ *
+ * With `discount`, you can produce an abstract (or any 'classified'
+ * DIV element) with a special blockquote:
+ *
+ *     >%abstract%
+ *     >This paper has really nothing new to say ...
+ *
+ */
+DIV.abstract  P {
+  margin-left: 6em;
+  margin-right: 6em;
+  text-align: center;
+  font-size: small;
+  font-style: oblique;
+}
+
+/*
+ * Style for (nested) blockquotes.
+ *
+ * Blueish background, vertical line on the left,
+ * nicely nested with "inner" colors getting darker.
+ * Six levels of blockquotes should be enough for 
+ * everybody, and the color does not change in even
+ * deeper-nested quotes.
+ */
+
+BLOCKQUOTE {
+  /* Generally no border ... */
+  border-width: 0pt;
+
+  /* ... but a 2pt wide vertical border left. */
+  border-color: #88F;
+  border-left-width: 2pt;
+  border-left-style: solid;
+
+  /*
+   * Same left margin and general padding as <pre> 
+   * ("code block") elements, but a distance of 1em
+   * to the vertical border bar on the left.
+   *
+   * Outermost color is very light blue.
+   */
+
+  margin-left: 2em;
+  margin-right: 0em;
+  padding:     6px;
+  padding-left: 1em;
+  background-color: #DEEEFF;
+}
+
+BLOCKQUOTE  BLOCKQUOTE {
+  /*
+   * Inner (nested) blockquotes get darker and darker.
+   * No more margin on the left is needed, the left 
+   * padding is enough of indent.
+   */
+  margin-left: 0em;
+  background-color: #D7E7FF;
+}
+
+BLOCKQUOTE  BLOCKQUOTE  BLOCKQUOTE {
+  margin-left: 0em;
+  background-color: #CEDEFF;
+}
+
+BLOCKQUOTE  BLOCKQUOTE  BLOCKQUOTE  BLOCKQUOTE {
+  margin-left: 0em;
+  background-color: #C7D7FF;
+}
+
+BLOCKQUOTE  BLOCKQUOTE  BLOCKQUOTE  BLOCKQUOTE  BLOCKQUOTE {
+  margin-left: 0em;
+  background-color: #BECEFF;
+}
+
+BLOCKQUOTE  BLOCKQUOTE  BLOCKQUOTE  BLOCKQUOTE  BLOCKQUOTE BLOCKQUOTE {
+  margin-left: 0em;
+  background-color: #B7C7FF;
+}
+
+/*
+ * Style for footnote texts.
+ * (`discount` can handle footnotes if one asks for it.)
+ */
+ 
+/*
+ * Separate footnotes with a footnote line:
+ * A solid, thin line across 1/3 of the page from the left. 
+ *
+ * The footnote texts are in a smaller font, with
+ * the paragraphs tighter together.
+ */
+HR.footnotes {
+  margin-right: 66%;
+  left: 0px;
+  border-top-width: 1px;
+  border-bottom-width: 0px;
+  border-color: #000;
+  background-color: #000;
+  height:0.5pt;
+}
+
+DIV.footnotes {
+  font-size: small;
+}
+
+DIV.footnotes P {
+  margin-top: 0em;
+  margin-bottom: 0.25em;
+}
+
+
+/*
+ * Special inline elements.
+ */
+
+/*
+ * Anchor style.
+ */
+a {
+  color:#004cd5;
+  text-decoration:underline;
+}
+a:visited {
+  color:purple;
+}
+
+a:focus {
+  outline:none;
+}
+
+/*
+ * Inline "code spans" have their own color (related to
+ * the "code block" background color) ...
+ */
+code {
+  color: #900;
+}
+
+/* ... but not if embedded in a title or anchor. */
+h1 code, h2 code, h3 code, h4 code, a code {
+  color: inherit;
+}
+
+

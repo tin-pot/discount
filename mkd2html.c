@@ -28,13 +28,9 @@
 # ifdef HAVE_LIBGEN_H
 #  include <libgen.h>
 # else
-/* include <unistd.h> */
+#  include <unistd.h>
 # endif
 #endif
-
-#include <unistd.h> /* getopt() */
-#include "pgm_options.h"
-
 #include <stdarg.h>
 
 #include "mkdio.h"
@@ -49,216 +45,106 @@ basename(char *path)
 {
     char *p;
 
-    if (( p = strrchr(path, '/') ))
+    if ( p = strrchr(path, '/') )
 	return 1+p;
     return path;
 }
 #endif
 
 void
-complain(char *fmt, ...)
+fail(char *why, ...)
 {
     va_list ptr;
 
-    va_start(ptr, fmt);
+    va_start(ptr,why);
     fprintf(stderr, "%s: ", pgm);
-    vfprintf(stderr, fmt, ptr);
-    fputc('\n', stderr);
-    va_end(ptr);
-    fflush(stderr);
-}
-
-void
-fail(char *fmt, ...)
-{
-    va_list ptr;
-
-    va_start(ptr,fmt);
-    fprintf(stderr, "%s: ", pgm);
-    vfprintf(stderr, fmt, ptr);
+    vfprintf(stderr, why, ptr);
     fputc('\n', stderr);
     va_end(ptr);
     exit(1);
 }
 
 
-int
 main(argc, argv)
 char **argv;
 {
     char *h;
+    char *source = 0, *dest = 0;
     MMIOT *mmiot;
     int i;
     FILE *input, *output; 
-    char *source;
     STRING(char*) css, headers, footers;
 
-    int opt;
-    mkd_flag_t flags = 0;
-    int debug = 0;
-    int toc = 0;
-    int version = 0;
-    int with_html5 = 0;
-    int use_mkd_line = 0;
-    char *extra_footnote_prefix = 0;
-    char *urlflags = NULL;
-    char *text = NULL;
-    char *urlbase = NULL;
-
-    int res = 0;
 
     CREATE(css);
     CREATE(headers);
     CREATE(footers);
     pgm = basename(argv[0]);
 
-    /* tin-pot 2012-01-02: Use getopt() for args. */
-    opterr = 1;
-    input = output = NULL;
-
-    while ( (opt=getopt(argc, argv, "d5TVb:C:c:h:f:F:o:s:")) != EOF ) {
-            
-	switch (opt) {
-	case 'd':   debug = 1;
-		    break;
-	case '5':   with_html5 = 1;
-		    break;
-	case 'T':   toc = 1;
-		    break;
-	case 'V':   version++;
-		    break;
-	case 'b':   urlbase = optarg;
-		    break;
-	case 'C':   extra_footnote_prefix = optarg;
-		    break;
-#if 0
-	case 'E':   urlflags = optarg;
-		    break;
-#endif
-	case 'F':   if ( strcmp(optarg, "?") == 0 ) {
-			show_flags(0);
-			exit(0);
-		    }
-		    else
-			flags = strtol(optarg, 0, 0);
-		    break;
-	case 'f':   /* check for -footer */
-                    if (strcmp(optarg, "ooter") == 0) {
-                        if (argv[optind] == NULL) 
-                            fail("--footer argument missing.\n");
-
-                        EXPAND(footers) = argv[optind++];
-                        break;
-                    }
-                    if ( strcmp(optarg, "?") == 0 ) {
-			show_flags(1);
-			exit(0);
-		    }
-		    else if ( !set_flag(&flags, optarg) )
-			complain("unknown option <%s>", optarg);
-		    break;
-	case 'o':   if (output != NULL) {
-			complain("Too many -o options");
-			exit(1);
-		    }
-                    if ((output = fopen(optarg, "w")) == NULL) {
-			perror(optarg);
-			exit(1);
-		    }
-		    break;
-	case 's':   text = optarg;
-		    break;
-        case 'c':
-        case 'h':   /* check for -css or -header */
-                    if (opt == 'c' && strcmp(optarg, "ss") == 0) {
-                        if (argv[optind] == NULL) 
-                            fail("-css argument missing.\n");
-
-                        EXPAND(css) = argv[optind++];
-                        break;
-                    } else if (opt == 'h' &&
-                               strcmp(optarg, "eader") == 0) {
-                        if (argv[optind] == NULL) 
-                            fail("-header argument missing.\n");
-
-                        EXPAND(headers) = argv[optind++];
-                        break;
-                    }
-                    /* FALLTHROUGH */
-	default:    fprintf(stderr, "usage: %s [-d5TV] [-b url-base] "
-                        "[-C ...] "
-                        "[-css ...] [-header ...] [-footer ...] "
-                        "[-F bitmap] [-f {+-}flags] "
-			"[-o ofile] [-s text] "
-			"[file]\n", pgm);
-                    exit(1);
+    while ( argc ) {
+	if ( strcmp(argv[1], "-css") == 0 ) {
+	    EXPAND(css) = argv[2];
+	    argc -= 2;
+	    argv += 2;
 	}
+	else if ( strcmp(argv[1], "-header") == 0 ) {
+	    EXPAND(headers) = argv[2];
+	    argc -= 2;
+	    argv += 2;
+	}
+	else if ( strcmp(argv[1], "-footer") == 0 ) {
+	    EXPAND(footers) = argv[2];
+	    argc -= 2;
+	    argv += 2;
+	}
+	else
+	    break;
     }
 
-    if ( version ) {
-	printf("%s: discount %s%s", pgm, markdown_version,
-				  with_html5 ? " +html5":"");
-	if ( version > 1 )
-	    mkd_flags_are(stdout, flags, 0);
-	putchar('\n');
-	exit(0);
-    }
-
-    argc -= optind;
-    argv += optind;
-
-    source = NULL;
-    if (argc > 0) {
-	char *dot, *dest;
-	
-	if ((source = malloc(strlen(argv[0]) + 6)) == NULL)
-            fail("out of memory");
-        strcpy(source, argv[0]);
-        if ((input = fopen(source, "r")) == NULL) {
-            strcat(source, ".text");
-            if ((input = fopen(source, "r")) == NULL)
-                fail("can't open either %s or %s", argv[0], source);
-        }
-
-        if (output == NULL) {
-    	    if ((dest = malloc(strlen(argv[0]) + 6)) == NULL)
-    	        fail("out of memory");
-
-    	    strcpy(dest, source);
-
-    	    if ((dot = strrchr(dest, '.')) != NULL)
-    	        *dot = '\0';
-    	    strcat(dest, ".html");
-
-    	    if  ((output = fopen(dest, "w")) == NULL)
-    	        fail("can't write to %s", dest);
-            free(dest);
-        }
-    } else {
+    switch ( argc ) {
+	char *p, *dot;
+    case 1:
 	input = stdin;
-        if (output == NULL) /* no -o ofile given */
-	    output = stdout;
+	output = stdout;
+	break;
+    case 2:
+    case 3:
+	dest   = malloc(strlen(argv[argc-1]) + 6);
+	source = malloc(strlen(argv[1]) + 6);
+
+	if ( !(source && dest) )
+	    fail("out of memory allocating name buffers");
+
+	strcpy(source, argv[1]);
+	if (( p = strrchr(source, '/') ))
+	    p = source;
+	else
+	    ++p;
+
+	if ( (input = fopen(source, "r")) == 0 ) {
+	    strcat(source, ".text");
+	    if ( (input = fopen(source, "r")) == 0 )
+		fail("can't open either %s or %s", argv[1], source);
+	}
+	strcpy(dest, source);
+
+	if (( dot = strrchr(dest, '.') ))
+	    *dot = 0;
+	strcat(dest, ".html");
+
+	if ( (output = fopen(dest, "w")) == 0 )
+	    fail("can't write to %s", dest);
+	break;
+
+    default:
+	fprintf(stderr, "usage: %s [opts] source [dest]\n", pgm);
+	exit(1);
     }
 
-    /* end tin-pot */
-
-    if ( (mmiot = mkd_in(input, flags)) == 0 )
+    if ( (mmiot = mkd_in(input, 0)) == 0 )
 	fail("can't read %s", source ? source : "stdin");
 
-    /* Prepare compile. */
-
-    if ( with_html5 )
-	mkd_with_html5_tags();
-    if (urlbase)
-        mkd_basename(mmiot, urlbase);
-    if (extra_footnote_prefix)
-        mkd_ref_prefix(mmiot, extra_footnote_prefix);
-    if (debug) {
-        res = mkd_dump(mmiot, stdout, 0, argc ? basename(argv[0]) : "stdin");
-        exit(res);
-    }
-
-    if ( !mkd_compile(mmiot, flags) )
+    if ( !mkd_compile(mmiot, 0) )
 	fail("couldn't compile input");
 
 
@@ -282,7 +168,7 @@ char **argv;
 
     if ( h ) {
 	fprintf(output,"  <title>");
-	mkd_generateline(h, (int)strlen(h), output, flags);
+	mkd_generateline(h, strlen(h), output, 0);
 	fprintf(output, "</title>\n");
     }
     for ( i=0; i < S(headers); i++ )
@@ -291,9 +177,6 @@ char **argv;
 		    "<body>\n");
 
     /* print the compiled body */
-
-    if (toc)
-        mkd_generatetoc(mmiot, stdout);
 
     mkd_generatehtml(mmiot, output);
 

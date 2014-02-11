@@ -1,7 +1,6 @@
 /* block-level tags for passing html blocks through the blender
  */
 #define __WITHOUT_AMALLOC 1
-#include "config.h"
 #include "cstring.h"
 #include "tags.h"
 

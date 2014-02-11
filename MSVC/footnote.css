@@ -1,0 +1,21 @@
+/* Numbered footnotes with ")" */
+
+/* Suppress auto-numbering, start our own count. */
+DIV.footnotes OL { 
+    list-style-type: none;
+    counter-reset: footnr 0;
+}
+
+/* Count LI elements in footnote division. */
+DIV.footnotes OL LI {
+        counter-increment: footnr;
+}
+
+/* Prepend "n) " before first para content of each footnote. */
+/* TODO: Alignment, hanging indent. */
+DIV.footnotes OL LI P:first-child:before  {
+    display: block;
+    left: 0;
+    content: counter(footnr) ") ";
+}
+

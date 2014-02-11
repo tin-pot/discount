@@ -1,0 +1,449 @@
+<!DOCTYPE HTML PUBLIC "ISO/IEC 15445:2000//DTD HTML//EN">
+<html>
+<head>
+  <meta name="GENERATOR" content="mkd2html 2.1.3 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
+  <meta http-equiv="Content-Type"
+        content="text/html; charset=ISO-8859-1">
+  <style type="text/css">
+    /* ISO/IEC 15445 forbids styling in tags. */
+    .centered {
+      text-align: center;
+    }
+
+    ol.alpha {
+      list-style-type: lower-alpha;
+    }
+  </style>
+  <style type="text/css">
+      /*
+       * Ordered lists like '1. Xxxx' and 'a) Xxxxx'.
+       */
+      OL.alpha {
+        list-style-type: none;
+      }
+      OL {
+        padding-left: 2.0em;
+        position: relative;
+        list-style-type: none;
+        counter-reset: item 0;
+      }
+      
+      OL > LI {
+        counter-increment: item;
+      }
+      
+      OL > LI:before {
+        position: absolute;
+        left: 0em;
+        width: 1.5em;
+        text-align:right;
+        content: counter(item, decimal) ".";
+      }
+      
+      OL.alpha > LI:before,
+      OL[type="a"] > LI:before {
+        content: counter(item, lower-alpha) ")";
+      }
+      
+      /*
+       * Footnote references and footnote texts.
+       */
+      
+      HR.footnotes {
+        margin-right: 66%;
+        border-top-width: 1px;
+        border-bottom-width: 0px;
+        border-color: #000;
+        background-color: #000;
+        height:0.5pt;
+      }
+      
+      /* Footnote references like '1)'. */
+      SUP {
+        position: relative;
+        top: -0.40em;
+        font-size: 0.83em;
+        vertical-align: baseline;
+      }
+      SUP.fnref A:link,
+      SUP.fnref A:visited {
+          text-decoration: none;
+      }
+      SUP.fnref A:after {
+        content: ")";
+      }
+      
+      /* Footnote texts like '1) Xxxx xx'. */
+      DIV.footnotes OL { 
+        position: relative;
+        padding-left: 2.5em;
+        list-style-type: none;
+        counter-reset: footnr 0;
+      }
+      
+      DIV.footnotes OL LI {
+        counter-increment: footnr;
+      }
+      
+      DIV.footnotes > OL > LI:before  {
+        position: absolute;
+        left: 0em;
+        width: 2.0em;
+        text-align:right;
+        content: counter(footnr) ")";
+      }
+  </style>
+  <link rel="stylesheet"
+        type="text/css"
+        href="default.css">
+  <title>Porting C source code using faux standard headers</title>
+</head>
+<body>
+<h1>Porting C code using faux standard headers</h1>
+
+<p class="centered">Martin Hofmann<br>
+&lt;<a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x6d;&#97;&#114;&#x74;&#x69;&#110;&#x2d;&#x68;&#x6f;&#102;&#109;&#x61;&#x6e;&#x6e;&#x40;&#x67;&#109;&#x78;&#46;&#x6e;&#x65;&#x74;">&#109;&#97;&#x72;&#x74;&#105;&#x6e;&#x2d;&#104;&#111;&#102;&#x6d;&#x61;&#110;&#110;&#x40;&#x67;&#x6d;&#120;&#46;&#x6e;&#x65;&#116;</a>><br>
+2012-01-23</p>
+
+<div class="abstract"><p>A common stumbling block when porting C source software are
+ functions that are missing on the target platform, albeit often
+ common and standardized like C99&rsquo;s <code>round()</code> function or POSIX&rsquo;s
+ <code>strcasecmp()</code>. By the technique presented here, these &ldquo;little&rdquo;
+ functions can be added to the compilation for porting, without
+ the need to change either the source code or the installed
+ compiler and environment.</p></div>
+
+<h2>Motivation  </h2>
+
+<p>Frequently, open source software uses functions and macros which
+are more or less common and standardized, but are not available
+in the target compilation environment &mdash; a notorious case is
+Microsoft Visual C/C++ on Windows (MSVC) with its lack of support
+for POSIX and C99 features and library functions. The usual
+workaround is to use the preprocessor for contraptions like this:</p>
+
+<pre><code>#include &lt;stdarg.h&gt;            /* MSVC: Lacking 'va_copy' of C99. */
+#ifdef _MSC_VER
+#define va_copy(a,b) ((a)=(b)) /* Workaround in MSVC. */
+#endif
+
+#ifdef _MSC_VER
+#include &lt;string.h&gt;
+#define strcasecmp _stricmp    /* Does the job in MSVC. */
+#else
+#include &lt;strings.h&gt;           /* MSVC: Not available (is POSIX). */
+#endif
+
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES      /* Make 'M_PI' visible in MSVC. */
+#endif
+
+#include &lt;math.h&gt;              /* MSVC: Lacking C99 extensions. */
+
+#ifdef _MSC_VER
+#define isnan _isnan           /* Does the job in MSVC. */
+#endif
+
+{
+  /* ... */
+  va_copy(a, b);      /* Maps to assignment hack in MSVC. */
+  strcasecmp(s, t);   /* Maps to _stricmp() in MSVC. */
+  phi = M_PI;         /* Available in MSVC because 
+                       * _USE_MATH_DEFINES was defined before 
+                       * inclusion of &lt;math.h&gt; */
+  if (isnan(phi)) {   /* Maps to _isnan() in MSVC. */
+    /*...*/
+  }
+}
+</code></pre>
+
+<h2>Goals  </h2>
+
+<p>Repeating this kind of ad hoc modifications is tedious, error
+prone and introduces gratitious forks of the original source
+code. A better solution would be to adapt the compilation process
+in a manner that</p>
+
+<ol>
+<li><p>allows to use the original source code without modification,
+and</p></li>
+<li><p>also avoids changes to the installed compiler, its headers and
+libraries.</p></li>
+</ol>
+
+
+<p>Despite the fact that this work originated from grappling with
+MSVC, the following solution is not specific to this environment.</p>
+
+<h2>Implementation  </h2>
+
+<p>The first goal requires that the headers actually included are
+not the pristine headers of the installed compiler. By the second
+goal, the workaround hacks are not to be inserted in those
+installed headers either, but we must direct the preprocessor to
+find the &ldquo;adapted&rdquo; header files elsewhere &mdash; before it finds the
+compiler&rsquo;s own headers<sup class="fnref" id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>.</p>
+
+<p>Let&rsquo;s say we put our modified headers in a special directory
+named<sup class="fnref" id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> <code>posc</code>, containing all the modifications, emulations
+and adaptations we need:</p>
+
+<pre><code>posc/stdio.h  
+posc/strings.h
+</code></pre>
+
+<p>We then put this directory in front of the include search path
+(Windows command shell notation):</p>
+
+<pre><code>set INCLUDE=.\posc;%INCLUDE%
+</code></pre>
+
+<p>Now the modified headers will be found during a compilation, as
+a kind of &ldquo;facade&rdquo; in front of the real system headers. We want
+these faux &ldquo;facade&rdquo; headers not to be complete extended copies of
+the real ones, but only to contain the needed adaptations; they
+thus need in turn to include the real standard headers.</p>
+
+<p>However, we can not reference the real headers of the compiler
+from our &ldquo;facade&rdquo; headers in the usual way:</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+</code></pre>
+
+<p>This would again find the adapted &ldquo;faux&rdquo; header, leading to an
+infinite recursion and in the case of MSVC to the</p>
+
+<pre><code>fatal error C1014: too many include files : depth = 1024
+</code></pre>
+
+<p>A remedy is to specify the standard headers with their full
+pathname. For MSVC, we can use the <code>VCINSTALLDIR</code> environment
+variable and make the path to the compiler&rsquo;s standard headers
+available as a preprocessor macro:</p>
+
+<pre><code>C:\posc&gt; REM Generate macro definition header:
+C:\posc&gt; ECHO "#define POSC_STDDIR %VCINSTALLDIR%\include\" &gt;posc_hdrdir.h  
+C:\posc&gt; MORE posc_hdrdir.h
+#define POSC_STDDIR C:\Program Files\MSVC2003\include\
+</code></pre>
+
+<p>But this fails if all standard headers are not in one and the
+same directory, or they are to be found in the &ldquo;Platform SDK&rdquo;
+etc. A solution that is both more convenient and also more
+flexible and robust is to employ the preprocessor itself to
+find the locations of all the needed standard headers and use
+this to compile a list of macro definitions pointing to them.
+A simple tool written in Standard C (see &ldquo;Usage&rdquo; below) can do
+this. This gives us a generated header file like the following
+<code>posc/posc_hdrdir.h</code>:</p>
+
+<pre><code>#define POSC_STDDIR C:\Program Files\MSVC2003\VC7\INCLUDE
+#define POSC_ASSERT_HDR "C:\Program Files\MSVC2003\VC7\INCLUDE\assert.h"
+#define POSC_CTYPE_HDR "C:\Program Files\MSVC2003\VC7\INCLUDE\ctype.h"
+/* ... more definitions ... */
+#define POSC_TIME_HDR "C:\Program Files\MSVC2003\VC7\INCLUDE\time.h"
+</code></pre>
+
+<p>Together with a fixed main include file <code>pisc/posc.h</code> with the
+following content<sup class="fnref" id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup> &hellip;</p>
+
+<pre><code>#ifndef POSC_H_INCLUDED
+#define POSC_H_INCLUDED
+
+#include "posc_hdrdir.h"
+
+#define POSC_XSTR(s) #s
+#define POSC_STR(s) POSC_XSTR(s)
+#ifdef _WIN32
+# define POSC_XCONC(s1, s2) POSC_STR(s1 ## \\ ## s2)
+#else
+# define POSC_XCONC(s1, s2) POSC_STR(s1 ## / ## s2)
+#endif
+#define POSC_CONC(s1,s2) POSC_XCONC(s1,s2)
+
+#define POSC_HEADER(h) POSC_CONC(POSC_STDDIR, h)
+
+/* ... */
+
+#endif /* POSC_H_INCLUDED */
+</code></pre>
+
+<p>&hellip; we are ready to compose our &ldquo;faux&rdquo; header files: they rely
+on the defined location macros<sup class="fnref" id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup> to include the system&rsquo;s header
+files and add whatever workarounds are needed.</p>
+
+<h2>Examples  </h2>
+
+<p>As an example, we make the <code>va_copy</code> workaround macro from
+the introductory example available to any source program that
+includes <code>&lt;stdarg.h&gt;</code> &mdash; by creating our own <code>posc/stdarg.h</code>
+containing this:</p>
+
+<pre><code>#ifndef POSC_STDARG_H_INCLUDED
+#define POSC_STDARG_H_INCLUDED
+
+#include "posc.h"
+#include POSC_STDARG_HDR    /* The compiler's real &lt;stdarg.h&gt;. */
+
+#ifndef va_copy             /* Safety net. */
+# define va_copy(lhs, rhs) ((lhs) = (rhs))
+#endif
+
+#endif /* POSC_STDARG_H_INCLUDED */
+</code></pre>
+
+<p>The POSIX-defined string utilities are equally simple to provide
+in a selfmade <code>posc/strings.h</code> header<sup class="fnref" id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>:</p>
+
+<pre><code>#ifndef POSC_STRINGS_H_INCLUDED
+#define POSC_STRINGS_H_INCLUDED
+#include "posc.h"
+
+#ifdef _MSC_VER
+/*
+ * Include prototypes for _stricmp and _strnicmp, or we could
+ * write out the prototypes here.
+ */
+# include POSC_STRING_HDR   /* The compiler's real &lt;string.h&gt;. */
+
+# define strcasecmp  _stricmp 
+# define strncasecmp _strnicmp 
+#endif
+
+#endif /* POSC_STRINGS_H_INCLUDED */
+</code></pre>
+
+<p>Further candidates for this technique (with respect to MSVC)
+comprise:</p>
+
+<dl>
+<dt><code>M_PI</code> etc.</dt>
+<dd>  (POSIX &lt;math.h>): Available in MSVC when <code>_USE_MATH_DEFINES</code>
+  is defined.</dd>
+<dt><code>isnan()</code> etc.</dt>
+<dd>  (C99 &lt;float.h>): MSVC has some equivalents of these in the
+  form <code>_isnan()</code> etc.</dd>
+<dt><code>round()</code> etc.</dt>
+<dd>  (C99 &lt;math.h>): Must be implemented as a separate function.</dd>
+<dt><code>vsnprintf()</code> etc.</dt>
+<dd>  (C99 &lt;stdio.h>): Can be built using MSVC&rsquo;s <code>_vsnprintf()</code> and
+  <code>_vscprintf()</code> functions.</dd>
+<dt><code>getopt()</code> etc.</dt>
+<dd>  (POSIX &lt;unistd.h>): Must be implemented as a separate
+  function.</dd>
+</dl>
+
+<h2>Usage  </h2>
+
+<p>Though POSC is really rather a technique than a library, a
+distribution package is available containing:</p>
+
+<ul>
+<li>A tool <code>findhdrdir.c</code> to find the locations of the 18
+Standard<sup class="fnref" id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup> C headers and then generate the <code>posc_hdrdir.h</code>
+file accordingly.</li>
+<li>The <code>posc.h</code> main header file.</li>
+<li>Facade header files for various C99 and POSIX functions added
+to MSVC as well as <code>stdbool.h</code> etc.</li>
+<li>An implementation of <code>snprintf()</code> and <code>vsnprintf()</code> for MSVC.</li>
+<li>An implementation using the <a href="http://freegetopt.sourceforge.net" title="Free getopt at SourceForge">free getopt</a> implementation
+(under a BSD-style licence) of the <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/getopt.html" title="IEEE Std. 1003.1 2004 - getopt"><code>getopt()</code></a> function.</li>
+<li>A <code>nmake</code> Makefile to bring all this to work.</li>
+</ul>
+
+
+<p>Setting up for use is simple:</p>
+
+<ol>
+<li><p>Unpack the archive into a directory eg. named <code>posc</code>.</p></li>
+<li><p>Open a command shell with the environment set up for the
+compiler.</p></li>
+<li><p>In the directory <code>posc</code>, run <code>nmake</code>. (This generates
+<code>posc_hdrdir.h</code> and the library <code>posc.lib</code>.)</p></li>
+</ol>
+
+
+<p>To actually compile you source code with POSC,</p>
+
+<ul>
+<li>prepend the <code>posc</code> directory to the preprocessor include
+path and</li>
+<li>add the <code>posc</code> directory to the library search path.</li>
+</ul>
+
+
+<p>For example, using the command line compiler <code>cl</code>, this can
+be specified as:</p>
+
+<pre><code>cl /I.\posc source.c  /link /LIBPATH:.\posc 
+</code></pre>
+
+<p>The POSC headers add <code>posc.lib</code> as a default library if needed<sup class="fnref" id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup>
+so you don&rsquo;t need to indicate the library explicitly.</p>
+
+<h2>Links  </h2>
+
+<p>Here are some hopefully useful links that came up when preparing this
+text:</p>
+
+<p><strong>MSVC-specific</strong></p>
+
+<ul>
+<li>Microsoft has <a href="http://connect.microsoft.com/VisualStudio/feedback/details/485416/support-c99" title="Microsoft - C99 (non-)support in VS 2010">no plans to implement C99 support in Visual C++
+2010</a>.</li>
+<li>The <a href="http://blogs.msdn.com/b/vcblog/" title="VC Blog at MSDN">Visual C++ team blog</a> at <a href="http://blogs.msdn.com" title="MSDN blogs">MSDN blogs</a>.</li>
+<li>The VC++ team blog on <a href="http://blogs.msdn.com/b/vcblog/archive/2007/11/05/iso-c-standard-update.aspx" title="VC Blog: ISO C">ISO C99 support</a>.</li>
+<li>The VC++ team blog on <a href="http://blogs.msdn.com/b/vcblog/archive/2008/02/22/tr1-slide-decks.aspx" title="VC Blog: C++ TR1">ISO C++ TR1 support</a>.</li>
+<li><a href="http://stackoverflow.com" title="Stack Overflow Community">Stack Overflow</a> discussion about <a href="http://stackoverflow.com/questions/2915672/snprintf-and-visual-studio-2010" title="Stack Overflow - MSVC and snprintf">C99 <code>snprintf()</code> and
+MSVC</a>.</li>
+<li><a href="http://stackoverflow.com" title="Stack Overflow Community">Stack Overflow</a> discussion about <a href="http://stackoverflow.com/questions/126279/c99-stdint-h-header-and-ms-visual-studio" title="Stack Overflow: &lt;stdint.h&gt; in MSVC">C99 <code>&lt;stdint.h&gt;</code> and
+MSVC</a>.</li>
+<li><a href="http://stackoverflow.com" title="Stack Overflow Community">Stack Overflow</a> discussion about <a href="http://stackoverflow.com/questions/933985/where-can-i-find-an-implementation-of-c99s-math-for-visual-studio" title="Stack Overflow: C99 &lt;math.h&gt; for MSVC">C99 <code>&lt;math.h&gt;</code> and
+MSVC</a>.</li>
+<li><a href="http://stackoverflow.com" title="Stack Overflow Community">Stack Overflow</a> discussion about <a href="http://stackoverflow.com/questions/1156267/where-is-inttypes-h-in-visual-studio-2005" title="Stack Overflow: &lt;inttypes.h&gt; for MSVC">C99 <code>&lt;inttypes.h&gt;</code> and
+MSVC</a>.</li>
+<li>A <a href="http://msinttypes.googlecode.com/svn/trunk/stdint.h" title="A &lt;stdint.h&gt; for MSVC"><code>&lt;stdint.h&gt;</code> for MSVC</a> at Google Code.</li>
+<li>Discussion at <a href="http://www.eggheadcafe.com" title="EggHeadCafe Community">EggHeadCafe</a> on <a href="http://www.eggheadcafe.com/microsoft/VC-Language/36215207/deprecated-posix-functions-.aspx" title="EggHeadCafe - MSVC and 'deprecated' POSIX functions">deprecated POSIX functions
+in MSVC</a>.</li>
+</ul>
+
+
+<p><strong>General</strong></p>
+
+<ul>
+<li>The <a href="http://freegetopt.sourceforge.net" title="Free getopt at SourceForge">free getopt</a> implementation of the <code>getopt()</code>
+function.</li>
+<li>The <a href="http://www.bookofhook.com/poshlib/index.html" title="poshlib"><em>Portable Open Source Harness</em></a> <code>poshlib</code>.</li>
+<li><a href="http://suacommunity.com/dictionary/tips.php" title="Porting Tips">Porting Tips</a> in the <a href="http://suacommunity.com/dictionary/" title="Unix to Windows Porting Dictionary">Unix to Windows Porting
+Dictionary</a> at <a href="http://suacommunity.com" title="Interop Community: Where Windows &amp; Unix can get along">Interop Community</a>.</li>
+<li>Mozilla <a href="https://developer.mozilla.org/en/C++_Portability_Guide" title="Mozilla - C++ Portability Guide">C++ Portability Guide</a>.</li>
+<li>A stand-alone <a href="http://www.jhweiss.de/software/snprintf.html" title="J. H. Weiﬂ - snprintf implementation">implementation of <code>snprintf()</code></a> by Holger
+Weiﬂ.</li>
+<li>There is an (even IT-related!) organization by the name <a href="http://en.wikipedia.org/wiki/POSC_Caesar" title="The POSC Caesar Association">&ldquo;POSC
+Caesar&rdquo;</a>.</li>
+</ul>
+
+<div class="footnotes">
+<hr class="footnotes">
+<ol>
+<li id="fn:1">
+<p>Strictly speaking, we enter the realm of <em>undefined behaviour</em> here &hellip;<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>The name &ldquo;POSC&rdquo; was chosen because this string (1)†seems to be not used by another library; (2)†can be construed as an acronym of &ldquo;<strong>P</strong>orting <strong>o</strong>f <strong>S</strong>tandard <strong>C</strong> Code&rdquo;, or &ldquo;<strong>P</strong>orting <strong>O</strong>pen <strong>S</strong>ource <strong>C</strong> Code&rdquo; or &ldquo;<strong>Po</strong>rting <strong>Sc</strong>affold&rdquo; or &hellip;; (3)†could suggest a vicinity to the <em>Portable Open Source Harness</em> <code>poshlib</code>.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p>You are not expected to understand this macro tinkering ;-)<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+<li id="fn:4">
+<p>The ability to use macros in <code>#include</code> directives is a seldom-used feature in C &mdash; and on this occasion a very useful one!<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
+<li id="fn:5">
+<p>As <code>strings.h</code> is an <em>addition</em> to the existing headers, our technique is not really needed in this case &mdash; but the header certainly belongs into this same toolkit.<a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
+<li id="fn:6">
+<p>By &ldquo;Standard C&rdquo; we mean C90 here (ISO 9899-1990).<a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
+<li id="fn:7">
+<p>Using the MSVC <code>#pragma comment( lib, "posc.lib" )</code>.<a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+<hr><p class="centered">
+<a href="http://validator.w3.org/check?uri=referer"><img src="http://validator.w3.org/images/v15445" alt="Valid ISO/IEC 15445:2000"></a></p>
+</body>
+</html>

@@ -1,0 +1,366 @@
+% Porting C source code using faux standard headers
+% Martin Hofmann
+% 2012-01-23        
+
+Porting C code using faux standard headers
+==========================================
+->Martin Hofmann  
+<<martin-hofmann@gmx.net>>  
+2012-01-23<-
+
+
+>%abstract%
+>A common stumbling block when porting C source software are
+ functions that are missing on the target platform, albeit often
+ common and standardized like C99's `round()` function or POSIX's
+ `strcasecmp()`. By the technique presented here, these "little"
+ functions can be added to the compilation for porting, without
+ the need to change either the source code or the installed
+ compiler and environment.
+
+ 
+Motivation  
+----------
+
+Frequently, open source software uses functions and macros which
+are more or less common and standardized, but are not available
+in the target compilation environment --- a notorious case is
+Microsoft Visual C/C++ on Windows (MSVC) with its lack of support
+for POSIX and C99 features and library functions. The usual
+workaround is to use the preprocessor for contraptions like this:
+
+~~~
+#include <stdarg.h>            /* MSVC: Lacking 'va_copy' of C99. */
+#ifdef _MSC_VER
+#define va_copy(a,b) ((a)=(b)) /* Workaround in MSVC. */
+#endif
+
+#ifdef _MSC_VER
+#include <string.h>
+#define strcasecmp _stricmp    /* Does the job in MSVC. */
+#else
+#include <strings.h>           /* MSVC: Not available (is POSIX). */
+#endif
+
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES      /* Make 'M_PI' visible in MSVC. */
+#endif
+
+#include <math.h>              /* MSVC: Lacking C99 extensions. */
+
+#ifdef _MSC_VER
+#define isnan _isnan           /* Does the job in MSVC. */
+#endif
+
+{
+  /* ... */
+  va_copy(a, b);      /* Maps to assignment hack in MSVC. */
+  strcasecmp(s, t);   /* Maps to _stricmp() in MSVC. */
+  phi = M_PI;         /* Available in MSVC because 
+                       * _USE_MATH_DEFINES was defined before 
+                       * inclusion of <math.h> */
+  if (isnan(phi)) {   /* Maps to _isnan() in MSVC. */
+    /*...*/
+  }
+}
+~~~
+
+
+Goals  
+-----
+
+Repeating this kind of ad hoc modifications is tedious, error
+prone and introduces gratitious forks of the original source
+code. A better solution would be to adapt the compilation process
+in a manner that
+
+1. allows to use the original source code without modification,
+   and
+
+2. also avoids changes to the installed compiler, its headers and
+   libraries.
+
+Despite the fact that this work originated from grappling with
+MSVC, the following solution is not specific to this environment.
+
+
+Implementation  
+--------------
+
+The first goal requires that the headers actually included are
+not the pristine headers of the installed compiler. By the second
+goal, the workaround hacks are not to be inserted in those
+installed headers either, but we must direct the preprocessor to
+find the "adapted" header files elsewhere --- before it finds the
+compiler's own headers[^1].
+
+Let's say we put our modified headers in a special directory
+named[^2] `posc`, containing all the modifications, emulations
+and adaptations we need:
+
+    posc/stdio.h  
+    posc/strings.h
+
+We then put this directory in front of the include search path
+(Windows command shell notation):
+
+    set INCLUDE=.\posc;%INCLUDE%
+
+Now the modified headers will be found during a compilation, as
+a kind of "facade" in front of the real system headers. We want
+these faux "facade" headers not to be complete extended copies of
+the real ones, but only to contain the needed adaptations; they
+thus need in turn to include the real standard headers.
+
+However, we can not reference the real headers of the compiler
+from our "facade" headers in the usual way:
+
+    #include <stdio.h>
+
+This would again find the adapted "faux" header, leading to an
+infinite recursion and in the case of MSVC to the
+
+    fatal error C1014: too many include files : depth = 1024
+
+A remedy is to specify the standard headers with their full
+pathname. For MSVC, we can use the `VCINSTALLDIR` environment
+variable and make the path to the compiler's standard headers
+available as a preprocessor macro:
+
+~~~
+C:\posc> REM Generate macro definition header:
+C:\posc> ECHO "#define POSC_STDDIR %VCINSTALLDIR%\include\" >posc_hdrdir.h  
+C:\posc> MORE posc_hdrdir.h
+#define POSC_STDDIR C:\Program Files\MSVC2003\include\
+~~~
+
+But this fails if all standard headers are not in one and the
+same directory, or they are to be found in the "Platform SDK"
+etc. A solution that is both more convenient and also more
+flexible and robust is to employ the preprocessor itself to
+find the locations of all the needed standard headers and use
+this to compile a list of macro definitions pointing to them.
+A simple tool written in Standard C (see "Usage" below) can do
+this. This gives us a generated header file like the following
+`posc/posc_hdrdir.h`:
+
+~~~
+#define POSC_STDDIR C:\Program Files\MSVC2003\VC7\INCLUDE
+#define POSC_ASSERT_HDR "C:\Program Files\MSVC2003\VC7\INCLUDE\assert.h"
+#define POSC_CTYPE_HDR "C:\Program Files\MSVC2003\VC7\INCLUDE\ctype.h"
+/* ... more definitions ... */
+#define POSC_TIME_HDR "C:\Program Files\MSVC2003\VC7\INCLUDE\time.h"
+~~~
+
+Together with a fixed main include file `pisc/posc.h` with the
+following content[^5] ...
+
+~~~
+#ifndef POSC_H_INCLUDED
+#define POSC_H_INCLUDED
+
+#include "posc_hdrdir.h"
+
+#define POSC_XSTR(s) #s
+#define POSC_STR(s) POSC_XSTR(s)
+#ifdef _WIN32
+# define POSC_XCONC(s1, s2) POSC_STR(s1 ## \\ ## s2)
+#else
+# define POSC_XCONC(s1, s2) POSC_STR(s1 ## / ## s2)
+#endif
+#define POSC_CONC(s1,s2) POSC_XCONC(s1,s2)
+
+#define POSC_HEADER(h) POSC_CONC(POSC_STDDIR, h)
+
+/* ... */
+
+#endif /* POSC_H_INCLUDED */
+~~~
+
+... we are ready to compose our "faux" header files: they rely
+on the defined location macros[^3] to include the system's header
+files and add whatever workarounds are needed.
+
+
+Examples  
+--------
+
+As an example, we make the `va_copy` workaround macro from
+the introductory example available to any source program that
+includes `<stdarg.h>` --- by creating our own `posc/stdarg.h`
+containing this:
+
+~~~
+#ifndef POSC_STDARG_H_INCLUDED
+#define POSC_STDARG_H_INCLUDED
+
+#include "posc.h"
+#include POSC_STDARG_HDR    /* The compiler's real <stdarg.h>. */
+
+#ifndef va_copy             /* Safety net. */
+# define va_copy(lhs, rhs) ((lhs) = (rhs))
+#endif
+
+#endif /* POSC_STDARG_H_INCLUDED */
+~~~
+
+The POSIX-defined string utilities are equally simple to provide
+in a selfmade `posc/strings.h` header[^4]:
+
+~~~
+#ifndef POSC_STRINGS_H_INCLUDED
+#define POSC_STRINGS_H_INCLUDED
+#include "posc.h"
+
+#ifdef _MSC_VER
+/*
+ * Include prototypes for _stricmp and _strnicmp, or we could
+ * write out the prototypes here.
+ */
+# include POSC_STRING_HDR   /* The compiler's real <string.h>. */
+
+# define strcasecmp  _stricmp 
+# define strncasecmp _strnicmp 
+#endif
+
+#endif /* POSC_STRINGS_H_INCLUDED */
+~~~
+
+Further candidates for this technique (with respect to MSVC)
+comprise:
+
+`M_PI` etc.
+:   (POSIX <math.h>): Available in MSVC when `_USE_MATH_DEFINES`
+    is defined.
+
+`isnan()` etc.
+:   (C99 <float.h>): MSVC has some equivalents of these in the
+    form `_isnan()` etc.
+
+`round()` etc.
+:   (C99 <math.h>): Must be implemented as a separate function.
+
+`vsnprintf()` etc.
+:   (C99 <stdio.h>): Can be built using MSVC's `_vsnprintf()` and
+    `_vscprintf()` functions.
+
+`getopt()` etc.
+:   (POSIX <unistd.h>): Must be implemented as a separate
+    function.
+
+
+Usage  
+-----
+
+Though POSC is really rather a technique than a library, a
+distribution package is available containing:
+
+- A tool `findhdrdir.c` to find the locations of the 18
+  Standard[^6] C headers and then generate the `posc_hdrdir.h`
+  file accordingly.
+- The `posc.h` main header file.
+- Facade header files for various C99 and POSIX functions added
+  to MSVC as well as `stdbool.h` etc.
+- An implementation of `snprintf()` and `vsnprintf()` for MSVC.
+- An implementation using the [free getopt][16] implementation
+  (under a BSD-style licence) of the [`getopt()`][17] function.
+- A `nmake` Makefile to bring all this to work.
+
+Setting up for use is simple:
+
+1. Unpack the archive into a directory eg. named `posc`.
+
+2. Open a command shell with the environment set up for the
+   compiler.
+
+3. In the directory `posc`, run `nmake`. (This generates
+   `posc_hdrdir.h` and the library `posc.lib`.)
+
+To actually compile you source code with POSC,
+
+- prepend the `posc` directory to the preprocessor include
+  path and
+- add the `posc` directory to the library search path.
+   
+For example, using the command line compiler `cl`, this can
+be specified as:
+
+~~~
+cl /I.\posc source.c  /link /LIBPATH:.\posc 
+~~~
+
+The POSC headers add `posc.lib` as a default library if needed[^7]
+so you don't need to indicate the library explicitly.
+
+
+Links  
+-----
+
+Here are some hopefully useful links that came up when preparing this
+text:
+
+**MSVC-specific**
+
+- Microsoft has [no plans to implement C99 support in Visual C++
+  2010][15].
+- The [Visual C++ team blog][04] at [MSDN blogs][90].
+- The VC++ team blog on [ISO C99 support][02].
+- The VC++ team blog on [ISO C++ TR1 support][03].
+- [Stack Overflow][91] discussion about [C99 `snprintf()` and
+  MSVC][13].
+- [Stack Overflow][91] discussion about [C99 `<stdint.h>` and
+  MSVC][05].
+- [Stack Overflow][91] discussion about [C99 `<math.h>` and
+  MSVC][07].
+- [Stack Overflow][91] discussion about [C99 `<inttypes.h>` and
+  MSVC][08].
+- A [`<stdint.h>` for MSVC][06] at Google Code.
+- Discussion at [EggHeadCafe][92] on [deprecated POSIX functions
+  in MSVC][09].
+
+**General**
+
+- The [free getopt][16] implementation of the `getopt()`
+  function.
+- The [*Portable Open Source Harness*][01] `poshlib`.
+- [Porting Tips][10] in the [Unix to Windows Porting
+  Dictionary][12] at [Interop Community][93].
+- Mozilla [C++ Portability Guide][11].
+- A stand-alone [implementation of `snprintf()`][14] by Holger
+  Weiﬂ.
+- There is an (even IT-related!) organization by the name ["POSC
+  Caesar"][98].
+
+
+[^1]: Strictly speaking, we enter the realm of *undefined behaviour* here ...
+[^2]: The name "POSC" was chosen because this string (1)†seems to be not used by another library; (2)†can be construed as an acronym of "**P**orting **o**f **S**tandard **C** Code", or "**P**orting **O**pen **S**ource **C** Code" or "**Po**rting **Sc**affold" or ...; (3)†could suggest a vicinity to the *Portable Open Source Harness* `poshlib`.
+[^3]: The ability to use macros in `#include` directives is a seldom-used feature in C --- and on this occasion a very useful one!
+[^4]: As `strings.h` is an *addition* to the existing headers, our technique is not really needed in this case --- but the header certainly belongs into this same toolkit.
+[^5]: You are not expected to understand this macro tinkering ;-)
+[^6]: By "Standard C" we mean C90 here (ISO 9899-1990).
+[^7]: Using the MSVC `#pragma comment( lib, "posc.lib" )`.
+[01]:http://www.bookofhook.com/poshlib/index.html (poshlib)
+[02]:http://blogs.msdn.com/b/vcblog/archive/2007/11/05/iso-c-standard-update.aspx (VC Blog: ISO C)
+[03]:http://blogs.msdn.com/b/vcblog/archive/2008/02/22/tr1-slide-decks.aspx (VC Blog: C++ TR1)
+[04]:http://blogs.msdn.com/b/vcblog/ (VC Blog at MSDN)
+[05]:http://stackoverflow.com/questions/126279/c99-stdint-h-header-and-ms-visual-studio (Stack Overflow: <stdint.h> in MSVC)
+[06]:http://msinttypes.googlecode.com/svn/trunk/stdint.h (A <stdint.h> for MSVC)
+[07]:http://stackoverflow.com/questions/933985/where-can-i-find-an-implementation-of-c99s-math-for-visual-studio (Stack Overflow: C99 <math.h> for MSVC)
+[08]:http://stackoverflow.com/questions/1156267/where-is-inttypes-h-in-visual-studio-2005 (Stack Overflow: <inttypes.h> for MSVC)
+[09]:http://www.eggheadcafe.com/microsoft/VC-Language/36215207/deprecated-posix-functions-.aspx (EggHeadCafe - MSVC and 'deprecated' POSIX functions)
+[10]:http://suacommunity.com/dictionary/tips.php (Porting Tips)
+[11]:https://developer.mozilla.org/en/C++_Portability_Guide (Mozilla - C++ Portability Guide)
+[12]:http://suacommunity.com/dictionary/ (Unix to Windows Porting Dictionary)
+[13]:http://stackoverflow.com/questions/2915672/snprintf-and-visual-studio-2010 (Stack Overflow - MSVC and snprintf)
+[14]:http://www.jhweiss.de/software/snprintf.html (J. H. Weiﬂ - snprintf implementation)
+[15]:http://connect.microsoft.com/VisualStudio/feedback/details/485416/support-c99 "Microsoft - C99 (non-)support in VS 2010"
+[16]:http://freegetopt.sourceforge.net (Free getopt at SourceForge)
+[17]:http://pubs.opengroup.org/onlinepubs/009695399/functions/getopt.html (IEEE Std. 1003.1 2004 - getopt)
+[90]:http://blogs.msdn.com (MSDN blogs)
+[91]:http://stackoverflow.com (Stack Overflow Community)
+[92]:http://www.eggheadcafe.com (EggHeadCafe Community)
+[93]:http://suacommunity.com (Interop Community: Where Windows & Unix can get along)
+[98]:http://en.wikipedia.org/wiki/POSC_Caesar (The POSC Caesar Association)
+[99]:http://example.com (Dummy line preventing line reformatting)                            
+
+

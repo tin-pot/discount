@@ -54,19 +54,23 @@ static struct _opt {
     { "1.0",           "markdown 1.0 compatibility", 0, 0, 1, MKD_1_COMPAT },
     { "footnotes",     "markdown extra footnotes",   0, 0, 1, MKD_EXTRA_FOOTNOTE },
     { "footnote",      "markdown extra footnotes",   0, 1, 1, MKD_EXTRA_FOOTNOTE },
+    { "style",         "extract style blocks",       1, 0, 1, MKD_NOSTYLE },
+    { "wiki",          "wiki links (from baseurl)",  0, 0, 1, MKD_WIKI },
 } ;
 
 #define NR(x)	(sizeof x / sizeof x[0])
 
 
+typedef int (*stfu)(const void *, const void *);
+
 int
-sort_by_name(const struct _opt *a, const struct _opt *b)
+sort_by_name(struct _opt *a, struct _opt *b)
 {
     return strcmp(a->name,b->name);
 }
 
 int
-sort_by_flag(const struct _opt *a, const struct _opt *b)
+sort_by_flag(struct _opt *a, struct _opt *b)
 {
     return a->flag - b->flag;
 }
@@ -78,14 +82,14 @@ show_flags(int byname)
     int i;
 
     if ( byname ) {
-	qsort(opts, NR(opts), sizeof(opts[0]), sort_by_name);
+	qsort(opts, NR(opts), sizeof(opts[0]), (stfu)sort_by_name);
     
 	for (i=0; i < NR(opts); i++)
 	    if ( ! opts[i].skip )
 		fprintf(stderr, "%16s : %s\n", opts[i].name, opts[i].desc);
     }
     else {
-	qsort(opts, NR(opts), sizeof(opts[0]), sort_by_flag);
+	qsort(opts, NR(opts), sizeof(opts[0]), (stfu)sort_by_flag);
 	
 	for (i=0; i < NR(opts); i++)
 	    if ( ! opts[i].skip ) {

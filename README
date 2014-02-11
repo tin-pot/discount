@@ -1,89 +1,16 @@
-Markdown tool "discount" on Windows
-===================================
+DISCOUNT is a implementation of John Gruber's Markdown markup
+language.   It implements, as far as I can tell, all of the
+language as described in
+<http://daringfireball.net/projects/markdown/syntax>
+and passes the Markdown test suite at
+<http://daringfireball.net/projects/downloads/MarkdownTest_1.0.zip>
 
-This repository is a clone of
-[David Parsons' implementation][orc] in C of
-[John Gruber's Markdown markup language][gruber], with added
-support to build the package with Visual Studio on Windows.
+DISCOUNT is free software written by David Parsons <orc@pell.chi.il.us>;
+it is released under a BSD-style license that allows you to do
+as you wish with it as long as you don't attempt to claim it as
+your own work.
 
-Modifications
--------------
+Most of the programs included in the DISCOUNT distribution have
+manual pages describing how they work.
 
-- Added pre-configured headers and sources, so that no
-  `configure.sh` run is needed.
-
-- Added project files for all executables and libraries.
-
-- Added a project `getopt`(with sources, of course)
-  containing a [MSVC adaptation][wingetopt] of [GNU
-  getopt][getopt]. **NOTE** You _must_ link to GNU getopt as
-  a separate DLL, otherwise you would violate the license.
-
-- Added a project `freegetopt` containing a free BSD-
-  licensed [implementation][freegetopt] of getopt. This may
-  be linked statically and is thus used by default.
-
-
-Building/Installing
--------------------
-
-This should build "out of the box": Open the Visual Studio
-"solution file" in the directory `VS2003`, and build. (The
-project files are for VS .NET 2003, but will get upgraded
-automatically when imported into a newer version of Visual
-Studio.)
-
-To install, copy the binaries (in the `Win32/Release`
-directories) into a directory which is in your `PATH`. Don't
-forget to put `getopt.dll` beneath them.
-
-Licenses
---------
-
-**discount** has a BSD-like license:
-
-> DISCOUNT is free software written by David Parsons
-> <orc@pell.chi.il.us>; it is released under a BSD-style
-> license that allows you to do as you wish with it as
-> long as you don't attempt to claim it as your own work.
-
-See the `COPYRIGHT` file for details.
-
-**GNU getopt** is licensed under the
-[GNU Lesser General Public License][lgpl].
-
-
-**Free Getopt** has a BSD-like license:
-
-> Free Getopt
-> Copyright (c)2002-2003 Mark K. Kim
-> All rights reserved.
-> 
-> Redistribution and use in source and binary forms, with or without
-> modification, are permitted provided that the following conditions
-> are met:
-> 
->   * Redistributions of source code must retain the above copyright
->     notice, this list of conditions and the following disclaimer.
-> 
->   * Redistributions in binary form must reproduce the above copyright
->     notice, this list of conditions and the following disclaimer in
->     the documentation and/or other materials provided with the
->     distribution.
-> 
->   * Neither the original author of this software nor the names of its
->     contributors may be used to endorse or promote products derived
->     from this software without specific prior written permission.
-
-See the `LICENSE` file for details.
-
-* * *
-<tin-pot@gmx.net> 2012-01-01
-
-[lgpl]:       http://www.gnu.org/licenses/lgpl-2.1.html         (License text)
-[gruber]:     http://daringfireball.net/projects/markdown/      (John Gruber's "Markdown" page)
-[tinpot]:     https://github.com/tin-pot/discount               (github repository "tin-pot/discount")
-[orc]:        https://github.com/Orc/discount                   (github repository "Orc/discount")
-[freegetopt]: http://sourceforge.net/projects/freegetopt/       (Sourceforge project)          
-[getopt]:     http://www.gnu.org/software/libc/manual/html_node/Getopt.html (getopt manual)          
-[wingetopt]:  http://www.codeproject.com/KB/cpp/getopt4win.aspx (CodeProject page)          
+The file INSTALL describes how to build and install discount
