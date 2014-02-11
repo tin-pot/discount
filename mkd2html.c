@@ -81,8 +81,8 @@ char **argv;
         "ISO/IEC 15445:2000//DTD HTML//EN"
     };
     const char *const docdtd[] = {
-        " http://www.w3.org/TR/html4/loose.dtd",
-        " http://www.w3.org/TR/html4/strict.dtd",
+        " \"http://www.w3.org/TR/html4/loose.dtd\"",
+        " \"http://www.w3.org/TR/html4/strict.dtd\"",
         ""
     };
 
