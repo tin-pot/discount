@@ -5,7 +5,7 @@
 #include POSC_HEADER(string.h)
 
 /*
- * This is only here because `dixount 2.1.2` happily uses
+ * This is only here because `disount` happily uses
  * strcasecmp() without including <strings.h>. So we 
  * let it come in along with the <string.h> content.
  */

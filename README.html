@@ -1,86 +1,50 @@
 <!doctype html public "-//W3C//DTD HTML 4.0 Transitional //EN">
 <html>
 <head>
-  <meta name="GENERATOR" content="mkd2html 2.1.2 TAB=8 DL=DISCOUNT">
+  <meta name="GENERATOR" content="mkd2html 2.1.6/Win32 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
   <meta http-equiv="Content-Type"
         content="text/html; charset-us-ascii"></head>
 <body>
 <h1>Markdown tool &ldquo;discount&rdquo; on Windows</h1>
 
-<p>This repository is a clone of
-<a href="https://github.com/Orc/discount" title="github repository &quot;Orc/discount&quot;">David Parsons' implementation</a> in C of
-<a href="http://daringfireball.net/projects/markdown/" title="John Gruber's &quot;Markdown&quot; page">John Gruber's Markdown markup language</a>, with added
-support to build the package with Visual Studio on Windows.</p>
+<p>This repository is a clone of <a href="http://www.pell.portland.or.us/~orc/Code/discount/">David Parson&rsquo;s implementation</a> in C
+of <a href="http://daringfireball.net/projects/markdown/">John Gruber&rsquo;s Markdown markup language</a>, with added support to
+build the package with Visual Studio on Windows.</p>
 
 <h2>Modifications</h2>
 
 <ul>
-<li><p>Added pre-configured headers and sources, so that no
-<code>configure.sh</code> run is needed.</p></li>
+<li><p>Added pre-configured headers and sources, so that no <code>configure.sh</code>
+run is needed.</p></li>
 <li><p>Added project files for all executables and libraries.</p></li>
-<li><p>Added a project <code>getopt</code>(with sources, of course)
-containing a <a href="http://www.codeproject.com/KB/cpp/getopt4win.aspx" title="CodeProject page">MSVC adaptation</a> of <a href="http://www.gnu.org/software/libc/manual/html_node/Getopt.html" title="getopt manual">GNU
-getopt</a>. <strong>NOTE</strong> You <em>must</em> link to GNU getopt as
-a separate DLL, otherwise you would violate the license.</p></li>
-<li><p>Added a project <code>freegetopt</code> containing a free BSD-
-licensed <a href="http://sourceforge.net/projects/freegetopt/" title="Sourceforge project">implementation</a> of getopt. This may
-be linked statically and is thus used by default.</p></li>
+<li><p>Added the <a href="http://freegetopt.sourceforge.net/"><code>freegetopt</code></a> implementation of UNIX&rsquo;s <code>getopt()</code>
+function.</p></li>
 </ul>
 
 
 <h2>Building/Installing</h2>
 
-<p>This should build &ldquo;out of the box&rdquo;: Open the Visual Studio
-&ldquo;solution file&rdquo; in the directory <code>VS2003</code>, and build. (The
-project files are for VS .NET 2003, but will get upgraded
-automatically when imported into a newer version of Visual
-Studio.)</p>
+<p>The package should build out of the box with Visual Studio 2003.NET
+or newer (later versions of Visual Studio will import and convert the
+project files).</p>
 
-<p>To install, copy the binaries (in the <code>Win32/Release</code>
-directories) into a directory which is in your <code>PATH</code>. Don&rsquo;t
-forget to put <code>getopt.dll</code> beneath them.</p>
+<p>The generated executable are statically linked: they only depend on
+<code>kernel32.dll</code>. Place them wherever you like on your <code>PATH</code>.</p>
 
-<h2>Licenses</h2>
+<h2>About the Port</h2>
 
-<p><strong>discount</strong> has a BSD-like license:</p>
+<p>Porting to Windows was done with a fairly general technique, which
+presents to the compiler a &ldquo;faked&rdquo; environment of header files on
+top of the &ldquo;real&rdquo; header files of MSVC. All this is contained in the
+<code>MSVC/posc</code> directory. See the <code>MSVC/posc/README.html</code> file there for
+explanations.</p>
 
-<blockquote><p>DISCOUNT is free software written by David Parsons
-<a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#111;&#x3a;&#x6f;&#x72;&#x63;&#64;&#x70;&#x65;&#108;&#x6c;&#x2e;&#x63;&#x68;&#105;&#46;&#105;&#x6c;&#x2e;&#117;&#x73;">&#x6f;&#114;&#99;&#x40;&#x70;&#101;&#x6c;&#x6c;&#46;&#99;&#x68;&#x69;&#46;&#x69;&#108;&#x2e;&#117;&#x73;</a>; it is released under a BSD-style
-license that allows you to do as you wish with it as
-long as you don&rsquo;t attempt to claim it as your own work.</p></blockquote>
+<p>All <code>discount</code> source files in the project root directory are
+unmodified. Their need for functions like <code>strncasecmp()</code> (UNIX), or
+<code>vsnprintf()</code> (C99), or <code>getopt()</code> gets satisfied completely out of
+files in <code>posc</code>.</p>
 
-<p>See the <code>COPYRIGHT</code> file for details.</p>
-
-<p><strong>GNU getopt</strong> is licensed under the
-<a href="http://www.gnu.org/licenses/lgpl-2.1.html" title="License text">GNU Lesser General Public License</a>.</p>
-
-<p><strong>Free Getopt</strong> has a BSD-like license:</p>
-
-<blockquote><p>Free Getopt
-Copyright &copy;2002-2003 Mark K. Kim
-All rights reserved.</p>
-
-<p>Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:</p>
-
-<ul>
-<li><p>Redistributions of source code must retain the above copyright
-notice, this list of conditions and the following disclaimer.</p></li>
-<li><p>Redistributions in binary form must reproduce the above copyright
-notice, this list of conditions and the following disclaimer in
-the documentation and/or other materials provided with the
-distribution.</p></li>
-<li><p>Neither the original author of this software nor the names of its
-contributors may be used to endorse or promote products derived
-from this software without specific prior written permission.</p></li>
-</ul>
-</blockquote>
-
-<p>See the <code>LICENSE</code> file for details.</p>
-
-<hr />
-
-<p><a href="&#x6d;&#97;&#x69;&#108;&#116;&#x6f;&#x3a;&#116;&#x69;&#x6e;&#x2d;&#112;&#x6f;&#x74;&#64;&#103;&#x6d;&#120;&#x2e;&#110;&#x65;&#116;">&#116;&#105;&#x6e;&#45;&#x70;&#111;&#116;&#x40;&#103;&#109;&#120;&#x2e;&#110;&#x65;&#x74;</a> 2012-01-01</p>
+<p>The included <code>getopt()</code> implementation is <a href="http://freegetopt.sourceforge.net/">freegetopt</a>, its license
+is in the file <code>LICENSE-freegetopt</code>.</p>
 </body>
 </html>
