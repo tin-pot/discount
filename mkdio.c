@@ -175,6 +175,30 @@ mkd_string(const char *buf, int len, DWORD flags)
 }
 
 
+static void
+encode(char *doc, int szdoc, FILE *output)
+{
+    char *end = doc + szdoc;
+    char ch;
+    
+    while (doc < end) switch (ch = *doc++) {
+        case '\xA0': fputs("&nbsp;", output); break;
+        case '\xE4': fputs("&auml;", output); break;
+        case '\xF6': fputs("&ouml;", output); break;
+        case '\xFC': fputs("&uuml;", output); break;
+        case '\xC4': fputs("&Auml;", output); break;
+        case '\xD6': fputs("&Ouml;", output); break;
+        case '\xDC': fputs("&Uuml;", output); break;
+        case '\xDF': fputs("&szlig;", output); break;
+        default :
+            if (1 <= ch && ch <= 127)
+                fputc(ch, output);
+            else
+                fprintf(output, "&#%d;", ch & 0xFF);
+            break;
+    }
+}
+
 /* write the html to a file (xmlified if necessary)
  */
 int
@@ -186,8 +210,8 @@ mkd_generatehtml(Document *p, FILE *output)
     if ( (szdoc = mkd_document(p, &doc)) != EOF ) {
 	if ( p->ctx->flags & MKD_CDATA )
 	    mkd_generatexml(doc, szdoc, output);
-	else
-	    fwrite(doc, szdoc, 1, output);
+	else 
+	    encode(doc, szdoc, output);
 	putc('\n', output);
 	return 0;
     }
