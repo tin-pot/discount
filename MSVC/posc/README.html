@@ -1,98 +1,9 @@
-<!DOCTYPE HTML PUBLIC "ISO/IEC 15445:2000//DTD HTML//EN">
+<!doctype html public "ISO/IEC 15445:2000//DTD HTML//EN">
 <html>
 <head>
-  <meta name="GENERATOR" content="mkd2html 2.1.3 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
+  <meta name="GENERATOR" content="mkd2html 2.1.6/Win32 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
   <meta http-equiv="Content-Type"
-        content="text/html; charset=ISO-8859-1">
-  <style type="text/css">
-    /* ISO/IEC 15445 forbids styling in tags. */
-    .centered {
-      text-align: center;
-    }
-
-    ol.alpha {
-      list-style-type: lower-alpha;
-    }
-  </style>
-  <style type="text/css">
-      /*
-       * Ordered lists like '1. Xxxx' and 'a) Xxxxx'.
-       */
-      OL.alpha {
-        list-style-type: none;
-      }
-      OL {
-        padding-left: 2.0em;
-        position: relative;
-        list-style-type: none;
-        counter-reset: item 0;
-      }
-      
-      OL > LI {
-        counter-increment: item;
-      }
-      
-      OL > LI:before {
-        position: absolute;
-        left: 0em;
-        width: 1.5em;
-        text-align:right;
-        content: counter(item, decimal) ".";
-      }
-      
-      OL.alpha > LI:before,
-      OL[type="a"] > LI:before {
-        content: counter(item, lower-alpha) ")";
-      }
-      
-      /*
-       * Footnote references and footnote texts.
-       */
-      
-      HR.footnotes {
-        margin-right: 66%;
-        border-top-width: 1px;
-        border-bottom-width: 0px;
-        border-color: #000;
-        background-color: #000;
-        height:0.5pt;
-      }
-      
-      /* Footnote references like '1)'. */
-      SUP {
-        position: relative;
-        top: -0.40em;
-        font-size: 0.83em;
-        vertical-align: baseline;
-      }
-      SUP.fnref A:link,
-      SUP.fnref A:visited {
-          text-decoration: none;
-      }
-      SUP.fnref A:after {
-        content: ")";
-      }
-      
-      /* Footnote texts like '1) Xxxx xx'. */
-      DIV.footnotes OL { 
-        position: relative;
-        padding-left: 2.5em;
-        list-style-type: none;
-        counter-reset: footnr 0;
-      }
-      
-      DIV.footnotes OL LI {
-        counter-increment: footnr;
-      }
-      
-      DIV.footnotes > OL > LI:before  {
-        position: absolute;
-        left: 0em;
-        width: 2.0em;
-        text-align:right;
-        content: counter(footnr) ")";
-      }
-  </style>
+        content="text/html; charset=US-ASCII">
   <link rel="stylesheet"
         type="text/css"
         href="default.css">
@@ -101,8 +12,8 @@
 <body>
 <h1>Porting C code using faux standard headers</h1>
 
-<p class="centered">Martin Hofmann<br>
-&lt;<a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x6d;&#97;&#114;&#x74;&#x69;&#110;&#x2d;&#x68;&#x6f;&#102;&#109;&#x61;&#x6e;&#x6e;&#x40;&#x67;&#109;&#x78;&#46;&#x6e;&#x65;&#x74;">&#109;&#97;&#x72;&#x74;&#105;&#x6e;&#x2d;&#104;&#111;&#102;&#x6d;&#x61;&#110;&#110;&#x40;&#x67;&#x6d;&#120;&#46;&#x6e;&#x65;&#116;</a>><br>
+<p style="text-align:center;">Martin Hofmann<br/>
+&lt;<a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#116;&#105;&#110;&#45;&#112;&#111;&#116;&#x40;&#x67;&#x6d;&#x78;&#46;&#110;&#x65;&#116;">&#x74;&#x69;&#110;&#x2d;&#112;&#111;&#116;&#x40;&#x67;&#109;&#120;&#x2e;&#110;&#101;&#x74;</a>><br/>
 2012-01-23</p>
 
 <div class="abstract"><p>A common stumbling block when porting C source software are
@@ -182,10 +93,10 @@ not the pristine headers of the installed compiler. By the second
 goal, the workaround hacks are not to be inserted in those
 installed headers either, but we must direct the preprocessor to
 find the &ldquo;adapted&rdquo; header files elsewhere &mdash; before it finds the
-compiler&rsquo;s own headers<sup class="fnref" id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>.</p>
+compiler&rsquo;s own headers<a href="Strictly">^1</a>.</p>
 
 <p>Let&rsquo;s say we put our modified headers in a special directory
-named<sup class="fnref" id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> <code>posc</code>, containing all the modifications, emulations
+named<a href="The">^2</a> <code>posc</code>, containing all the modifications, emulations
 and adaptations we need:</p>
 
 <pre><code>posc/stdio.h  
@@ -245,7 +156,7 @@ this. This gives us a generated header file like the following
 </code></pre>
 
 <p>Together with a fixed main include file <code>pisc/posc.h</code> with the
-following content<sup class="fnref" id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup> &hellip;</p>
+following content<a href="You">^5</a> &hellip;</p>
 
 <pre><code>#ifndef POSC_H_INCLUDED
 #define POSC_H_INCLUDED
@@ -269,7 +180,7 @@ following content<sup class="fnref" id="fnref:3"><a href="#fn:3" rel="footnote">
 </code></pre>
 
 <p>&hellip; we are ready to compose our &ldquo;faux&rdquo; header files: they rely
-on the defined location macros<sup class="fnref" id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup> to include the system&rsquo;s header
+on the defined location macros<a href="The">^3</a> to include the system&rsquo;s header
 files and add whatever workarounds are needed.</p>
 
 <h2>Examples  </h2>
@@ -293,7 +204,7 @@ containing this:</p>
 </code></pre>
 
 <p>The POSIX-defined string utilities are equally simple to provide
-in a selfmade <code>posc/strings.h</code> header<sup class="fnref" id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>:</p>
+in a selfmade <code>posc/strings.h</code> header<a href="As">^4</a>:</p>
 
 <pre><code>#ifndef POSC_STRINGS_H_INCLUDED
 #define POSC_STRINGS_H_INCLUDED
@@ -340,7 +251,7 @@ distribution package is available containing:</p>
 
 <ul>
 <li>A tool <code>findhdrdir.c</code> to find the locations of the 18
-Standard<sup class="fnref" id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup> C headers and then generate the <code>posc_hdrdir.h</code>
+Standard<a href="By" title="Standard C">^6</a> C headers and then generate the <code>posc_hdrdir.h</code>
 file accordingly.</li>
 <li>The <code>posc.h</code> main header file.</li>
 <li>Facade header files for various C99 and POSIX functions added
@@ -378,7 +289,7 @@ be specified as:</p>
 <pre><code>cl /I.\posc source.c  /link /LIBPATH:.\posc 
 </code></pre>
 
-<p>The POSC headers add <code>posc.lib</code> as a default library if needed<sup class="fnref" id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup>
+<p>The POSC headers add <code>posc.lib</code> as a default library if needed<a href="Using">^7</a>
 so you don&rsquo;t need to indicate the library explicitly.</p>
 
 <h2>Links  </h2>
@@ -423,27 +334,5 @@ Weiﬂ.</li>
 Caesar&rdquo;</a>.</li>
 </ul>
 
-<div class="footnotes">
-<hr class="footnotes">
-<ol>
-<li id="fn:1">
-<p>Strictly speaking, we enter the realm of <em>undefined behaviour</em> here &hellip;<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-<li id="fn:2">
-<p>The name &ldquo;POSC&rdquo; was chosen because this string (1)†seems to be not used by another library; (2)†can be construed as an acronym of &ldquo;<strong>P</strong>orting <strong>o</strong>f <strong>S</strong>tandard <strong>C</strong> Code&rdquo;, or &ldquo;<strong>P</strong>orting <strong>O</strong>pen <strong>S</strong>ource <strong>C</strong> Code&rdquo; or &ldquo;<strong>Po</strong>rting <strong>Sc</strong>affold&rdquo; or &hellip;; (3)†could suggest a vicinity to the <em>Portable Open Source Harness</em> <code>poshlib</code>.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
-<li id="fn:3">
-<p>You are not expected to understand this macro tinkering ;-)<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
-<li id="fn:4">
-<p>The ability to use macros in <code>#include</code> directives is a seldom-used feature in C &mdash; and on this occasion a very useful one!<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
-<li id="fn:5">
-<p>As <code>strings.h</code> is an <em>addition</em> to the existing headers, our technique is not really needed in this case &mdash; but the header certainly belongs into this same toolkit.<a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
-<li id="fn:6">
-<p>By &ldquo;Standard C&rdquo; we mean C90 here (ISO 9899-1990).<a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
-<li id="fn:7">
-<p>Using the MSVC <code>#pragma comment( lib, "posc.lib" )</code>.<a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
-<hr><p class="centered">
-<a href="http://validator.w3.org/check?uri=referer"><img src="http://validator.w3.org/images/v15445" alt="Valid ISO/IEC 15445:2000"></a></p>
 </body>
 </html>

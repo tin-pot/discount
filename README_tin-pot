@@ -12,8 +12,7 @@ with added support to build the package with Visual Studio on Windows.
 There are also some added command line options of the tools and one new
 flag value of the library.
 
-See also the home page of this distribution at <https://github.com/tin-
-pot/discount>.
+See also the home page of this distribution at *github*: [tin-pot/discount][gh].
 
 In the following, the term "*Unix*" refers to all the Unix-like
 platforms that `discount` does target originally.
@@ -59,7 +58,7 @@ The generated executable are statically linked: they only depend on
 Porting to Windows was done with a fairly general technique, which
 presents to the compiler a "faked" environment of header files on
 top of the "real" header files of MSVC. All this is contained in the
-`MSVC/posc` directory. See the `MSVC/posc/README.html` file there for
+`MSVC/posc` directory. See the [`MSVC/posc/README.html`][posc] file there for
 explanations.
 
 All `discount` source files in the project root directory are
@@ -71,9 +70,11 @@ The included `getopt()` implementation is [freegetopt][go], its license
 is in the file `LICENSE-freegetopt`.
 
 
+[gh]:http://github.com/tin-pot/discount/
 [dp]:http://www.pell.portland.or.us/~orc/Code/discount/
 [md]:http://daringfireball.net/projects/markdown/
 [go]:http://freegetopt.sourceforge.net/
+[posc]:MSVC/posc/README.html
 
 
 
