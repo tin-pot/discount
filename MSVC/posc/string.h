@@ -2,7 +2,7 @@
 #define POSC_STRING_H_INCLUDED
 #include "posc.h"
 
-#include POSC_HEADER(string.h)
+#include POSC_STRING_HDR
 
 /*
  * This is only here because `disount` happily uses

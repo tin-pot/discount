@@ -2,7 +2,7 @@
 #define POSC_STRINGS_H_INCLUDED
 #include "posc.h"
 
-#include POSC_HEADER(string.h)
+#include POSC_STRING_HDR
 
 #if 0 /* Traditional <strings.h> content that would belong here. */
 int    bcmp(const void *, const void *, size_t); /* LEGACY, see memcmp */
