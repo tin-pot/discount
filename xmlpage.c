@@ -21,6 +21,7 @@ mkd_xhtmlpage(Document *p, int flags, FILE *out)
     char *title;
     extern char *mkd_doc_title(Document *);
     
+    flags |= MKD_XML;
     if ( mkd_compile(p, flags) ) {
 	fprintf(out, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	fprintf(out, "<!DOCTYPE html "

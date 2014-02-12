@@ -124,6 +124,7 @@ typedef struct mmiot {
 #define MKD_EXTRA_FOOTNOTE 0x00200000
 #define MKD_NOSTYLE	0x00400000
 #define MKD_WIKI        0x00800000 /* make urlbase relative links for wiki `[pagename]` syntax */
+#define MKD_XML         0x01000000 /* XML <br/>  and <... />  tags. */
 #define IS_LABEL	0x08000000
 #define USER_FLAGS	0x0FFFFFFF
 #define INPUT_MASK	(MKD_NOHEADER|MKD_TABSTOP)

@@ -108,6 +108,7 @@ void mkd_ref_prefix(MMIOT*, char*);
 #define MKD_NOSTYLE     0x00400000
 
 #define MKD_WIKI        0x00800000      /* make urlbase-relative links from `[pagename]` */
+#define MKD_XML         0x01000000      /* XML <br/>  and <... />  tags. */
 #define MKD_EMBED	MKD_NOLINKS|MKD_NOIMAGE|MKD_TAGTEXT
 
 /* special flags for mkd_in() and mkd_string()

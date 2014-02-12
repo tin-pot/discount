@@ -608,6 +608,8 @@ printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
     } else
 	___mkd_reparse(link + tag->szpat, size - tag->szpat, MKD_TAGTEXT, f, 0);
 
+    imaget.link_sfx = (f->flags & MKD_XML) ? "\">" : "\" />";
+
     Qstring(tag->link_sfx, f);
 
     if ( f->cb && f->cb->e_flags && (edit = (*f->cb->e_flags)(link, size, f->cb->e_data)) ) {
@@ -789,9 +791,9 @@ cputc(int c, MMIOT *f)
 {
     switch (c) {
     case '&':   Qstring("&amp;", f); break;
-    case '>':   Qstring("&gt;", f); break;
-    case '<':   Qstring("&lt;", f); break;
-    default :   Qchar(c, f); break;
+    case '>':   Qstring("&gt;", f);  break;
+    case '<':   Qstring("&lt;", f);  break;
+    default:    Qchar(c, f);         break;
     }
 }
 
@@ -1274,7 +1276,7 @@ text(MMIOT *f)
 	switch (c) {
 	case 0:     break;
 
-	case 3:     Qstring(tag_text(f) ? "  " : "<br/>", f);
+	case 3:     Qstring(tag_text(f) ? "  " : (f->flags & MKD_XML) ? "<br/>" : "<br>", f);
 		    break;
 
 	case '>':   if ( tag_text(f) )
@@ -1753,7 +1755,7 @@ display(Paragraph *p, MMIOT *f)
 	break;
 
     case HR:
-	Qstring("<hr />", f);
+	Qstring((f->flags & MKD_XML) ? "<hr />" : "<hr>", f);
 	break;
 
     case HDR:
@@ -1787,7 +1789,9 @@ mkd_extra_footnotes(MMIOT *m)
     if ( m->reference == 0 )
 	return;
 
-    Csprintf(&m->out, "\n<div class=\"footnotes\">\n<hr/>\n<ol>\n");
+    
+    Csprintf(&m->out, "\n<div class=\"footnotes\">\n%s\n<ol>\n",
+            (m->flags & MKD_XML) ? "<hr />" : "<hr>");
     
     for ( i=1; i <= m->reference; i++ ) {
 	for ( j=0; j < S(*m->footnotes); j++ ) {
