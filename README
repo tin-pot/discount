@@ -1,77 +1,16 @@
-% README file for tin-pot/discount   
-% Martin Hofmann <tin-pot@gmx.net>  
-% 2014-02-12  
+DISCOUNT is a implementation of John Gruber's Markdown markup
+language.   It implements, as far as I can tell, all of the
+language as described in
+<http://daringfireball.net/projects/markdown/syntax>
+and passes the Markdown test suite at
+<http://daringfireball.net/projects/downloads/MarkdownTest_1.0.zip>
 
+DISCOUNT is free software written by David Parsons <orc@pell.chi.il.us>;
+it is released under a BSD-style license that allows you to do
+as you wish with it as long as you don't attempt to claim it as
+your own work.
 
-The Markdown tool "discount" on Windows: `tin-pot/discount`
-===========================================================
+Most of the programs included in the DISCOUNT distribution have
+manual pages describing how they work.
 
-This repository is a clone of [David Parsons' implementation][dp] in C
-of (a processor for) [John Gruber's "Markdown" markup language][md],
-with added support to build the package with Visual Studio on Windows.
-There are also some added command line options of the tools and one new
-flag value of the library.
-
-See also the home page of this distribution at <https://github.com/tin-
-pot/discount>.
-
-In the following, the term "*Unix*" refers to all the Unix-like
-platforms that `discount` does target originally.
-
-
-1  Modifications
-----------------
-
-The modifications added in this distribution are:
-
-- Added pre-configured files
-
-  - `version.c`,
-  - `mkdio.h`, and
-  - `config.h`,
-
-  in `MSVC/` so that no `configure.sh` run---which generates these files
-  on Unix---is needed on Windows.
-
-- Added project files for all executables and libraries in `MSVC/`.
-
-- Added supporting files for building on Windows in `MSVC/posc/`,
-  including the [`freegetopt`][go] implementation of Unix's `getopt()`
-  function which is used by `main.c`.
-
-See the [CHANGES](CHANGES.html) file for more details.
-
-
-2  Building/Installing
-----------------------
-
-The package should build out of the box with Visual Studio 2003.NET or
-Visual Studio 2008 or newer (later versions of Visual Studio will import
-and convert the project files).
-
-The generated executable are statically linked: they only depend on
-`kernel32.dll`. Place them wherever you like on your `PATH`.
-
-
-3  About the Port
------------------
-
-Porting to Windows was done with a fairly general technique, which
-presents to the compiler a "faked" environment of header files on
-top of the "real" header files of MSVC. All this is contained in the
-`MSVC/posc` directory. See the `MSVC/posc/README.html` file there for
-explanations.
-
-All `discount` source files in the project root directory are
-unmodified. Their need for functions like `strncasecmp()` (Unix), or
-`vsnprintf()` (C99), or `getopt()` gets satisfied completely out of
-files in `posc`.
-
-The included `getopt()` implementation is [freegetopt][go], its license
-is in the file `LICENSE-freegetopt`.
-
-
-[dp]:http://www.pell.portland.or.us/~orc/Code/discount/
-[md]:http://daringfireball.net/projects/markdown/
-[go]:http://freegetopt.sourceforge.net/
-
+The file INSTALL describes how to build and install discount
