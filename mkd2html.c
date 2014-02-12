@@ -161,7 +161,9 @@ char **argv;
         break;
 
     default:
-        fprintf(stderr, "usage: %s [opts] source [dest]\n", pgm);
+        fprintf(stderr,
+                "usage: %s [-S | -I] "
+                "[-css URL] [-header text] [-footer text] [ source [dest] ]\n", pgm);
         exit(1);
     }
 
@@ -186,12 +188,12 @@ char **argv;
         markdown_version);
 
     fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"
-                   "        content=\"text/html; charset-us-ascii\">");
+                   "        content=\"text/html; charset=US-ASCII\">\n");
 
     for ( i=0; i < S(css); i++ )
         fprintf(output, "  <link rel=\"stylesheet\"\n"
                         "        type=\"text/css\"\n"
-                        "        href=\"%s\" />\n", T(css)[i]);
+                        "        href=\"%s\">\n", T(css)[i]);
 
     if ( h ) {
         fprintf(output,"  <title>");
