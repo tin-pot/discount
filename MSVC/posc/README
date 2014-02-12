@@ -327,7 +327,7 @@ text:
   Dictionary][12] at [Interop Community][93].
 - Mozilla [C++ Portability Guide][11].
 - A stand-alone [implementation of `snprintf()`][14] by Holger
-  Weiﬂ.
+  Wei&szlig;.
 - There is an (even IT-related!) organization by the name ["POSC
   Caesar"][98].
 
@@ -352,7 +352,7 @@ text:
 [11]:https://developer.mozilla.org/en/C++_Portability_Guide (Mozilla - C++ Portability Guide)
 [12]:http://suacommunity.com/dictionary/ (Unix to Windows Porting Dictionary)
 [13]:http://stackoverflow.com/questions/2915672/snprintf-and-visual-studio-2010 (Stack Overflow - MSVC and snprintf)
-[14]:http://www.jhweiss.de/software/snprintf.html (J. H. Weiﬂ - snprintf implementation)
+[14]:http://www.jhweiss.de/software/snprintf.html (J. H. Wei&szlig; - snprintf implementation)
 [15]:http://connect.microsoft.com/VisualStudio/feedback/details/485416/support-c99 "Microsoft - C99 (non-)support in VS 2010"
 [16]:http://freegetopt.sourceforge.net (Free getopt at SourceForge)
 [17]:http://pubs.opengroup.org/onlinepubs/009695399/functions/getopt.html (IEEE Std. 1003.1 2004 - getopt)
