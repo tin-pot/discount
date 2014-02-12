@@ -1,0 +1,103 @@
+<!doctype html public "ISO/IEC 15445:2000//DTD HTML//EN">
+<html>
+<head>
+  <meta name="GENERATOR" content="mkd2html 2.1.6/Win32 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
+  <meta http-equiv="Content-Type"
+        content="text/html; charset=US-ASCII">
+  <link rel="stylesheet"
+        type="text/css"
+        href="MSVC/posc/default.css">
+  <title>CHANGES file of tin-pot/discount   </title>
+</head>
+<body>
+<h1>Changes in this distribution of <code>discount</code></h1>
+
+<h2>1  Overview</h2>
+
+<p>For the most part, the <code>discount</code> sources are identical to these in
+David Parsons' <code>discount-2.1.6.tar.bz2</code> source archive downloadable from
+his <a href="http://www.pell.portland.or.us/~orc/Code/discount/">project site</a>.</p>
+
+<p>Building upon this, this distribution adds the following features:</p>
+
+<ol>
+<li><p>Project files for MS Visual C++ 2003 and 2008 (in <code>MSVC/</code>, as well as</p></li>
+<li><p>files to allow building the Unixish <code>discount</code> package on Windows (in
+<code>MSVC/posc/</code> without additional requirements.</p></li>
+<li><p>The new options <code>-S</code> and <code>-I</code> to <code>mkd2html.c</code>, to choose <em>HTML 4.01
+Strict</em> and <em>ISO 15445:2000</em> doctypes,</p></li>
+<li><p>and a fix to a <a href="https://github.com/Orc/discount/commit/c1904052041dafc085791e6f06340dbd1472536b">bug</a> in <code>mkd2html.c</code>.</p></li>
+<li><p>The new flag value <code>wiki</code> (with the value <code>0x00800000</code>) to produce a
+somewhat Wiki-friendly variant of output HTML.</p></li>
+</ol>
+
+
+<h2>2  Changes to <code>discount</code> source files</h2>
+
+<dl>
+<dt><code>generate.c</code></dt>
+<dd><p>  <strong>ADD:</strong> Added code tests <code>MKD_WIKI</code> and <code>IS_WIKI</code>; new function
+  <code>wikiurl()</code>; new <em>linkytype</em> <code>wikit</code> and related <code>IS_WIKI</code> macro.</p></dd>
+<dt><code>markdown.h</code></dt>
+<dd><p>  <strong>ADD:</strong> Add definition of <code>MKD_WIKI</code> (<strong>Important:</strong> must match
+  definition in <code>mkdio.h.in</code>!)</p></dd>
+<dt><code>mkd2html.c</code></dt>
+<dd><p>  <strong>FIX:</strong> <code>while ( argc &gt; 2 )</code> (see <a href="https://github.com/Orc/discount/commit/c1904052041dafc085791e6f06340dbd1472536b"><em>github</em> commit</a>.)</p></dd>
+<dt><code>pgm_options.c</code></dt>
+<dd><p>  <strong>ADD:</strong> Detect flag <code>-f wiki</code>.</p></dd>
+</dl>
+
+<h2>3  Changes to <code>discount</code> template files</h2>
+
+<p>The configuration script <code>configure.sh</code> generates three files:</p>
+
+<ol>
+<li><code>config.h</code> from user options and platform diagnostics.</li>
+<li><code>Makefile</code> from the template <code>Makefile.in</code>.</li>
+<li><code>version.c</code> from the template <code>version.c.in</code>.</li>
+<li><code>mkdio.h</code> from the template <code>mkdio.h.in</code>></li>
+</ol>
+
+
+<p>Required changes to these generated files are effected by changing the
+corresponding template file:</p>
+
+<dl>
+<dt><code>version.c.in</code></dt>
+<dd><p>   <strong>ADD:</strong> A suffix added to the version identification shown in the
+   <code>markdown -V</code> output: <code>"-wiki"</code>. This differentiates it from the
+   version information shown by an <em>original</em> <code>markdown</code> built from
+   <code>discount-2.1.6.tar.bz2</code>.</p></dd>
+<dt><code>mkdio.h.in</code></dt>
+<dd><p>   <strong>ADD:</strong> Define the flag bit-value <code>MKD_WIKI</code>.</p></dd>
+</dl>
+
+<h2>4  Files of <code>discount</code> explicitly <em>not</em> changed</h2>
+
+<dl>
+<dt><code>VERSION</code></dt>
+<dd><p>   This should only contain a numeric version identification.
+   The <code>markdown -V</code> version information output is modified in
+   <code>version.c.in</code>.</p></dd>
+</dl>
+
+<h2>5  Added files and directories</h2>
+
+<dl>
+<dt><code>MSVC/</code></dt>
+<dd><p>   All files in this directory are new, written by Martin Hofmann
+   (<a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#111;&#58;&#116;&#105;&#x6e;&#45;&#112;&#x6f;&#116;&#64;&#103;&#x6d;&#120;&#x2e;&#x6e;&#101;&#116;">&#x74;&#x69;&#110;&#x2d;&#x70;&#111;&#x74;&#x40;&#x67;&#x6d;&#x78;&#x2e;&#110;&#101;&#116;</a>), except these files in <code>MSVC/posc/</code>:</p>
+
+<ul>
+<li> <code>ansidecl.h</code>, <code>ansidecl_1996.h</code>, and <code>ansidecl_2001.h</code> are
+ <em>Copyright 1991&ndash;2001 Free Software Foundation</em>.</li>
+<li> <code>getopt.c</code> and <code>getopt.h</code> are <em>Copyright 2000&ndash;2003 Mark K. Kim</em>.</li>
+<li> <code>inttypes.h</code>, <code>stdint.h</code> are <em>Copyright 2006 Alexander Chemeris</em>.</li>
+</ul>
+
+
+<p>   These files contain their own license conditions, see the contents
+   of <code>MSVC/posc/</code>.</p></dd>
+</dl>
+</body>
+</html>

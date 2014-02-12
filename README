@@ -1,36 +1,60 @@
-Markdown tool "discount" on Windows
-===================================
+% README file for tin-pot/discount   
+% Martin Hofmann <tin-pot@gmx.net>  
+% 2014-02-12  
+
+
+The Markdown tool "discount" on Windows: `tin-pot/discount`
+===========================================================
 
 This repository is a clone of [David Parsons' implementation][dp] in C
-of [John Gruber's Markdown markup language][md], with added support to
-build the package with Visual Studio on Windows.
+of (a processor for) [John Gruber's "Markdown" markup language][md],
+with added support to build the package with Visual Studio on Windows.
+There are also some added command line options of the tools and one new
+flag value of the library.
+
+See also the home page of this distribution at <https://github.com/tin-
+pot/discount>.
+
+In the following, the term "*Unix*" refers to all the Unix-like
+platforms that `discount` does target originally.
 
 
-Modifications
--------------
+1  Modifications
+----------------
 
-- Added pre-configured headers and sources, so that no `configure.sh`
-  run is needed.
+The modifications added in this distribution are:
 
-- Added project files for all executables and libraries.
+- Added pre-configured files
 
-- Added the [`freegetopt`][go] implementation of UNIX's `getopt()`
-  function.
+  - `version.c`,
+  - `mkdio.h`, and
+  - `config.h`,
+
+  in `MSVC/` so that no `configure.sh` run---which generates these files
+  on Unix---is needed on Windows.
+
+- Added project files for all executables and libraries in `MSVC/`.
+
+- Added supporting files for building on Windows in `MSVC/posc/`,
+  including the [`freegetopt`][go] implementation of Unix's `getopt()`
+  function which is used by `main.c`.
+
+See the [CHANGES](CHANGES.html) file for more details.
 
 
-Building/Installing
--------------------
+2  Building/Installing
+----------------------
 
-The package should build out of the box with Visual Studio 2003.NET
-or newer (later versions of Visual Studio will import and convert the
-project files).
+The package should build out of the box with Visual Studio 2003.NET or
+Visual Studio 2008 or newer (later versions of Visual Studio will import
+and convert the project files).
 
 The generated executable are statically linked: they only depend on
 `kernel32.dll`. Place them wherever you like on your `PATH`.
 
 
-About the Port
---------------
+3  About the Port
+-----------------
 
 Porting to Windows was done with a fairly general technique, which
 presents to the compiler a "faked" environment of header files on
@@ -39,7 +63,7 @@ top of the "real" header files of MSVC. All this is contained in the
 explanations.
 
 All `discount` source files in the project root directory are
-unmodified. Their need for functions like `strncasecmp()` (UNIX), or
+unmodified. Their need for functions like `strncasecmp()` (Unix), or
 `vsnprintf()` (C99), or `getopt()` gets satisfied completely out of
 files in `posc`.
 

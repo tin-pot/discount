@@ -1,37 +1,64 @@
-<!doctype html public "-//W3C//DTD HTML 4.0 Transitional //EN">
+<!doctype html public "ISO/IEC 15445:2000//DTD HTML//EN">
 <html>
 <head>
   <meta name="GENERATOR" content="mkd2html 2.1.6/Win32 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
   <meta http-equiv="Content-Type"
-        content="text/html; charset-us-ascii"></head>
+        content="text/html; charset=US-ASCII">
+  <link rel="stylesheet"
+        type="text/css"
+        href="MSVC/posc/default.css">
+  <title>README file for tin-pot/discount   </title>
+</head>
 <body>
-<h1>Markdown tool &ldquo;discount&rdquo; on Windows</h1>
+<h1>The Markdown tool &ldquo;discount&rdquo; on Windows: <code>tin-pot/discount</code></h1>
 
-<p>This repository is a clone of <a href="http://www.pell.portland.or.us/~orc/Code/discount/">David Parson&rsquo;s implementation</a> in C
-of <a href="http://daringfireball.net/projects/markdown/">John Gruber&rsquo;s Markdown markup language</a>, with added support to
-build the package with Visual Studio on Windows.</p>
+<p>This repository is a clone of <a href="http://www.pell.portland.or.us/~orc/Code/discount/">David Parsons' implementation</a> in C
+of (a processor for) <a href="http://daringfireball.net/projects/markdown/">John Gruber&rsquo;s &ldquo;Markdown&rdquo; markup language</a>,
+with added support to build the package with Visual Studio on Windows.
+There are also some added command line options of the tools and one new
+flag value of the library.</p>
 
-<h2>Modifications</h2>
+<p>See also the home page of this distribution at &lt;https://github.com/tin-
+pot/discount>.</p>
+
+<p>In the following, the term &ldquo;<em>Unix</em>&rdquo; refers to all the Unix-like
+platforms that <code>discount</code> does target originally.</p>
+
+<h2>1  Modifications</h2>
+
+<p>The modifications added in this distribution are:</p>
 
 <ul>
-<li><p>Added pre-configured headers and sources, so that no <code>configure.sh</code>
-run is needed.</p></li>
-<li><p>Added project files for all executables and libraries.</p></li>
-<li><p>Added the <a href="http://freegetopt.sourceforge.net/"><code>freegetopt</code></a> implementation of UNIX&rsquo;s <code>getopt()</code>
-function.</p></li>
+<li><p>Added pre-configured files</p>
+
+<ul>
+<li><code>version.c</code>,</li>
+<li><code>mkdio.h</code>, and</li>
+<li><code>config.h</code>,</li>
 </ul>
 
 
-<h2>Building/Installing</h2>
+<p>in <code>MSVC/</code> so that no <code>configure.sh</code> run&mdash;which generates these files
+on Unix&mdash;is needed on Windows.</p></li>
+<li><p>Added project files for all executables and libraries in <code>MSVC/</code>.</p></li>
+<li><p>Added supporting files for building on Windows in <code>MSVC/posc/</code>,
+including the <a href="http://freegetopt.sourceforge.net/"><code>freegetopt</code></a> implementation of Unix&rsquo;s <code>getopt()</code>
+function which is used by <code>main.c</code>.</p></li>
+</ul>
 
-<p>The package should build out of the box with Visual Studio 2003.NET
-or newer (later versions of Visual Studio will import and convert the
-project files).</p>
+
+<p>See the <a href="CHANGES.html">CHANGES</a> file for more details.</p>
+
+<h2>2  Building/Installing</h2>
+
+<p>The package should build out of the box with Visual Studio 2003.NET or
+Visual Studio 2008 or newer (later versions of Visual Studio will import
+and convert the project files).</p>
 
 <p>The generated executable are statically linked: they only depend on
 <code>kernel32.dll</code>. Place them wherever you like on your <code>PATH</code>.</p>
 
-<h2>About the Port</h2>
+<h2>3  About the Port</h2>
 
 <p>Porting to Windows was done with a fairly general technique, which
 presents to the compiler a &ldquo;faked&rdquo; environment of header files on
@@ -40,7 +67,7 @@ top of the &ldquo;real&rdquo; header files of MSVC. All this is contained in the
 explanations.</p>
 
 <p>All <code>discount</code> source files in the project root directory are
-unmodified. Their need for functions like <code>strncasecmp()</code> (UNIX), or
+unmodified. Their need for functions like <code>strncasecmp()</code> (Unix), or
 <code>vsnprintf()</code> (C99), or <code>getopt()</code> gets satisfied completely out of
 files in <code>posc</code>.</p>
 
