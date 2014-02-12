@@ -15,15 +15,15 @@ his [project site][dp].
 
 Building upon this, this distribution adds the following features:
 
-1. Project files for MS Visual C++ 2003 and 2008 (in `MSVC/`, as well as
+1. Project files for MS Visual C++ 2003 and 2008 (in `MSVC/`), as well as
 
 2. files to allow building the Unixish `discount` package on Windows (in
-   `MSVC/posc/` without additional requirements.
+   `MSVC/posc/`) without additional requirements.
 
-3. The new options `-S` and `-I` to `mkd2html.c`, to choose *HTML 4.01
+3. The new options `-S` and `-I` in `mkd2html.c`, to choose *HTML 4.01
    Strict* and *ISO 15445:2000* doctypes,
 
-4. and a fix to a [bug][co] in `mkd2html.c`.
+4. and a [bug fix][co] in `mkd2html.c`.
 
 5. The new flag value `wiki` (with the value `0x00800000`) to produce a
    somewhat Wiki-friendly variant of output HTML.
@@ -34,17 +34,18 @@ Building upon this, this distribution adds the following features:
 
 `generate.c`
 
-:   **ADD:** Added code tests `MKD_WIKI` and `IS_WIKI`; new function
+:   **ADD:** New code tests `MKD_WIKI` and `IS_WIKI`; new function
     `wikiurl()`; new *linkytype* `wikit` and related `IS_WIKI` macro.
 
 `markdown.h`
 
-:   **ADD:** Add definition of `MKD_WIKI` (**Important:** must match
-    definition in `mkdio.h.in`!)
+:   **ADD:** Definition of `MKD_WIKI`. **Important:** must match
+    definition in `mkdio.h.in`!
 
 `mkd2html.c`
 
-:   **FIX:** `while ( argc > 2 )` (see [*github* commit][co].)
+:   **FIX:** Use `while ( argc > 2 )` (see [*github* commit][co],
+    which compares `argc` to `1`. I think `2` is the correct bound.)
 
 `pgm_options.c`
 
@@ -73,7 +74,8 @@ corresponding template file:
 
 `mkdio.h.in`
 
-:    **ADD:** Define the flag bit-value `MKD_WIKI`.
+:    **ADD:** Define the flag bit-value `MKD_WIKI`. **Important:** must match
+     definition in `markdown.h`!
 
 
 4  Files of `discount` explicitly *not* changed
