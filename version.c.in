@@ -1,6 +1,7 @@
 #include "config.h"
 
 char markdown_version[] = VERSION
+                "/wiki" /* With flag `-f wiki`. */
 #if @TABSTOP@ != 4
 		" TAB=@TABSTOP@"
 #endif
