@@ -95,9 +95,11 @@ corresponding template file:
      (<tin-pot@gmx.net>), except these files in `MSVC/posc/`:
 
      - `ansidecl.h`, `ansidecl_1996.h`, and `ansidecl_2001.h` are
-       *Copyright 1991--2001 Free Software Foundation*.
-     - `getopt.c` and `getopt.h` are *Copyright 2000--2003 Mark K. Kim*.
-     - `inttypes.h`, `stdint.h` are *Copyright 2006 Alexander Chemeris*.
+       *Copyright (c) 1991--2001 Free Software Foundation*.
+     - `getopt.c` and `getopt.h` are *Copyright (c) 2000--2003 Mark K.
+       Kim*.
+     - `inttypes.h`, `stdint.h` are *Copyright (c) 2006 Alexander
+       Chemeris*.
 
      These files contain their own license conditions, see the contents
      of `MSVC/posc/`.
