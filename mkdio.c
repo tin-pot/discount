@@ -24,11 +24,11 @@ __mkd_new_Document()
     Document *ret = calloc(sizeof(Document), 1);
 
     if ( ret ) {
-	if ( ret->ctx = calloc(sizeof(MMIOT), 1) ) {
-	    ret->magic = VALID_DOCUMENT;
-	    return ret;
-	}
-	free(ret);
+        if ( ret->ctx = calloc(sizeof(MMIOT), 1) ) {
+            ret->magic = VALID_DOCUMENT;
+            return ret;
+        }
+        free(ret);
     }
     return 0;
 }
@@ -50,22 +50,22 @@ __mkd_enqueue(Document* a, Cstring *line)
     ATTACH(a->content, p);
 
     while ( size-- ) {
-	if ( (c = *str++) == '\t' ) {
-	    /* expand tabs into ->tabstop spaces.  We use ->tabstop
-	     * because the ENTIRE FREAKING COMPUTER WORLD uses editors
-	     * that don't do ^T/^D, but instead use tabs for indentation,
-	     * and, of course, set their tabs down to 4 spaces 
-	     */
-	    do {
-		EXPAND(p->text) = ' ';
-	    } while ( ++xp % a->tabstop );
-	}
-	else if ( c >= ' ' ) {
-	    if ( c == '|' )
-		p->flags |= PIPECHAR;
-	    EXPAND(p->text) = c;
-	    ++xp;
-	}
+        if ( (c = *str++) == '\t' ) {
+            /* expand tabs into ->tabstop spaces.  We use ->tabstop
+             * because the ENTIRE FREAKING COMPUTER WORLD uses editors
+             * that don't do ^T/^D, but instead use tabs for indentation,
+             * and, of course, set their tabs down to 4 spaces 
+             */
+            do {
+                EXPAND(p->text) = ' ';
+            } while ( ++xp % a->tabstop );
+        }
+        else if ( c >= ' ' ) {
+            if ( c == '|' )
+                p->flags |= PIPECHAR;
+            EXPAND(p->text) = c;
+            ++xp;
+        }
     }
     EXPAND(p->text) = 0;
     S(p->text)--;
@@ -102,37 +102,37 @@ populate(getc_func getc, void* ctx, int flags)
     CREATE(line);
 
     while ( (c = (*getc)(ctx)) != EOF ) {
-	if ( c == '\n' ) {
-	    if ( pandoc != EOF && pandoc < 3 ) {
-		if ( S(line) && (T(line)[0] == '%') )
-		    pandoc++;
-		else
-		    pandoc = EOF;
-	    }
-	    __mkd_enqueue(a, &line);
-	    S(line) = 0;
-	}
-	else if ( isprint(c) || isspace(c) || (c & 0x80) )
-	    EXPAND(line) = c;
+        if ( c == '\n' ) {
+            if ( pandoc != EOF && pandoc < 3 ) {
+                if ( S(line) && (T(line)[0] == '%') )
+                    pandoc++;
+                else
+                    pandoc = EOF;
+            }
+            __mkd_enqueue(a, &line);
+            S(line) = 0;
+        }
+        else if ( isprint(c) || isspace(c) || (c & 0x80) )
+            EXPAND(line) = c;
     }
 
     if ( S(line) )
-	__mkd_enqueue(a, &line);
+        __mkd_enqueue(a, &line);
 
     DELETE(line);
 
     if ( (pandoc == 3) && !(flags & (MKD_NOHEADER|MKD_STRICT)) ) {
-	/* the first three lines started with %, so we have a header.
-	 * clip the first three lines out of content and hang them
-	 * off header.
-	 */
-	Line *headers = T(a->content);
+        /* the first three lines started with %, so we have a header.
+         * clip the first three lines out of content and hang them
+         * off header.
+         */
+        Line *headers = T(a->content);
 
-	a->title = headers;             __mkd_header_dle(a->title);
-	a->author= headers->next;       __mkd_header_dle(a->author);
-	a->date  = headers->next->next; __mkd_header_dle(a->date);
+        a->title = headers;             __mkd_header_dle(a->title);
+        a->author= headers->next;       __mkd_header_dle(a->author);
+        a->date  = headers->next->next; __mkd_header_dle(a->date);
 
-	T(a->content) = headers->next->next->next;
+        T(a->content) = headers->next->next->next;
     }
 
     return a;
@@ -173,10 +173,9 @@ mkd_string(const char *buf, int len, DWORD flags)
 
     return populate((getc_func)__mkd_io_strget, &about, flags & INPUT_MASK);
 }
-
+ 
 /*
- * Read UCS codepoint from UTF-8 string, return number of bytes
- * consumed.
+ * Encoding stuff follows ...
  */
  
 #define ISUTF8_LEAD2(c)    (0xC0 == ((c) & 0xE0U))
@@ -188,6 +187,11 @@ mkd_string(const char *buf, int len, DWORD flags)
 #define VALUTF8_LEAD4(c)   ((c) & ~0xF1U)
 #define VALUTF8_TRAIL(c)   ((c) & ~0xC0U)
 
+/*
+ * Read UCS codepoint from UTF-8 string, return number of bytes
+ * consumed.
+ */
+ 
 size_t
 fromutf8(const char *const str, long *pucs)
 {
@@ -230,8 +234,66 @@ fromutf8(const char *const str, long *pucs)
     return num;
 }
 
+
 /*
- * Write US-ASCII (and / or ISO 8859-1?).
+ * Write input ISO 8859-1 to US-ASCII or ISO 8859-1.
+ */
+
+static void
+encode_la(char *doc, int szdoc, FILE *output, int ascii)
+{
+    char *end;
+    unsigned octet;
+    
+    for (end = doc + szdoc; doc < end; ++doc) {
+        octet = *doc & 0xFFU;
+
+	if (!ascii || (octet & ~0x7FU) == 0)
+	    fputc(octet, output);
+	else switch (octet) {
+            case '\xA0': fputs("&nbsp;", output); break;
+            case '\xE4': fputs("&auml;", output); break;
+            case '\xF6': fputs("&ouml;", output); break;
+            case '\xFC': fputs("&uuml;", output); break;
+            case '\xC4': fputs("&Auml;", output); break;
+            case '\xD6': fputs("&Ouml;", output); break;
+            case '\xDC': fputs("&Uuml;", output); break;
+            case '\xDF': fputs("&szlig;", output); break;
+            default:
+                    fprintf(output, "&#%u;", octet);
+	}
+    }
+}
+
+
+/*
+ * Write input ISO 8859 to UTF-8.
+ */
+static void
+encode_lu(char *doc, int szdoc, FILE *output)
+{
+    char *end;
+    unsigned octet;
+
+    for (end = doc + szdoc; doc < end; ++doc) {
+	octet = *doc & 0xFFU;
+
+	if ((octet & ~0x7FU) == 0)
+	    fputc(octet, output);
+	else {
+	    unsigned byte1, byte2;
+	    
+	    byte1 = (octet >> 6)    | 0xC0U; /* 2 bits in 1st byte. */
+	    byte2 = (octet & 0x3FU) | 0x80U; /* 6 bits in 2nd byte. */
+	    fputc(byte1, output);
+	    fputc(byte2, output);
+	}
+    }
+}
+
+
+/*
+ * Write US-ASCII or ISO 8859-1.
  */
 static void
 encode_a(char *doc, int szdoc, FILE *output, int ascii)
@@ -240,58 +302,58 @@ encode_a(char *doc, int szdoc, FILE *output, int ascii)
     size_t len;
     
     for (end = doc + szdoc; doc < end; doc += len) {
-	long codepoint;
+        long codepoint;
 
-	len = fromutf8(doc, &codepoint);
-	if (len > 0) {
-	    if (ascii)
-    	        switch (codepoint) {
-    	        case '\xA0': fputs("&nbsp;", output); break;
-    	        case '\xE4': fputs("&auml;", output); break;
-    	        case '\xF6': fputs("&ouml;", output); break;
-    	        case '\xFC': fputs("&uuml;", output); break;
-    	        case '\xC4': fputs("&Auml;", output); break;
-    	        case '\xD6': fputs("&Ouml;", output); break;
-    	        case '\xDC': fputs("&Uuml;", output); break;
-    	        case '\xDF': fputs("&szlig;", output); break;
-    	        default :
-    		    if ((codepoint & ~0x7FL) == 0)
-    		        fputc(codepoint, output);
-    		    else
-    		        fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
-    		    break;
-    	        }
-	    else if ((codepoint & ~0xFFL) == 0)
-	        fputc(codepoint, output);
+        len = fromutf8(doc, &codepoint);
+        if (len > 0) {
+            if (ascii)
+                switch (codepoint) {
+                case '\xA0': fputs("&nbsp;", output); break;
+                case '\xE4': fputs("&auml;", output); break;
+                case '\xF6': fputs("&ouml;", output); break;
+                case '\xFC': fputs("&uuml;", output); break;
+                case '\xC4': fputs("&Auml;", output); break;
+                case '\xD6': fputs("&Ouml;", output); break;
+                case '\xDC': fputs("&Uuml;", output); break;
+                case '\xDF': fputs("&szlig;", output); break;
+                default :
+                    if ((codepoint & ~0x7FL) == 0)
+                        fputc(codepoint, output);
+                    else
+                        fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
+                    break;
+                }
+            else if ((codepoint & ~0xFFL) == 0)
+                fputc(codepoint, output);
             else 
-	        fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
+                fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
         } else {
             /* Not a UTF-8 sequence? Could be ISO 8859. */
-	    len = 1;
+            len = 1;
             switch (codepoint = *doc) {
-	    case '\0': return;
-	    case '\xA0': fputs("&nbsp;", output); break;
-	    case '\xE4': fputs("&auml;", output); break;
-	    case '\xF6': fputs("&ouml;", output); break;
-	    case '\xFC': fputs("&uuml;", output); break;
-	    case '\xC4': fputs("&Auml;", output); break;
-	    case '\xD6': fputs("&Ouml;", output); break;
-	    case '\xDC': fputs("&Uuml;", output); break;
-	    case '\xDF': fputs("&szlig;", output); break;
-	    default:
-    	        if ((codepoint & ~0x7FL) == 0)
-    	            fputc(codepoint, output);
-	        else if ((codepoint & ~0xFFL) == 0 && !ascii)
-    	            fputc(codepoint, output);
+            case '\0': return;
+            case '\xA0': fputs("&nbsp;", output); break;
+            case '\xE4': fputs("&auml;", output); break;
+            case '\xF6': fputs("&ouml;", output); break;
+            case '\xFC': fputs("&uuml;", output); break;
+            case '\xC4': fputs("&Auml;", output); break;
+            case '\xD6': fputs("&Ouml;", output); break;
+            case '\xDC': fputs("&Uuml;", output); break;
+            case '\xDF': fputs("&szlig;", output); break;
+            default:
+                if ((codepoint & ~0x7FL) == 0)
+                    fputc(codepoint, output);
+                else if ((codepoint & ~0xFFL) == 0 && !ascii)
+                    fputc(codepoint, output);
                 else 
-    	            fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
-	    }
+                    fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
+            }
         }
     }
 }
 
 /*
- * Write UTF-8
+ * Write UTF-8.
  */
 static void
 encode_u(char *doc, int szdoc, FILE *output)
@@ -308,7 +370,10 @@ encode_u(char *doc, int szdoc, FILE *output)
 
 /* write the html to a file (xmlified if necessary)
  */
+
 #define OUT_MASK (MKD_OUT_ASCII | MKD_OUT_LATIN1 | MKD_OUT_UTF8)
+#define IN_MASK (MKD_IN_LATIN1 | MKD_IN_UTF8)
+
 int
 mkd_generatehtml(Document *p, FILE *output)
 {
@@ -316,16 +381,24 @@ mkd_generatehtml(Document *p, FILE *output)
     int szdoc;
     int ascii = (p->ctx->flags & OUT_MASK) == MKD_OUT_ASCII;
     int utf8  = (p->ctx->flags & OUT_MASK) == MKD_OUT_UTF8;
+    int inlatin1 = (p->ctx->flags & IN_MASK) == MKD_IN_LATIN1;
 
     if ( (szdoc = mkd_document(p, &doc)) != EOF ) {
-	if ( p->ctx->flags & MKD_CDATA )
-	    mkd_generatexml(doc, szdoc, output);
-	else if (utf8)
-	    encode_u(doc, szdoc, output);
-        else 
-	    encode_a(doc, szdoc, output, ascii);
-	putc('\n', output);
-	return 0;
+        if ( p->ctx->flags & MKD_CDATA )
+            mkd_generatexml(doc, szdoc, output);
+        else if (inlatin1) {
+	    if (utf8)
+                encode_lu(doc, szdoc, output);
+	    else
+                encode_la(doc, szdoc, output, ascii);
+	} else {
+	    if (utf8)
+                encode_u(doc, szdoc, output);
+            else 
+                encode_a(doc, szdoc, output, ascii);
+	}
+        putc('\n', output);
+        return 0;
     }
     return -1;
 }
@@ -337,9 +410,9 @@ int
 markdown(Document *document, FILE *out, int flags)
 {
     if ( mkd_compile(document, flags) ) {
-	mkd_generatehtml(document, out);
-	mkd_cleanup(document);
-	return 0;
+        mkd_generatehtml(document, out);
+        mkd_cleanup(document);
+        return 0;
     }
     return -1;
 }
@@ -349,7 +422,7 @@ markdown(Document *document, FILE *out, int flags)
  */
 void
 mkd_string_to_anchor(char *s, int len, mkd_sta_function_t outchar,
-				       void *out, int labelformat)
+                                       void *out, int labelformat)
 {
     unsigned char c;
 
@@ -359,21 +432,21 @@ mkd_string_to_anchor(char *s, int len, mkd_sta_function_t outchar,
     size = mkd_line(s, len, &line, IS_LABEL);
     
     if ( labelformat && (size>0) && !isalpha(line[0]) )
-	(*outchar)('L',out);
+        (*outchar)('L',out);
     for ( i=0; i < size ; i++ ) {
-	c = line[i];
-	if ( labelformat ) {
-	    if ( isalnum(c) || (c == '_') || (c == ':') || (c == '-') || (c == '.' ) )
-		(*outchar)(c, out);
-	    else
-		(*outchar)('.', out);
-	}
-	else
-	    (*outchar)(c,out);
+        c = line[i];
+        if ( labelformat ) {
+            if ( isalnum(c) || (c == '_') || (c == ':') || (c == '-') || (c == '.' ) )
+                (*outchar)(c, out);
+            else
+                (*outchar)('.', out);
+        }
+        else
+            (*outchar)(c,out);
     }
-	
+        
     if (line)
-	free(line);
+        free(line);
 }
 
 
@@ -400,19 +473,19 @@ mkd_line(char *bfr, int size, char **res, DWORD flags)
     mkd_parse_line(bfr, size, &f, flags);
 
     if ( len = S(f.out) ) {
-	/* kludge alert;  we know that T(f.out) is malloced memory,
-	 * so we can just steal it away.   This is awful -- there
-	 * should be an opaque method that transparently moves 
-	 * the pointer out of the embedded Cstring.
-	 */
-	EXPAND(f.out) = 0;
-	*res = T(f.out);
-	T(f.out) = 0;
-	S(f.out) = ALLOCATED(f.out) = 0;
+        /* kludge alert;  we know that T(f.out) is malloced memory,
+         * so we can just steal it away.   This is awful -- there
+         * should be an opaque method that transparently moves 
+         * the pointer out of the embedded Cstring.
+         */
+        EXPAND(f.out) = 0;
+        *res = T(f.out);
+        T(f.out) = 0;
+        S(f.out) = ALLOCATED(f.out) = 0;
     }
     else {
-	 *res = 0;
-	 len = EOF;
+         *res = 0;
+         len = EOF;
      }
     ___mkd_freemmiot(&f, 0);
     return len;
@@ -428,9 +501,9 @@ mkd_generateline(char *bfr, int size, FILE *output, DWORD flags)
 
     mkd_parse_line(bfr, size, &f, flags);
     if ( flags & MKD_CDATA )
-	mkd_generatexml(T(f.out), S(f.out), output);
+        mkd_generatexml(T(f.out), S(f.out), output);
     else
-	fwrite(T(f.out), S(f.out), 1, output);
+        fwrite(T(f.out), S(f.out), 1, output);
 
     ___mkd_freemmiot(&f, 0);
     return 0;
@@ -443,7 +516,7 @@ void
 mkd_e_url(Document *f, mkd_callback_t edit)
 {
     if ( f )
-	f->cb.e_url = edit;
+        f->cb.e_url = edit;
 }
 
 
@@ -453,7 +526,7 @@ void
 mkd_e_flags(Document *f, mkd_callback_t edit)
 {
     if ( f )
-	f->cb.e_flags = edit;
+        f->cb.e_flags = edit;
 }
 
 
@@ -463,7 +536,7 @@ void
 mkd_e_free(Document *f, mkd_free_t dealloc)
 {
     if ( f )
-	f->cb.e_free = dealloc;
+        f->cb.e_free = dealloc;
 }
 
 
@@ -473,7 +546,7 @@ void
 mkd_e_data(Document *f, void *data)
 {
     if ( f )
-	f->cb.e_data = data;
+        f->cb.e_data = data;
 }
 
 
@@ -483,5 +556,5 @@ void
 mkd_ref_prefix(Document *f, char *data)
 {
     if ( f )
-	f->ref_prefix = data;
+        f->ref_prefix = data;
 }

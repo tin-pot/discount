@@ -58,6 +58,7 @@ static struct _opt {
     { "wiki",          "wiki links (from baseurl)",  0, 0, 1, MKD_WIKI },
     { "ascii",         "encode to ASCII",            0, 0, 1, MKD_OUT_ASCII },
     { "latin1",        "encode to ISO 8859-1",       0, 0, 1, MKD_OUT_LATIN1 },
+    { "inlatin1",      "decode from ISO 8859-1",     0, 0, 1, MKD_IN_LATIN1 },
     { "unicode",       "encode to UTF-8",            0, 0, 1, MKD_WIKI },
 } ;
 

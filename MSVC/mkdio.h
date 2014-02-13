@@ -112,6 +112,8 @@ void mkd_ref_prefix(MMIOT*, char*);
 #define MKD_OUT_UTF8    0x00000000      /* Output UTF-8. */
 #define MKD_OUT_ASCII   0x02000000      /* Output US-ASCII */
 #define MKD_OUT_LATIN1  0x04000000      /* Output ISO 8859-1 */
+#define MKD_IN_LATIN1   0x08000000      /* Input is in ISO 8859-1 */
+#define MKD_IN_UTF8     0x00000000      /* Input is in UTF-8 */
 #define MKD_EMBED	MKD_NOLINKS|MKD_NOIMAGE|MKD_TAGTEXT
 
 /* special flags for mkd_in() and mkd_string()
