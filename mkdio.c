@@ -174,9 +174,11 @@ mkd_string(const char *buf, int len, DWORD flags)
     return populate((getc_func)__mkd_io_strget, &about, flags & INPUT_MASK);
 }
 
-
+/*
+ * Write US-ASCII.
+ */
 static void
-encode(char *doc, int szdoc, FILE *output)
+encode_a(char *doc, int szdoc, FILE *output)
 {
     char *end = doc + szdoc;
     char ch;
@@ -199,6 +201,22 @@ encode(char *doc, int szdoc, FILE *output)
     }
 }
 
+/*
+ * Write UTF-8
+ */
+static void
+encode_u(char *doc, int szdoc, FILE *output)
+{
+    char *end = doc + szdoc;
+    char octet;
+    
+    while (doc < end)
+        if ((octet = *doc++) != 0)
+            fputc(octet, output);
+        else
+            break;
+}
+
 /* write the html to a file (xmlified if necessary)
  */
 int
@@ -211,7 +229,7 @@ mkd_generatehtml(Document *p, FILE *output)
 	if ( p->ctx->flags & MKD_CDATA )
 	    mkd_generatexml(doc, szdoc, output);
 	else 
-	    encode(doc, szdoc, output);
+	    encode_u(doc, szdoc, output);
 	putc('\n', output);
 	return 0;
     }

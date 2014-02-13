@@ -188,7 +188,7 @@ char **argv;
         markdown_version);
 
     fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"
-                   "        content=\"text/html; charset=US-ASCII\">\n");
+                   "        content=\"text/html; charset=UTF-8\">\n");
 
     for ( i=0; i < S(css); i++ )
         fprintf(output, "  <link rel=\"stylesheet\"\n"
