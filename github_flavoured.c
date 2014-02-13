@@ -42,8 +42,8 @@ gfm_populate(getc_func getc, void* ctx, int flags)
 		else
 		    pandoc = EOF;
 	    }
-            
-            if (pandoc == EOF) {
+	    
+	    if (pandoc == EOF) {
 		EXPAND(line) = ' ';
 		EXPAND(line) = ' ';
 	    }
