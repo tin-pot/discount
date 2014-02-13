@@ -95,18 +95,18 @@ char **argv;
     CREATE(footers);
     pgm = basename(argv[0]);
 
-    while ( argc ) {
-        if ( strcmp(argv[1], "-css") == 0 ) {
+    while ( argc > 1) {
+        if ( argc > 2 && strcmp(argv[1], "-css") == 0 ) {
             EXPAND(css) = argv[2];
             argc -= 2;
             argv += 2;
         }
-        else if ( strcmp(argv[1], "-header") == 0 ) {
+        else if ( argc > 2 && strcmp(argv[1], "-header") == 0 ) {
             EXPAND(headers) = argv[2];
             argc -= 2;
             argv += 2;
         }
-        else if ( strcmp(argv[1], "-footer") == 0 ) {
+        else if ( argc > 2 && strcmp(argv[1], "-footer") == 0 ) {
             EXPAND(footers) = argv[2];
             argc -= 2;
             argv += 2;
