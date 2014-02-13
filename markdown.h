@@ -123,8 +123,14 @@ typedef struct mmiot {
 #define MKD_NODLIST	0x00100000
 #define MKD_EXTRA_FOOTNOTE 0x00200000
 #define MKD_NOSTYLE	0x00400000
-#define MKD_WIKI        0x00800000 /* make urlbase relative links for wiki `[pagename]` syntax */
-#define MKD_XML         0x01000000 /* XML <br/>  and <... />  tags. */
+
+#define MKD_WIKI        0x00800000      /* make urlbase relative links for wiki `[pagename]` syntax */
+#define MKD_XML         0x01000000      /* XML <br/>  and <... />  tags. */
+
+#define MKD_OUT_UTF8    0x00000000      /* Output UTF-8. */
+#define MKD_OUT_ASCII   0x02000000      /* Output US-ASCII */
+#define MKD_OUT_LATIN1  0x04000000      /* Output ISO 8859-1 */
+
 #define IS_LABEL	0x08000000
 #define USER_FLAGS	0x0FFFFFFF
 #define INPUT_MASK	(MKD_NOHEADER|MKD_TABSTOP)

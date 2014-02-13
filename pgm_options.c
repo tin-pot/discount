@@ -56,6 +56,9 @@ static struct _opt {
     { "footnote",      "markdown extra footnotes",   0, 1, 1, MKD_EXTRA_FOOTNOTE },
     { "style",         "extract style blocks",       1, 0, 1, MKD_NOSTYLE },
     { "wiki",          "wiki links (from baseurl)",  0, 0, 1, MKD_WIKI },
+    { "ascii",         "encode to ASCII",            0, 0, 1, MKD_OUT_ASCII },
+    { "latin1",        "encode to ISO 8859-1",       0, 0, 1, MKD_OUT_LATIN1 },
+    { "unicode",       "encode to UTF-8",            0, 0, 1, MKD_WIKI },
 } ;
 
 #define NR(x)	(sizeof x / sizeof x[0])

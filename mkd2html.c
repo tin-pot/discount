@@ -74,6 +74,9 @@ char **argv;
     int i;
     FILE *input, *output; 
     STRING(char*) css, headers, footers;
+    mkd_flag_t outenc = MKD_OUT_UTF8;
+    mkd_flag_t flags = 0;
+    const char *charset;
     enum { Transitional, Strict, Iso } doctype = Transitional;
     const char *const docdecl[] = {
         "-//W3C//DTD HTML 4.01 Transitional//EN", 
@@ -114,8 +117,14 @@ char **argv;
             while ((ch = *++opt) != '\0') switch (ch) {
             case 'S': doctype = Strict; continue;
             case 'I': doctype = Iso;    continue;
+            case 'A': outenc = MKD_OUT_ASCII; continue;
+            case 'L': outenc = MKD_OUT_LATIN1; continue;
+            case 'U': outenc = MKD_OUT_UTF8; continue;
             default: 
-                fprintf(stderr, "usage: %s [opts] source [dest]\n", pgm);
+                fprintf(stderr, 
+                "usage: %s [-S | -I] [-A | -L | -U ] "
+                "[-css URL] [-header text] [-footer text] [ source [dest] ]\n",
+                 pgm);
                 exit(1);
             }
             argc -= 1;
@@ -162,15 +171,29 @@ char **argv;
 
     default:
         fprintf(stderr,
-                "usage: %s [-S | -I] "
-                "[-css URL] [-header text] [-footer text] [ source [dest] ]\n", pgm);
+                "usage: %s [-S | -I] [-A | -L | -U ] "
+                "[-css URL] [-header text] [-footer text] [ source [dest] ]\n",
+                 pgm);
         exit(1);
     }
 
-    if ( (mmiot = mkd_in(input, 0)) == 0 )
+    switch (outenc) {
+    case MKD_OUT_ASCII:  charset = "US-ASCII";
+                         flags |= MKD_OUT_ASCII;
+                         break;
+    case MKD_OUT_LATIN1: charset = "ISO-8859-1";
+                         flags |= MKD_OUT_LATIN1;
+                         break;
+    case MKD_OUT_UTF8: default:
+                         charset = "UTF-8";
+                         flags |= MKD_OUT_UTF8;
+                         break;
+    }
+    
+    if ( (mmiot = mkd_in(input, flags)) == 0 )
         fail("can't read %s", source ? source : "stdin");
 
-    if ( !mkd_compile(mmiot, 0) )
+    if ( !mkd_compile(mmiot, flags) )
         fail("couldn't compile input");
 
 
@@ -186,9 +209,10 @@ char **argv;
         docdecl[doctype],
         docdtd[doctype],
         markdown_version);
-
+    
     fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"
-                   "        content=\"text/html; charset=UTF-8\">\n");
+                   "        content=\"text/html; charset=%s\">\n",
+                   charset);
 
     for ( i=0; i < S(css); i++ )
         fprintf(output, "  <link rel=\"stylesheet\"\n"
@@ -197,7 +221,7 @@ char **argv;
 
     if ( h ) {
         fprintf(output,"  <title>");
-        mkd_generateline(h, strlen(h), output, 0);
+        mkd_generateline(h, strlen(h), output, flags);
         fprintf(output, "</title>\n");
     }
     for ( i=0; i < S(headers); i++ )

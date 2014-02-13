@@ -175,29 +175,118 @@ mkd_string(const char *buf, int len, DWORD flags)
 }
 
 /*
- * Write US-ASCII.
+ * Read UCS codepoint from UTF-8 string, return number of bytes
+ * consumed.
+ */
+ 
+#define ISUTF8_LEAD2(c)    (0xC0 == ((c) & 0xE0U))
+#define ISUTF8_LEAD3(c)    (0xE0 == ((c) & 0xF0U))
+#define ISUTF8_LEAD4(c)    (0xF0 == ((c) & 0xF1U))
+#define ISUTF8_TRAIL(c)    (0x80 == ((c) & 0xC0U))
+#define VALUTF8_LEAD2(c)   ((c) & ~0xE0U)
+#define VALUTF8_LEAD3(c)   ((c) & ~0xF0U)
+#define VALUTF8_LEAD4(c)   ((c) & ~0xF1U)
+#define VALUTF8_TRAIL(c)   ((c) & ~0xC0U)
+
+size_t
+fromutf8(const char *const str, long *pucs)
+{
+    unsigned octet;
+    unsigned codepoint;
+    size_t num, k = 0;
+    
+    octet = str[k] & 0xFFU;
+    
+    /*
+     * Check leading octet of this sequence.
+     */
+    if (ISUTF8_TRAIL(octet)) {                /* INVALID first octet. */
+        return 0;
+    } else if (ISUTF8_LEAD2(octet)) {             /* 2-byte sequence. */
+        num = 2;
+        codepoint = VALUTF8_LEAD2(octet);
+    } else if (ISUTF8_LEAD3(octet)) {             /* 3-byte sequence. */
+        num = 3;
+        codepoint = VALUTF8_LEAD3(octet);
+    } else if (ISUTF8_LEAD4(octet)) {             /* 4-byte sequence. */
+        num = 4;
+        codepoint = VALUTF8_LEAD4(octet);
+    } else {                           /* VALID single octet (ASCII). */
+        num = 1;
+        codepoint = octet;
+    }
+        
+    /*
+     * Collect trailing octets into codepoint value.
+     */
+    for (k = 1; k < num; ++k) {
+        octet = str[k] & 0xFFU;
+        if (!ISUTF8_TRAIL(octet))
+            return 0;         /* INVALID (or missing) trailing octet. */
+        codepoint = (codepoint << 6) | VALUTF8_TRAIL(octet);
+    }
+    
+    *pucs = codepoint;
+    return num;
+}
+
+/*
+ * Write US-ASCII (and / or ISO 8859-1?).
  */
 static void
-encode_a(char *doc, int szdoc, FILE *output)
+encode_a(char *doc, int szdoc, FILE *output, int ascii)
 {
-    char *end = doc + szdoc;
-    char ch;
+    char *end;
+    size_t len;
     
-    while (doc < end) switch (ch = *doc++) {
-        case '\xA0': fputs("&nbsp;", output); break;
-        case '\xE4': fputs("&auml;", output); break;
-        case '\xF6': fputs("&ouml;", output); break;
-        case '\xFC': fputs("&uuml;", output); break;
-        case '\xC4': fputs("&Auml;", output); break;
-        case '\xD6': fputs("&Ouml;", output); break;
-        case '\xDC': fputs("&Uuml;", output); break;
-        case '\xDF': fputs("&szlig;", output); break;
-        default :
-            if (1 <= ch && ch <= 127)
-                fputc(ch, output);
-            else
-                fprintf(output, "&#%d;", ch & 0xFF);
-            break;
+    for (end = doc + szdoc; doc < end; doc += len) {
+	long codepoint;
+
+	len = fromutf8(doc, &codepoint);
+	if (len > 0) {
+	    if (ascii)
+    	        switch (codepoint) {
+    	        case '\xA0': fputs("&nbsp;", output); break;
+    	        case '\xE4': fputs("&auml;", output); break;
+    	        case '\xF6': fputs("&ouml;", output); break;
+    	        case '\xFC': fputs("&uuml;", output); break;
+    	        case '\xC4': fputs("&Auml;", output); break;
+    	        case '\xD6': fputs("&Ouml;", output); break;
+    	        case '\xDC': fputs("&Uuml;", output); break;
+    	        case '\xDF': fputs("&szlig;", output); break;
+    	        default :
+    		    if ((codepoint & ~0x7FL) == 0)
+    		        fputc(codepoint, output);
+    		    else
+    		        fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
+    		    break;
+    	        }
+	    else if ((codepoint & ~0xFFL) == 0)
+	        fputc(codepoint, output);
+            else 
+	        fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
+        } else {
+            /* Not a UTF-8 sequence? Could be ISO 8859. */
+	    len = 1;
+            switch (codepoint = *doc) {
+	    case '\0': return;
+	    case '\xA0': fputs("&nbsp;", output); break;
+	    case '\xE4': fputs("&auml;", output); break;
+	    case '\xF6': fputs("&ouml;", output); break;
+	    case '\xFC': fputs("&uuml;", output); break;
+	    case '\xC4': fputs("&Auml;", output); break;
+	    case '\xD6': fputs("&Ouml;", output); break;
+	    case '\xDC': fputs("&Uuml;", output); break;
+	    case '\xDF': fputs("&szlig;", output); break;
+	    default:
+    	        if ((codepoint & ~0x7FL) == 0)
+    	            fputc(codepoint, output);
+	        else if ((codepoint & ~0xFFL) == 0 && !ascii)
+    	            fputc(codepoint, output);
+                else 
+    	            fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
+	    }
+        }
     }
 }
 
@@ -219,17 +308,22 @@ encode_u(char *doc, int szdoc, FILE *output)
 
 /* write the html to a file (xmlified if necessary)
  */
+#define OUT_MASK (MKD_OUT_ASCII | MKD_OUT_LATIN1 | MKD_OUT_UTF8)
 int
 mkd_generatehtml(Document *p, FILE *output)
 {
     char *doc;
     int szdoc;
+    int ascii = (p->ctx->flags & OUT_MASK) == MKD_OUT_ASCII;
+    int utf8  = (p->ctx->flags & OUT_MASK) == MKD_OUT_UTF8;
 
     if ( (szdoc = mkd_document(p, &doc)) != EOF ) {
 	if ( p->ctx->flags & MKD_CDATA )
 	    mkd_generatexml(doc, szdoc, output);
-	else 
+	else if (utf8)
 	    encode_u(doc, szdoc, output);
+        else 
+	    encode_a(doc, szdoc, output, ascii);
 	putc('\n', output);
 	return 0;
     }
