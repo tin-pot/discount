@@ -77,6 +77,7 @@ char **argv;
     mkd_flag_t outenc = MKD_OUT_UTF8;
     mkd_flag_t inenc  = MKD_IN_UTF8;
     mkd_flag_t flags = 0;
+    int toc = 0;
     const char *charset;
     enum { Transitional, Strict, Iso } doctype = Transitional;
     const char *const docdecl[] = {
@@ -122,6 +123,7 @@ char **argv;
 	    case 'L': outenc = MKD_OUT_LATIN1; continue;
 	    case 'U': outenc = MKD_OUT_UTF8; continue;
 	    case 'l': inenc  = MKD_IN_LATIN1; continue;
+	    case 'T': toc = 1; continue;
 	    default: 
 		fprintf(stderr, 
 		"usage: %s [-S | -I] [-A | -L | -U ] [-l] "
@@ -173,12 +175,15 @@ char **argv;
 
     default:
 	fprintf(stderr,
-		"usage: %s [-S | -I] [-A | -L | -U ] [-l] "
+		"usage: %s [-S | -I] [-A | -L | -U ] [-l] [-T] "
 		"[-css URL] [-header text] [-footer text] [ source [dest] ]\n",
 		 pgm);
 	exit(1);
     }
 
+    /*
+     * Set up flags.
+     */
     switch (outenc) {
     case MKD_OUT_ASCII:  charset = "US-ASCII";
 			 flags |= MKD_OUT_ASCII;
@@ -200,6 +205,9 @@ char **argv;
                          break;
     }
     
+    if (toc)
+	flags |= MKD_TOC;
+	
     if ( (mmiot = mkd_in(input, flags)) == 0 )
 	fail("can't read %s", source ? source : "stdin");
 
@@ -239,8 +247,10 @@ char **argv;
     fprintf(output, "</head>\n"
 		    "<body>\n");
 
+    if (toc)
+        mkd_generatetoc(mmiot, output);
+        
     /* print the compiled body */
-
     mkd_generatehtml(mmiot, output);
 
     for ( i=0; i < S(footers); i++ )
