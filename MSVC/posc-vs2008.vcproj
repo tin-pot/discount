@@ -18,16 +18,16 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
+			OutputDirectory="$(ProjectDir)$(PlatformName)\$(ConfigurationName)\"
+			IntermediateDirectory="$(ProjectDir)\posc\"
 			ConfigurationType="0"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\ OPTS=/MLd all"
-				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake distclean &amp;&amp; nmake OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\ OPTS=/MLd all"
-				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\ clean"
+				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake all &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
+				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake clean all &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
+				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake distclean &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
 				Output="$(ProjectDir)$(PlatformName)\$(ConfigurationName)\posc.lib"
 				PreprocessorDefinitions=""
 				IncludeSearchPath=""
@@ -39,16 +39,16 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
+			OutputDirectory="$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)\posc\"
 			ConfigurationType="0"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\ OPTS=/ML all"
-				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake distclean &amp;&amp; nmake OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\ OPTS=/ML all"
-				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\ clean"
+				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake &quot;OUTDIR=$(OutDir)&quot; all"
+				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake clean all &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
+				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake distclean &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
 				Output="$(ProjectDir)$(PlatformName)\$(ConfigurationName)\posc.lib"
 				PreprocessorDefinitions=""
 				IncludeSearchPath=""
