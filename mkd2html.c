@@ -39,6 +39,9 @@
 
 char *pgm = "mkd2html";
 
+#define DEFAULT_FLAGS (MKD_EXTRA_FOOTNOTE)
+/* | MKD_IN_LATIN1 | MKD_OUT_LATIN1) */
+
 #ifndef HAVE_BASENAME
 char *
 basename(char *path)
@@ -76,7 +79,7 @@ char **argv;
     STRING(char*) css, headers, footers;
     mkd_flag_t outenc = MKD_OUT_UTF8;
     mkd_flag_t inenc  = MKD_IN_UTF8;
-    mkd_flag_t flags = 0;
+    mkd_flag_t flags = DEFAULT_FLAGS;
     int toc = 0;
     const char *charset;
     enum { Transitional, Strict, Iso } doctype = Transitional;
@@ -86,9 +89,9 @@ char **argv;
 	"ISO/IEC 15445:2000//DTD HTML//EN"
     };
     const char *const docdtd[] = {
-	" \"http://www.w3.org/TR/html4/loose.dtd\"",
-	" \"http://www.w3.org/TR/html4/strict.dtd\"",
-	""
+	"http://www.w3.org/TR/html4/loose.dtd",
+	"http://www.w3.org/TR/html4/strict.dtd",
+	NULL
     };
 
 
@@ -220,12 +223,14 @@ char **argv;
     /* print a header */
 
     fprintf(output,
-	"<!doctype html public \"%s\"%s>\n"
+	"<!doctype html public\t\"%s\"%s%s%s>\n"
 	"<html>\n"
 	"<head>\n"
 	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\">\n",
 	docdecl[doctype],
-	docdtd[doctype],
+	docdtd[doctype] ? "\n\t\t\t\"" : "",
+	docdtd[doctype] ? docdtd[doctype] : "",
+	docdtd[doctype] ? "\"" : "",
 	markdown_version);
     
     fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"

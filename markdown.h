@@ -133,7 +133,7 @@ typedef struct mmiot {
 #define MKD_IN_LATIN1   0x08000000      /* Input is in ISO 8859-1 */
 #define MKD_IN_UTF8     0x00000000      /* Input is in UTF-8 */
 
-#define IS_LABEL	0x08000000
+#define IS_LABEL	0x10000000
 #define USER_FLAGS	0x0FFFFFFF
 #define INPUT_MASK	(MKD_NOHEADER|MKD_TABSTOP)
 
