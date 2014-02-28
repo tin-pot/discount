@@ -258,4 +258,5 @@ int getopt(int argc, char** argv, char* optstr)
 	return c;
 }
 
-/* vim:ts=3: */
+/* vim:ts=3:
+*/
