@@ -644,7 +644,7 @@ extra_linky(MMIOT *f, Cstring text, Footnote *ref)
     else {
 	ref->flags |= REFERENCED;
 	ref->refnumber = ++ f->reference;
-	Qprintf(f, "<sup id=\"%sref:%d\"><a href=\"#%s:%d\" rel=\"footnote\">%d</a></sup>",
+	Qprintf(f, "<sup id=\"%sref:%d\"><a class=\"fnref\" href=\"#%s:%d\" rel=\"footnote\">%d</a></sup>",
 		p_or_nothing(f), ref->refnumber,
 		p_or_nothing(f), ref->refnumber, ref->refnumber);
     }
@@ -1706,8 +1706,12 @@ listdisplay(int typ, Paragraph *p, MMIOT* f)
 {
     if ( p ) {
 	Qprintf(f, "<%cl", (typ==UL)?'u':'o');
-	if ( typ == AL )
-	    Qprintf(f, " type=\"a\"");
+	if (f->flags & MKD_ISO)
+	    Qprintf(f, " class=\"%c\"", (typ == AL) ? 'a' : '1');
+	else {
+	    if ( typ == AL )
+	        Qprintf(f, " type=\"a\"");
+	}
 	Qprintf(f, ">\n");
 
 	for ( ; p ; p = p->next ) {
