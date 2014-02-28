@@ -17,6 +17,10 @@
 #include "markdown.h"
 #include "amalloc.h"
 
+/* Values for `image`: */
+#define IMG 1
+#define SVG 2
+
 typedef int (*stfu)(const void*,const void*);
 typedef void (*spanhandler)(MMIOT*,int);
 
@@ -409,7 +413,7 @@ linkybroket(MMIOT *f, int image, Footnote *p)
      */
     if ( ( c == '\'' || c == '"' ) && linkytitle(f,c,p) )
 	good=1;
-    else if ( image && (c == '=') && linkysize(f,p) )
+    else if ( image == IMG && (c == '=') && linkysize(f,p) )
 	good=1;
     else 
 	good=( c == ')' );
@@ -521,6 +525,9 @@ typedef struct linkytype {
 #define IS_WIKI 0x02
 } linkytype;
 
+static linkytype svgt   = { 0, 0, "<object type=\"text/svg\" data=\"", 
+                                  "\" ",
+                             1, " alt=\"", "\"></object>", MKD_NOIMAGE, IS_URL };
 static linkytype imaget = { 0, 0, "<img src=\"", "\"",
 			     1, " alt=\"", "\" />", MKD_NOIMAGE|MKD_TAGTEXT, IS_URL };
 static linkytype linkt  = { 0, 0, "<a href=\"", "\"",
@@ -608,7 +615,7 @@ printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
     } else
 	___mkd_reparse(link + tag->szpat, size - tag->szpat, MKD_TAGTEXT, f, 0);
 
-    imaget.link_sfx = (f->flags & MKD_XML) ? "\">" : "\" />";
+    imaget.link_sfx = (f->flags & MKD_XML) ? "" : "\"";
 
     Qstring(tag->link_sfx, f);
 
@@ -660,8 +667,10 @@ linkyformat(MMIOT *f, Cstring text, int image, Footnote *ref)
     linkytype *tag;
 
 
-    if ( image )
+    if ( image == IMG)
 	tag = &imaget;
+    else if (image == SVG) 
+        tag = &svgt;
     else if ( tag = pseudo(ref->link) ) {
 	if ( f->flags & (MKD_NO_EXT|MKD_SAFELINK) )
 	    return 0;
@@ -1293,7 +1302,15 @@ text(MMIOT *f)
 			
 	case '!':   if ( peek(f,1) == '[' ) {
 			pull(f);
-			if ( tag_text(f) || !linkylinky(1, f) )
+			if ( tag_text(f) || !linkylinky(IMG, f) )
+			    Qstring("![", f);
+		    }
+		    else
+			Qchar(c, f);
+		    break;
+	case '?':   if ( peek(f,1) == '[' ) {
+			pull(f);
+			if ( tag_text(f) || !linkylinky(SVG, f) )
 			    Qstring("![", f);
 		    }
 		    else
