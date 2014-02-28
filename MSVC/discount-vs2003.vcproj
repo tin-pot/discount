@@ -29,14 +29,10 @@
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="4"/>
 			<Tool
-				Name="VCCustomBuildTool"
-				Description="Rename discount tool to &quot;markdown.exe&quot;."
-				CommandLine="del /q &quot;$(TargetDir)\markdown.exe&quot; &amp;&amp; rename &quot;$(TargetPath)&quot; markdown.exe
-"
-				AdditionalDependencies="$(TargetPath)"
-				Outputs="$(TargetDir)markdown.exe"/>
+				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)/markdown.exe"
 				AdditionalLibraryDirectories="$(OutDir)"
 				IgnoreAllDefaultLibraries="FALSE"
 				GenerateDebugInformation="TRUE"
@@ -77,14 +73,10 @@
 				RuntimeLibrary="4"
 				WarningLevel="3"/>
 			<Tool
-				Name="VCCustomBuildTool"
-				Description="Rename discount tool to &quot;markdown.exe&quot;."
-				CommandLine="del /q &quot;$(TargetDir)\markdown.exe&quot; &amp;&amp; rename &quot;$(TargetPath)&quot; markdown.exe
-"
-				AdditionalDependencies="$(TargetPath)"
-				Outputs="$(TargetDir)markdown.exe"/>
+				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)/markdown.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)"
 				SubSystem="1"
