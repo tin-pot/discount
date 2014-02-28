@@ -526,9 +526,9 @@ typedef struct linkytype {
 } linkytype;
 
 static linkytype svgt   = { 0, 0, "<object type=\"image/svg+xml\" data=\"", "\"",
-                             1, " title=\"", "\">", MKD_NOIMAGE, IS_URL };
+                             1, " title=\"", "\"></object>", MKD_NOIMAGE, IS_URL };
 static linkytype imaget = { 0, 0, "<img src=\"", "\"",
-			     1, " title=\"", "\" />", MKD_NOIMAGE|MKD_TAGTEXT, IS_URL };
+			     1, " title=\"", "\">", MKD_NOIMAGE|MKD_TAGTEXT, IS_URL };
 static linkytype linkt  = { 0, 0, "<a href=\"", "\"",
                              0, ">", "</a>", MKD_NOLINKS, IS_URL };
 static linkytype wikit  = { 0, 0, "<a href=\"", "\"",
@@ -614,7 +614,7 @@ printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
     } else
 	___mkd_reparse(link + tag->szpat, size - tag->szpat, MKD_TAGTEXT, f, 0);
 
-    imaget.link_sfx = (f->flags & MKD_XML) ? "" : "\"";
+    imaget.link_sfx = (f->flags & MKD_XML) ? "\" />" : "\">";
 
     Qstring(tag->link_sfx, f);
 
