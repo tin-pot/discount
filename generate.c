@@ -525,11 +525,10 @@ typedef struct linkytype {
 #define IS_WIKI 0x02
 } linkytype;
 
-static linkytype svgt   = { 0, 0, "<object type=\"text/svg\" data=\"", 
-                                  "\" ",
-                             1, " alt=\"", "\"></object>", MKD_NOIMAGE, IS_URL };
+static linkytype svgt   = { 0, 0, "<object type=\"image/svg+xml\" data=\"", "\"",
+                             1, " title=\"", "\">", MKD_NOIMAGE, IS_URL };
 static linkytype imaget = { 0, 0, "<img src=\"", "\"",
-			     1, " alt=\"", "\" />", MKD_NOIMAGE|MKD_TAGTEXT, IS_URL };
+			     1, " title=\"", "\" />", MKD_NOIMAGE|MKD_TAGTEXT, IS_URL };
 static linkytype linkt  = { 0, 0, "<a href=\"", "\"",
                              0, ">", "</a>", MKD_NOLINKS, IS_URL };
 static linkytype wikit  = { 0, 0, "<a href=\"", "\"",
@@ -693,7 +692,7 @@ linkyformat(MMIOT *f, Cstring text, int image, Footnote *ref)
     else if ( tag->link_pfx ) {
 	printlinkyref(f, tag, T(ref->link), S(ref->link));
 
-	if ( tag->WxH ) {
+	if ( tag->WxH && (f->flags & MKD_ISO) == 0) {
 	    if ( ref->height ) Qprintf(f," height=\"%d\"", ref->height);
 	    if ( ref->width ) Qprintf(f, " width=\"%d\"", ref->width);
 	}
@@ -1724,7 +1723,7 @@ listdisplay(int typ, Paragraph *p, MMIOT* f)
     if ( p ) {
 	Qprintf(f, "<%cl", (typ==UL)?'u':'o');
 	if (f->flags & MKD_ISO)
-	    Qprintf(f, " class=\"%c\"", (typ == AL) ? 'a' : '1');
+	    Qprintf(f, " class=\"%s\"", (typ == AL) ? "alf" : "num");
 	else {
 	    if ( typ == AL )
 	        Qprintf(f, " type=\"a\"");

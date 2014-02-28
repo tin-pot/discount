@@ -40,7 +40,14 @@
 char *pgm = "mkd2html";
 
 #define DEFAULT_FLAGS (MKD_EXTRA_FOOTNOTE)
-/* | MKD_IN_LATIN1 | MKD_OUT_LATIN1) */
+
+#define IN_ENCODING_MASK \
+	(MKD_IN_LATIN1 | MKD_IN_UTF8)
+	
+#define OUT_ENCODING_MASK \
+	(MKD_OUT_ASCII | MKD_OUT_LATIN1 | MKD_IN_UTF8)
+	
+#define SETBITS(var, val, mask) ((var) = (var) & ~(mask) | (val))
 
 #ifndef HAVE_BASENAME
 char *
@@ -77,24 +84,13 @@ char **argv;
     int i;
     FILE *input, *output; 
     STRING(char*) css, headers, footers;
-    mkd_flag_t outenc = MKD_OUT_UTF8;
-    mkd_flag_t inenc  = MKD_IN_UTF8;
     mkd_flag_t flags = DEFAULT_FLAGS;
-    int toc = 0;
-    const char *charset;
-    enum { Transitional, Strict, Iso } doctype = Transitional;
-    const char *const docdecl[] = {
-	"-//W3C//DTD HTML 4.01 Transitional//EN", 
-	"-//W3C//DTD HTML 4.01//EN", 
-	"ISO/IEC 15445:2000//DTD HTML//EN"
-    };
-    const char *const docdtd[] = {
-	"http://www.w3.org/TR/html4/loose.dtd",
-	"http://www.w3.org/TR/html4/strict.dtd",
-	NULL
-    };
-
-
+    
+    int strict = 0;
+    const char *charset = "UTF-8";
+    const char *doctyp = "-//W3C//DTD HTML 4.01 Transitional//EN"; 
+    const char *docdtd = "http://www.w3.org/TR/html4/loose.dtd";
+    
     CREATE(css);
     CREATE(headers);
     CREATE(footers);
@@ -120,18 +116,38 @@ char **argv;
 	    char ch, *opt = argv[1];
 	    
 	    while ((ch = *++opt) != '\0') switch (ch) {
-	    case 'S': doctype = Strict; continue;
-	    case 'I': doctype = Iso; flags |= MKD_ISO;    continue;
-	    case 'A': outenc = MKD_OUT_ASCII; continue;
-	    case 'L': outenc = MKD_OUT_LATIN1; continue;
-	    case 'U': outenc = MKD_OUT_UTF8; continue;
-	    case 'l': inenc  = MKD_IN_LATIN1; continue;
-	    case 'T': toc = 1; continue;
+	    case 'S':
+    		doctyp=	"-//W3C//DTD HTML 4.01//EN"; 
+    		docdtd=	"http://www.w3.org/TR/html4/strict.dtd";
+		SETBITS(flags, 0, MKD_ISO);
+    		break;
+	    case 'I':
+		doctyp = "ISO/IEC 15445:2000//DTD HTML//EN";
+		docdtd = NULL;
+		SETBITS(flags, MKD_ISO, MKD_ISO);
+		break;
+	    case 'A':
+		charset = "US-ASCII";
+		SETBITS(flags, MKD_OUT_ASCII, OUT_ENCODING_MASK); 
+		break;
+	    case 'L':
+		charset = "ISO-8859-1";
+		SETBITS(flags, MKD_OUT_LATIN1, OUT_ENCODING_MASK); 
+		break;
+	    case 'U':
+		charset = "UTF-8";
+		SETBITS(flags, MKD_OUT_UTF8, OUT_ENCODING_MASK);   
+		break;
+	    case 'l':
+		SETBITS(flags, MKD_IN_LATIN1, IN_ENCODING_MASK);
+		break;
+	    case 'T':
+		SETBITS(flags, MKD_TOC, MKD_TOC);
+		break;
 	    default: 
-		fprintf(stderr, 
-		"usage: %s [-S | -I] [-A | -L | -U ] [-l] "
-		"[-css URL] [-header text] [-footer text] [ source [dest] ]\n",
-		 pgm);
+		fprintf(stderr, "usage: %s [-S | -I] [-A | -L | -U ] [-l] "
+			"[-css URL] [-header text] "
+			"[-footer text] [ source [dest] ]\n",       pgm);
 		exit(1);
 	    }
 	    argc -= 1;
@@ -175,8 +191,9 @@ char **argv;
         }
         
         /*
-         * Open output from filearg (.html).
+         * Open output from filearg after setting `.html` if required.
          */
+         
     	dest   = malloc(strlen(filearg) + 6);
     	if (dest == NULL)
     	    fail("out of memory allocating name buffers");
@@ -197,38 +214,10 @@ char **argv;
 	exit(1);
     }
 
-    /*
-     * Set up flags.
-     */
-    switch (outenc) {
-    case MKD_OUT_ASCII:  charset = "US-ASCII";
-			 flags |= MKD_OUT_ASCII;
-			 break;
-    case MKD_OUT_LATIN1: charset = "ISO-8859-1";
-			 flags |= MKD_OUT_LATIN1;
-			 break;
-    case MKD_OUT_UTF8: default:
-			 charset = "UTF-8";
-			 flags |= MKD_OUT_UTF8;
-			 break;
-    }
-    
-    switch (inenc) {
-    case MKD_IN_LATIN1:  flags |= MKD_IN_LATIN1;
-                         break;
-    case MKD_IN_UTF8: default:
-                         flags |= MKD_IN_UTF8;
-                         break;
-    }
-    
-    if (toc)
-	flags |= MKD_TOC;
-	
     if ( (mmiot = mkd_in(input, flags)) == 0 )
 	fail("can't read %s", source ? source : "stdin");
     if ( !mkd_compile(mmiot, flags) )
 	fail("couldn't compile input");
-
 
     h = mkd_doc_title(mmiot);
 
@@ -239,11 +228,17 @@ char **argv;
 	"<html>\n"
 	"<head>\n"
 	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\">\n",
-	docdecl[doctype],
+	doctyp, 
+	docdtd ? "\n\t\t\t\"" : "",
+	docdtd ? docdtd : "",
+	docdtd ? "\"" : "",
+	markdown_version);
+	
+	
+/*	docdecl[doctype],
 	docdtd[doctype] ? "\n\t\t\t\"" : "",
 	docdtd[doctype] ? docdtd[doctype] : "",
-	docdtd[doctype] ? "\"" : "",
-	markdown_version);
+	docdtd[doctype] ? "\"" : "", */
     
     fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"
 		   "        content=\"text/html; charset=%s\">\n",
@@ -264,7 +259,7 @@ char **argv;
     fprintf(output, "</head>\n"
 		    "<body>\n");
 
-    if (toc)
+    if (flags & MKD_TOC)
         mkd_generatetoc(mmiot, output);
         
     /* print the compiled body */
