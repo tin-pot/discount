@@ -18,9 +18,9 @@
 			ConfigurationType="0">
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\&quot;  OPTS=/MLd all"
-				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake distclean &amp;&amp; nmake &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\&quot;  OPTS=/MLd all"
-				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\&quot; clean"
+				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake conf=$(ConfigurationName) all"
+				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake conf=$(ConfigurationName) distclean all"
+				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake conf=$(ConfigurationName) clean"
 				Output="$(ProjectDir)$(PlatformName)\$(ConfigurationName)\posc.lib"/>
 		</Configuration>
 		<Configuration
@@ -30,9 +30,9 @@
 			ConfigurationType="0">
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\&quot; OPTS=/ML all"
-				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake distclean &amp;&amp; nmake &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\&quot; OPTS=/ML all"
-				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)\&quot; clean"
+				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake conf=$(ConfigurationName) all"
+				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake conf=$(ConfigurationName) distclean all"
+				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake conf=$(ConfigurationName) clean"
 				Output="$(ProjectDir)$(PlatformName)\$(ConfigurationName)\posc.lib"/>
 		</Configuration>
 	</Configurations>
@@ -43,20 +43,92 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx;reg"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath=".\posc\findhdrdir.c">
+			</File>
+			<File
+				RelativePath=".\posc\getopt.c">
+			</File>
+			<File
+				RelativePath=".\posc\posc_getopt.c">
+			</File>
+			<File
+				RelativePath=".\posc\posc_snprintf.c">
+			</File>
+			<File
+				RelativePath=".\posc\posc_strdup.c">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\posc\getopt.h">
+			</File>
+			<File
+				RelativePath=".\posc\inttypes.h">
+			</File>
+			<File
+				RelativePath=".\posc\posc.h">
+			</File>
+			<File
+				RelativePath=".\posc\posc_hdrdir.h">
+			</File>
+			<File
+				RelativePath=".\posc\stdarg.h">
+			</File>
+			<File
+				RelativePath=".\posc\stdbool.h">
+			</File>
+			<File
+				RelativePath=".\posc\stddef.h">
+			</File>
+			<File
+				RelativePath=".\posc\stdint.h">
+			</File>
+			<File
+				RelativePath=".\posc\stdio.h">
+			</File>
+			<File
+				RelativePath=".\posc\string.h">
+			</File>
+			<File
+				RelativePath=".\posc\strings.h">
+			</File>
+			<File
+				RelativePath=".\posc\unistd.h">
+			</File>
 		</Filter>
 		<Filter
-			Name="Resource Files"
+			Name="Misc Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;manifest"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath=".\posc\build_env.bat">
+			</File>
+			<File
+				RelativePath=".\posc\LICENSE">
+			</File>
+			<File
+				RelativePath=".\posc\LICENSE-freegetopt">
+			</File>
+			<File
+				RelativePath=".\posc\Makefile">
+			</File>
+			<File
+				RelativePath=".\posc\README">
+			</File>
+			<File
+				RelativePath=".\posc\README-freegetopt">
+			</File>
+			<File
+				RelativePath=".\posc\README.html">
+			</File>
+			<File
+				RelativePath=".\posc\savcfg.bat">
+			</File>
 		</Filter>
-		<File
-			RelativePath=".\readme.txt">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
