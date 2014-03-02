@@ -4,19 +4,21 @@
 
 Porting C code using faux standard headers
 ==========================================
-->Martin Hofmann  
-<<tin-pot@gmx.net>>  
-2012-01-23<-
+
+>%center%
+> Martin Hofmann  
+> [`tin-pot@gmx.net`](mailto:tin-pot@gmx.net)  
+> 2014-01-23
 
 
 >%abstract%
->A common stumbling block when porting C source software are
- functions that are missing on the target platform, albeit often
- common and standardized like C99's `round()` function or POSIX's
- `strcasecmp()`. By the technique presented here, these "little"
- functions can be added to the compilation for porting, without
- the need to change either the source code or the installed
- compiler and environment.
+> A common stumbling block when porting C source software are
+> functions that are missing on the target platform, albeit often
+> common and standardized like C99's `round()` function or POSIX's
+> `strcasecmp()`. By the technique presented here, these "little"
+> functions can be added to the compilation for porting, without
+> the need to change either the source code or the installed
+> compiler and environment.
 
  
 Motivation  
@@ -152,7 +154,7 @@ this. This gives us a generated header file like the following
 #define POSC_TIME_HDR "C:\Program Files\MSVC2003\VC7\INCLUDE\time.h"
 ~~~
 
-Together with a fixed main include file `pisc/posc.h` with the
+Together with a fixed main include file `posc/posc.h` with the
 following content[^5] ...
 
 ~~~

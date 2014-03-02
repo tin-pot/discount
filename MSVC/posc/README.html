@@ -1,9 +1,10 @@
-<!doctype html public "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!doctype html public	"-//W3C//DTD HTML 4.01//EN"
+			"http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
   <meta name="GENERATOR" content="mkd2html 2.1.6/Win32 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
   <meta http-equiv="Content-Type"
-        content="text/html; charset=US-ASCII">
+        content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet"
         type="text/css"
         href="default.css">
@@ -12,17 +13,17 @@
 <body>
 <h1>Porting C code using faux standard headers</h1>
 
-<p style="text-align:center;">Martin Hofmann<br/>
-&lt;<a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#x74;&#105;&#x6e;&#x2d;&#x70;&#x6f;&#116;&#64;&#103;&#109;&#120;&#46;&#110;&#101;&#116;">&#116;&#x69;&#110;&#x2d;&#x70;&#x6f;&#x74;&#x40;&#103;&#x6d;&#120;&#x2e;&#x6e;&#x65;&#116;</a>><br/>
-2012-01-23</p>
+<div class="center"><p>Martin Hofmann<br>
+<a href="mailto:tin-pot@gmx.net"><code>tin-pot@gmx.net</code></a><br>
+2014-01-23</p></div>
 
 <div class="abstract"><p>A common stumbling block when porting C source software are
- functions that are missing on the target platform, albeit often
- common and standardized like C99&rsquo;s <code>round()</code> function or POSIX&rsquo;s
- <code>strcasecmp()</code>. By the technique presented here, these &ldquo;little&rdquo;
- functions can be added to the compilation for porting, without
- the need to change either the source code or the installed
- compiler and environment.</p></div>
+functions that are missing on the target platform, albeit often
+common and standardized like C99&rsquo;s <code>round()</code> function or POSIX&rsquo;s
+<code>strcasecmp()</code>. By the technique presented here, these &ldquo;little&rdquo;
+functions can be added to the compilation for porting, without
+the need to change either the source code or the installed
+compiler and environment.</p></div>
 
 <h2>Motivation  </h2>
 
@@ -93,10 +94,10 @@ not the pristine headers of the installed compiler. By the second
 goal, the workaround hacks are not to be inserted in those
 installed headers either, but we must direct the preprocessor to
 find the &ldquo;adapted&rdquo; header files elsewhere &mdash; before it finds the
-compiler&rsquo;s own headers<a href="Strictly">^1</a>.</p>
+compiler&rsquo;s own headers<sup id="fnref:1"><a class="fnref" href="#fn:1" rel="footnote">1</a></sup>.</p>
 
 <p>Let&rsquo;s say we put our modified headers in a special directory
-named<a href="The">^2</a> <code>posc</code>, containing all the modifications, emulations
+named<sup id="fnref:2"><a class="fnref" href="#fn:2" rel="footnote">2</a></sup> <code>posc</code>, containing all the modifications, emulations
 and adaptations we need:</p>
 
 <pre><code>posc/stdio.h  
@@ -155,8 +156,8 @@ this. This gives us a generated header file like the following
 #define POSC_TIME_HDR "C:\Program Files\MSVC2003\VC7\INCLUDE\time.h"
 </code></pre>
 
-<p>Together with a fixed main include file <code>pisc/posc.h</code> with the
-following content<a href="You">^5</a> &hellip;</p>
+<p>Together with a fixed main include file <code>posc/posc.h</code> with the
+following content<sup id="fnref:3"><a class="fnref" href="#fn:3" rel="footnote">3</a></sup> &hellip;</p>
 
 <pre><code>#ifndef POSC_H_INCLUDED
 #define POSC_H_INCLUDED
@@ -180,7 +181,7 @@ following content<a href="You">^5</a> &hellip;</p>
 </code></pre>
 
 <p>&hellip; we are ready to compose our &ldquo;faux&rdquo; header files: they rely
-on the defined location macros<a href="The">^3</a> to include the system&rsquo;s header
+on the defined location macros<sup id="fnref:4"><a class="fnref" href="#fn:4" rel="footnote">4</a></sup> to include the system&rsquo;s header
 files and add whatever workarounds are needed.</p>
 
 <h2>Examples  </h2>
@@ -204,7 +205,7 @@ containing this:</p>
 </code></pre>
 
 <p>The POSIX-defined string utilities are equally simple to provide
-in a selfmade <code>posc/strings.h</code> header<a href="As">^4</a>:</p>
+in a selfmade <code>posc/strings.h</code> header<sup id="fnref:5"><a class="fnref" href="#fn:5" rel="footnote">5</a></sup>:</p>
 
 <pre><code>#ifndef POSC_STRINGS_H_INCLUDED
 #define POSC_STRINGS_H_INCLUDED
@@ -251,7 +252,7 @@ distribution package is available containing:</p>
 
 <ul>
 <li>A tool <code>findhdrdir.c</code> to find the locations of the 18
-Standard<a href="By" title="Standard C">^6</a> C headers and then generate the <code>posc_hdrdir.h</code>
+Standard<sup id="fnref:6"><a class="fnref" href="#fn:6" rel="footnote">6</a></sup> C headers and then generate the <code>posc_hdrdir.h</code>
 file accordingly.</li>
 <li>The <code>posc.h</code> main header file.</li>
 <li>Facade header files for various C99 and POSIX functions added
@@ -289,7 +290,7 @@ be specified as:</p>
 <pre><code>cl /I.\posc source.c  /link /LIBPATH:.\posc 
 </code></pre>
 
-<p>The POSC headers add <code>posc.lib</code> as a default library if needed<a href="Using">^7</a>
+<p>The POSC headers add <code>posc.lib</code> as a default library if needed<sup id="fnref:7"><a class="fnref" href="#fn:7" rel="footnote">7</a></sup>
 so you don&rsquo;t need to indicate the library explicitly.</p>
 
 <h2>Links  </h2>
@@ -333,6 +334,26 @@ Wei&szlig;.</li>
 <li>There is an (even IT-related!) organization by the name <a href="http://en.wikipedia.org/wiki/POSC_Caesar" title="The POSC Caesar Association">&ldquo;POSC
 Caesar&rdquo;</a>.</li>
 </ul>
+
+<div class="footnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>Strictly speaking, we enter the realm of <em>undefined behaviour</em> here &hellip;<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>The name &ldquo;POSC&rdquo; was chosen because this string (1) seems to be not used by another library; (2) can be construed as an acronym of &ldquo;<strong>P</strong>orting <strong>o</strong>f <strong>S</strong>tandard <strong>C</strong> Code&rdquo;, or &ldquo;<strong>P</strong>orting <strong>O</strong>pen <strong>S</strong>ource <strong>C</strong> Code&rdquo; or &ldquo;<strong>Po</strong>rting <strong>Sc</strong>affold&rdquo; or &hellip;; (3) could suggest a vicinity to the <em>Portable Open Source Harness</em> <code>poshlib</code>.<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p>You are not expected to understand this macro tinkering ;-)<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+<li id="fn:4">
+<p>The ability to use macros in <code>#include</code> directives is a seldom-used feature in C &mdash; and on this occasion a very useful one!<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
+<li id="fn:5">
+<p>As <code>strings.h</code> is an <em>addition</em> to the existing headers, our technique is not really needed in this case &mdash; but the header certainly belongs into this same toolkit.<a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
+<li id="fn:6">
+<p>By &ldquo;Standard C&rdquo; we mean C90 here (ISO 9899-1990).<a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
+<li id="fn:7">
+<p>Using the MSVC <code>#pragma comment( lib, "posc.lib" )</code>.<a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
 
 </body>
 </html>
