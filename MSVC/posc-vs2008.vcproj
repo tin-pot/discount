@@ -25,9 +25,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake all &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
-				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake clean all &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
-				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake distclean &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
+				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(ConfigurationName) all"
+				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(ConfigurationName) distclean all"
+				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(ConfigurationName) clean"
 				Output="$(ProjectDir)$(PlatformName)\$(ConfigurationName)\posc.lib"
 				PreprocessorDefinitions=""
 				IncludeSearchPath=""
@@ -46,9 +46,9 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake &quot;OUTDIR=$(OutDir)&quot; all"
-				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake clean all &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
-				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake distclean &quot;OUTDIR=$(ProjectDir)$(PlatformName)\$(ConfigurationName)"
+				BuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(ConfigurationName) all"
+				ReBuildCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(ConfigurationName) distclean all"
+				CleanCommandLine="cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(ConfigurationName) clean"
 				Output="$(ProjectDir)$(PlatformName)\$(ConfigurationName)\posc.lib"
 				PreprocessorDefinitions=""
 				IncludeSearchPath=""
