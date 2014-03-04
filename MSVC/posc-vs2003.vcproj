@@ -123,9 +123,6 @@
 				RelativePath=".\posc\README-freegetopt">
 			</File>
 			<File
-				RelativePath=".\posc\README.html">
-			</File>
-			<File
 				RelativePath=".\posc\savcfg.bat">
 			</File>
 		</Filter>
