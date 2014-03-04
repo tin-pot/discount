@@ -1582,7 +1582,52 @@ printtable(Paragraph *pp, MMIOT *f)
 	start = 1+end;
     }
 
-    Qstring("<table>\n", f);
+    if (f->flags & MKD_ISO) {
+	/*
+	 * MKD_ISO specific
+	 * ================
+	 * 
+	 * [ISO 15445:2000] requires that each `<table>` has a
+	 * `summary` attribute.
+	 * 
+	 * The [HTML 4.01 specification][html-spec-table] says about
+	 * this attribute:
+	 * 
+	 * > This attribute provides a summary of the table's purpose
+	 * > and structure for user agents rendering to non-visual
+	 * > media such as speech and Braille."
+	 * 
+	 * The [ISO HTML standard][iso-html] only mentions it in the
+	 * comment in the [DTD][iso-dtd]:
+	 * 
+	 * > Purpose/structure for speech output".
+	 *
+	 * Same thing, shorter words.
+	 * 
+	 * The [ISO HTML User's Guide][iso-ug] is no more specific:
+	 * 
+	 * > The SUMMARY attribute is required by the International
+	 * > Standard and shall be provided."
+	 * 
+	 * So yes, we provide the attribute here ...
+	 * 
+	 * But there are probably more helpful contents for this
+	 * attribute than the placeholder we fill in here: one could
+	 * parse and insert the table's `<THEAD>` row, or let some text
+	 * by the author pass through an extended syntax for Markdown
+	 * tables. One day this might really happen!
+         *
+         * [iso-html]:https://www.cs.tcd.ie/misc/15445/15445.html
+         * [iso-dtd]:https://www.cs.tcd.ie/misc/15445/15445.html#DTD
+         * [iso-ug]:https://www.cs.tcd.ie/misc/15445/UG.HTML#TABLE
+         * [html-spec-table]:http://www.w3.org/TR/html401/struct/tables.html#adef-summary
+         */
+
+        Qstring("<table summary=\"A Markdown-generated table.\">\n", f);
+    } else {
+        Qstring("<table>\n", f);
+    }
+    
     Qstring("<thead>\n", f);
     hcols = splat(hdr, "th", align, 0, f);
     Qstring("</thead>\n", f);
