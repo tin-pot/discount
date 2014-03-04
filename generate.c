@@ -19,7 +19,7 @@
 
 /* Values for `image`: */
 #define IMG 1
-#define SVG 2
+#define OBJ 2
 
 typedef int (*stfu)(const void*,const void*);
 typedef void (*spanhandler)(MMIOT*,int);
@@ -521,12 +521,13 @@ typedef struct linkytype {
     char *text_sfx;	/* text suffix			(eg: "</a>"        */
     int      flags;	/* reparse flags */
     int      kind;	/* tag is url or something else? */
-#define IS_URL	0x01
-#define IS_WIKI 0x02
+#define IS_URL	    0x01
+#define IS_MIME_URL 0x02
+#define IS_WIKI	    0x03
 } linkytype;
 
-static linkytype svgt   = { 0, 0, "<object type=\"image/svg+xml\" data=\"", "\"",
-                             1, " title=\"", "\"></object>", MKD_NOIMAGE, IS_URL };
+static linkytype objt   = { 0, 0, "<object data=\"", "\"",
+                             1, " title=\"", "\"></object>", MKD_NOIMAGE, IS_MIME_URL };
 static linkytype imaget = { 0, 0, "<img src=\"", "\"",
 			     1, " title=\"", "\">", MKD_NOIMAGE|MKD_TAGTEXT, IS_URL };
 static linkytype linkt  = { 0, 0, "<a href=\"", "\"",
@@ -588,6 +589,74 @@ static char *wikiurl(MMIOT *f, const char *link, size_t size)
     return url;
 }
 
+/* get the mime type for a link url.
+ */
+
+const char *getmime(const char *link)
+{
+    typedef char extstr[16];
+    /* Keep this table sorted! */
+    const extstr ext[] = {
+        ".c",
+        ".cpp",
+        ".h",
+        ".htm",
+        ".html",
+        ".jpg",
+        ".mp3",
+        ".pdf",
+        ".png",
+        ".svg",
+        ".text",
+        ".txt",
+        ".xml",
+    };
+    /* Keep this table adjusted to `ext`! */
+    const char *const type[] = {
+        "text/plain", /* .c */
+        "text/plain", /* .cpp */
+        "text/plain", /* .h */
+        "text/html", /* .htm */
+        "text/html", /* .html */
+        "image/jpg", /* .jpg */
+        "audio/mp3", /* .mp3 */
+	"application/pdf", /* .pdf */
+        "image/png", /* .png */
+        "image/svg+xml", /* .svg */
+        "text/plain", /* .text */
+        "text/plain", /* .txt */
+        "image/svg+xml", /* .xml :HACK: Map .xml to SVG for TclWebserver! */
+    };
+    const char *linkext;
+    const extstr *extelem;
+    const size_t szelem = sizeof ext[0];
+    const size_t nelem = (sizeof ext) / szelem;
+    size_t lenext;
+    
+    for (linkext = link ; *linkext != '\0'; ++linkext)
+	if (*linkext == ' ' || *linkext == ')' || *linkext == '\t' ||
+	    *linkext == '\n')
+	    break;
+    if (*linkext == '\0') {
+	return NULL;
+    }
+    for (linkext, lenext = 0; linkext > link; --linkext, ++lenext)
+	if (*linkext == '.')
+	    break;
+    if (*linkext == '.' && lenext < 16) {
+        char key[16];
+        
+        strncpy(key, linkext, lenext);
+        key[lenext] = '\0';
+	extelem = bsearch(key, ext, nelem, szelem, stricmp);
+	if (extelem != NULL) {
+	    const size_t idx = (size_t)(extelem - &ext[0]);
+	    return type[idx];
+	}
+    }
+    return NULL;
+}
+
 /* print out the start of an `img' or `a' tag, applying callbacks as needed.
  */
 static void
@@ -600,14 +669,28 @@ printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
     
     Qstring(tag->link_pfx, f);
 	
-    if ( tag->kind & IS_URL ) {
+    if ( tag->kind == IS_URL ) {
 	if ( f->cb && f->cb->e_url && (edit = (*f->cb->e_url)(link, size, f->cb->e_data)) ) {
 	    puturl(edit, strlen(edit), f, 0);
 	    if ( f->cb->e_free ) (*f->cb->e_free)(edit, f->cb->e_data);
 	}
 	else
 	    puturl(link + tag->szpat, size - tag->szpat, f, 0);
-    } else if (tag->kind & IS_WIKI) {
+    } else if (tag->kind == IS_MIME_URL) {
+        const char *type = getmime(link);
+        
+	if ( f->cb && f->cb->e_url && (edit = (*f->cb->e_url)(link, size, f->cb->e_data)) ) {
+	    puturl(edit, strlen(edit), f, 0);
+	    if ( f->cb->e_free ) (*f->cb->e_free)(edit, f->cb->e_data);
+	}
+	else
+	    puturl(link + tag->szpat, size - tag->szpat, f, 0);
+	    
+	if (type != NULL) {
+	    Qstring("\" type =\"", f);
+	    Qstring((char*)type, f);
+	}
+    } else if (tag->kind == IS_WIKI) {
         char *url = wikiurl(f, link, size);
         puturl(url, strlen(url), f, 0);
         free(url);
@@ -668,8 +751,8 @@ linkyformat(MMIOT *f, Cstring text, int image, Footnote *ref)
 
     if ( image == IMG)
 	tag = &imaget;
-    else if (image == SVG) 
-        tag = &svgt;
+    else if (image == OBJ) 
+        tag = &objt;
     else if ( tag = pseudo(ref->link) ) {
 	if ( f->flags & (MKD_NO_EXT|MKD_SAFELINK) )
 	    return 0;
@@ -1309,7 +1392,7 @@ text(MMIOT *f)
 		    break;
 	case '?':   if ( peek(f,1) == '[' ) {
 			pull(f);
-			if ( tag_text(f) || !linkylinky(SVG, f) )
+			if ( tag_text(f) || !linkylinky(OBJ, f) )
 			    Qstring("![", f);
 		    }
 		    else
