@@ -25,10 +25,6 @@
  */
 
 /*
- * Miscellaneous small tweaks and fixes.
- */
-#define WITH_TINPOT 1
-/*
  * Implement input/output encodings.
  */
 #define WITH_ENCODINGS 1
@@ -54,6 +50,11 @@
 #ifndef WITH_TCL_WIKI
 #define WITH_TCL_WIKI 0
 #endif
+/*
+ * Set if any of the extensions is used.
+ */
+#define WITH_TINPOT (WITH_ENCODINGS   || WITH_DOCTYPES || \
+                     WITH_HTML_OBJECT || WITH_TCL_WIKI)
 
 /*
  * The Visual C++ "C" compiler has a `__inline` keyword implemented

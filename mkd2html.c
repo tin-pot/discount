@@ -48,7 +48,6 @@
  *
  * ---------------------------------------------------------------------
  */
-
 /*
  * Copyright (C) 2007 David L Parsons.
  * The redistribution terms are provided in the COPYRIGHT file that must
@@ -76,10 +75,7 @@ char *pgm = "mkd2html";
 
 #if WITH_TINPOT
 #define DEFAULT_FLAGS (MKD_EXTRA_FOOTNOTE)
-#else
-#define DEFAULT_FLAGS 0
 #endif
-
 #if WITH_ENCODINGS
 #define IN_ENCODING_MASK \
 	(MKD_IN_LATIN1 | MKD_IN_UTF8)
@@ -87,7 +83,6 @@ char *pgm = "mkd2html";
 #define OUT_ENCODING_MASK \
 	(MKD_OUT_ASCII | MKD_OUT_LATIN1 | MKD_IN_UTF8)
 #endif
-
 #if WITH_DOCTYPES || WITH_ENCODINGS
 #define SETBITS(var, val, mask) ((var) = (var) & ~(mask) | (val))
 #endif
@@ -142,19 +137,20 @@ char **argv;
     int i;
     FILE *input, *output; 
     STRING(char*) css, headers, footers;
+#if WITH_TINPOT
     mkd_flag_t flags = DEFAULT_FLAGS;
-    
-    int strict = 0;
-
+#else
+    const mkd_flag_t flags = 0;
+#endif
 #if WITH_ENCODINGS
     const char *charset = "UTF-8";
 #endif
-
 #if WITH_DOCTYPES
     const char *doctyp = "-//W3C//DTD HTML 4.01 Transitional//EN"; 
     const char *docdtd = "http://www.w3.org/TR/html4/loose.dtd";
 #endif
-    
+
+
     CREATE(css);
     CREATE(headers);
     CREATE(footers);
@@ -176,23 +172,23 @@ char **argv;
 	    argc -= 2;
 	    argv += 2;
 	}
+#if WITH_TINPOT
 	else if ( argv[1][0] == '-' ) {
 	    char ch, *opt = argv[1];
 	    
 	    while ((ch = *++opt) != '\0') switch (ch) {
 #if WITH_DOCTYPES
 	    case 'S':
-    		doctyp=	"-//W3C//DTD HTML 4.01//EN"; 
-    		docdtd=	"http://www.w3.org/TR/html4/strict.dtd";
+		doctyp=	"-//W3C//DTD HTML 4.01//EN"; 
+		docdtd=	"http://www.w3.org/TR/html4/strict.dtd";
 		SETBITS(flags, 0, MKD_ISO);
-    		break;
+		break;
 	    case 'I':
 		doctyp = "ISO/IEC 15445:2000//DTD HTML//EN";
 		docdtd = NULL;
 		SETBITS(flags, MKD_ISO, MKD_ISO);
 		break;
-#endif
-
+#endif /* WITH_DOCTYPES */
 #if WITH_ENCODINGS
 	    case 'A':
 		charset = "US-ASCII";
@@ -209,20 +205,20 @@ char **argv;
 	    case 'l':
 		SETBITS(flags, MKD_IN_LATIN1, IN_ENCODING_MASK);
 		break;
-#endif
-#if WITH_TINPOT
+#endif /* WITH_ENCODINGS */.
 	    case 'T':
 		SETBITS(flags, MKD_TOC, MKD_TOC);
 		break;
-#endif
 	    default: 
 		usage();
 	    }
 	    argc -= 1;
 	    argv += 1;
 	}
+#else /* WITH_TINPOT */
 	else
 	    break;
+#endif /* WITH_TINPOT */
     }
 
     output = NULL;
@@ -251,21 +247,21 @@ char **argv;
 	    if ( (input = fopen(source, "r")) == 0 )
 		fail("can't open either %s or %s", argv[1], source);
 	}
-	
+
 	if (argc == 2) {
 	    filearg = argv[1];
-        } else {
+	} else {
 	    filearg = argv[argc-1];
-        }
-        
-        /*
-         * Open output from filearg after setting `.html` if required.
-         */
-         
-    	dest   = malloc(strlen(filearg) + 6);
-    	if (dest == NULL)
-    	    fail("out of memory allocating name buffers");
-    	strcpy(dest, filearg);
+	}
+	
+	/*
+	 * Open output from filearg after setting `.html` if required.
+	 */
+
+	dest   = malloc(strlen(filearg) + 6);
+	if (dest == NULL)
+	    fail("out of memory allocating name buffers");
+	strcpy(dest, filearg);
 	if (( dot = strrchr(dest, '.') ))
 	    *dot = 0;
 	strcat(dest, ".html");
@@ -286,40 +282,44 @@ char **argv;
 
     /* print a header */
 
-#if WITH_DOCTYPES
     fprintf(output,
+#if WITH_DOCTYPES /* No `/>` in HTML, but Document Types! */
 	"<!doctype html public\t\"%s\"%s%s%s>\n"
 	"<html>\n"
 	"<head>\n"
-	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\">\n",
+	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\"%s\n",
 	doctyp, 
 	docdtd ? "\n\t\t\t\"" : "",
 	docdtd ? docdtd : "",
 	docdtd ? "\"" : "",
-	markdown_version);
+	markdown_version,
+	(flags & MKD_XML) ? "/>" : ">");
 #else
-    fprintf(output,
-	"<!doctype html public\t\"-//W3C//DTD HTML 4.01 Transitional//EN\n"
-	"\t\t\t\"http://www.w3.org/TR/html4/loose.dtd\"\n"
+	"<!doctype html public \"-//W3C//DTD HTML 4.0 Transitional //EN\">\n"
 	"<html>\n"
 	"<head>\n"
-	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\">\n",
-	markdown_version);
+	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\">\n", markdown_version);
 #endif
-    
-#if WITH_ENCODINGS
+
     fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"
+#if WITH_ENCODINGS
 		   "\tcontent=\"text/html; charset=%s\">\n",
 		   charset);
 #else
-    fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"
-		   "\tcontent=\"text/html; charset=UTF-8\">\n");
+    );
 #endif
 
     for ( i=0; i < S(css); i++ )
 	fprintf(output, "  <link rel=\"stylesheet\"\n"
+#if WITH_DOCTYPES /* No `/>` in HTML! */
 			"        type=\"text/css\"\n"
-			"        href=\"%s\">\n", T(css)[i]);
+			"        href=\"%s\"%s\n",
+			T(css)[i],
+			(flags & MKD_XML) ? "/>" : ">");
+#else
+			"        type=\"text/css\"\n"
+			"        href=\"%s\"/>\n", T(css)[i]);
+#endif
 
     if ( h ) {
 	fprintf(output,"  <title>");
@@ -333,18 +333,19 @@ char **argv;
 
 #if WITH_TINPOT
     if (flags & MKD_TOC)
-        mkd_generatetoc(mmiot, output);
+	mkd_generatetoc(mmiot, output);
 #endif
-        
+
     /* print the compiled body */
+
     mkd_generatehtml(mmiot, output);
 
     for ( i=0; i < S(footers); i++ )
 	fprintf(output, "%s\n", T(footers)[i]);
-    
+
     fprintf(output, "</body>\n"
 		    "</html>\n");
-    
+
     mkd_cleanup(mmiot);
     exit(0);
 }
