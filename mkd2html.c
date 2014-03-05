@@ -157,22 +157,22 @@ char **argv;
 	    break;
     }
 
-    switch ( argc ) {
+    output = NULL;
+    input = stdin;
+    
+    if (argc > 1) {
 	char *p, *dot;
-	char *filearg;
-    case 1:
-	input = stdin;
-	output = stdout;
-	break;
-    case 2:
-    case 3:
-	dest   = malloc(strlen(argv[argc-1]) + 6);
-	source = malloc(strlen(argv[1]) + 6);
-
-	if ( !(source && dest) )
+	char *filearg = argv[1];
+	
+	/*
+	 * Open input from filearg.
+	 */
+	 
+	source = malloc(strlen(filearg) + 6);
+	if (source == NULL)
 	    fail("out of memory allocating name buffers");
 
-	strcpy(source, argv[1]);
+	strcpy(source, filearg);
 	if (( p = strrchr(source, '/') ))
 	    p = source;
 	else
@@ -204,10 +204,13 @@ char **argv;
 	
 	if ( (output = fopen(dest, "w")) == 0 )
 	    fail("can't write to %s", dest);
-	break;
+    }
 
-    default:
-	fprintf(stderr, "usage: %s [opts] source [dest]\n", pgm);
+    if (input == NULL) {
+	fprintf(stderr,
+		"usage: %s [-S | -I] [-A | -L | -U ] [-l] [-T] "
+		"[-css URL] [-header text] [-footer text] [ source [dest] ]\n",
+		 pgm);
 	exit(1);
     }
 
