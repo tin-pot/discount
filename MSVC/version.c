@@ -7,7 +7,7 @@
 #define XSTR(s) #s
 #define STR(s) XSTR(s)
 
-char markdown_version[] = "2.1.6/Win32"
+char markdown_version[] = "2.1.7/Win32"
 #if TABSTOP != 4
                 " TAB=" STR(TABSTOP)
 #endif

@@ -24,11 +24,11 @@ __mkd_new_Document()
     Document *ret = calloc(sizeof(Document), 1);
 
     if ( ret ) {
-        if ( ret->ctx = calloc(sizeof(MMIOT), 1) ) {
-            ret->magic = VALID_DOCUMENT;
-            return ret;
-        }
-        free(ret);
+	if ( ret->ctx = calloc(sizeof(MMIOT), 1) ) {
+	    ret->magic = VALID_DOCUMENT;
+	    return ret;
+	}
+	free(ret);
     }
     return 0;
 }
@@ -102,22 +102,22 @@ populate(getc_func getc, void* ctx, int flags)
     CREATE(line);
 
     while ( (c = (*getc)(ctx)) != EOF ) {
-        if ( c == '\n' ) {
-            if ( pandoc != EOF && pandoc < 3 ) {
-                if ( S(line) && (T(line)[0] == '%') )
-                    pandoc++;
-                else
-                    pandoc = EOF;
-            }
-            __mkd_enqueue(a, &line);
-            S(line) = 0;
-        }
-        else if ( isprint(c) || isspace(c) || (c & 0x80) )
-            EXPAND(line) = c;
+	if ( c == '\n' ) {
+	    if ( pandoc != EOF && pandoc < 3 ) {
+		if ( S(line) && (T(line)[0] == '%') )
+		    pandoc++;
+		else
+		    pandoc = EOF;
+	    }
+	    __mkd_enqueue(a, &line);
+	    S(line) = 0;
+	}
+	else if ( isprint(c) || isspace(c) || (c & 0x80) )
+	    EXPAND(line) = c;
     }
 
     if ( S(line) )
-        __mkd_enqueue(a, &line);
+	__mkd_enqueue(a, &line);
 
     DELETE(line);
 
@@ -128,9 +128,9 @@ populate(getc_func getc, void* ctx, int flags)
          */
         Line *headers = T(a->content);
 
-        a->title = headers;             __mkd_header_dle(a->title);
-        a->author= headers->next;       __mkd_header_dle(a->author);
-        a->date  = headers->next->next; __mkd_header_dle(a->date);
+	a->title = headers;             __mkd_header_dle(a->title);
+	a->author= headers->next;       __mkd_header_dle(a->author);
+	a->date  = headers->next->next; __mkd_header_dle(a->date);
 
         T(a->content) = headers->next->next->next;
     }
@@ -424,6 +424,9 @@ void
 mkd_string_to_anchor(char *s, int len, mkd_sta_function_t outchar,
                                        void *out, int labelformat)
 {
+#if WITH_URLENCODED_ANCHOR
+    static const unsigned char hexchars[] = "0123456789abcdef";
+#endif
     unsigned char c;
 
     int i, size;
@@ -431,18 +434,28 @@ mkd_string_to_anchor(char *s, int len, mkd_sta_function_t outchar,
 
     size = mkd_line(s, len, &line, IS_LABEL);
     
+#if !WITH_URLENCODED_ANCHOR
     if ( labelformat && (size>0) && !isalpha(line[0]) )
         (*outchar)('L',out);
+#endif
     for ( i=0; i < size ; i++ ) {
-        c = line[i];
-        if ( labelformat ) {
-            if ( isalnum(c) || (c == '_') || (c == ':') || (c == '-') || (c == '.' ) )
-                (*outchar)(c, out);
-            else
-                (*outchar)('.', out);
-        }
-        else
-            (*outchar)(c,out);
+	c = line[i];
+	if ( labelformat ) {
+	    if ( isalnum(c) || (c == '_') || (c == ':') || (c == '-') || (c == '.' ) )
+		(*outchar)(c, out);
+	    else
+#if WITH_URLENCODED_ANCHOR
+	    {
+		(*outchar)('%', out);
+		(*outchar)(hexchars[c >> 4 & 0xf], out);
+		(*outchar)(hexchars[c      & 0xf], out);
+	    }
+#else
+		(*outchar)('.', out);
+#endif
+	}
+	else
+	    (*outchar)(c,out);
     }
         
     if (line)

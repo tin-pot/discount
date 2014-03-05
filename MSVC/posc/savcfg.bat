@@ -15,7 +15,7 @@ SET "CONF_FILE=build_env.bat"
 SET "TMP_FILE=%TMP%\NEW_CONFIG"
 
 REM Improvise some commands we need:
-REM (The caret `^` prevents that output is redirectet *now*.)
+REM (The caret `^` prevents that output is redirected *right here*.)
 SET RM=DEL /Q ^>NUL: 2^>^&1
 SET LS=DIR /B/L 2^>NUL:
 SET CP=COPY /Y ^>NUL: 
