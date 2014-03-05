@@ -107,17 +107,18 @@ void mkd_ref_prefix(MMIOT*, char*);
 #define MKD_EXTRA_FOOTNOTE	0x00200000	/* enable markdown extra-style footnotes */
 #define MKD_NOSTYLE		0x00400000
 
-#define MKD_XML			0x00800000      /* XML output: use `<... />`. */
-#define MKD_ISO			0x01000000      /* ISO HTML output: omit `type="a"` in <OL> etc. */
-#define MKD_OUT_UTF8		0x00000000      /* Output UTF-8 (default, hence zero bitmask). */
-#define MKD_OUT_ASCII		0x02000000      /* Output ASCII. */
-#define MKD_OUT_LATIN1		0x04000000      /* Output ISO 8859-1 */
-#define MKD_IN_LATIN1		0x08000000      /* Input is in ISO 8859-1 */
-#define MKD_IN_UTF8		0x00000000      /* Input is in UTF-8 (default, hence zero bitmask). */
-
+#if WITH_TINPOT_
+#define MKD_XML			MKD_CDATA	/* XML output: use `<... />`. */
+#define MKD_ISO			0x00800000	/* ISO HTML output: omit `type="a"` in <OL> etc. */
+#define MKD_OUT_UTF8		0x00000000	/* Output UTF-8 (default, hence zero bitmask). */
+#define MKD_OUT_ASCII		0x01000000	/* Output ASCII. */
+#define MKD_OUT_LATIN1		0x02000000	/* Output ISO 8859-1 */
+#define MKD_IN_LATIN1		0x04000000	/* Input is in ISO 8859-1 */
+#define MKD_IN_UTF8		0x00000000	/* Input is in UTF-8 (default, hence zero bitmask). */
 #if WITH_TCL_WIKI
-#define MKD_WIKI		0x10000000      /* Perform tricks for Tcl Wiki. */
+#define MKD_WIKI		0x08000000	/* Perform tricks for Tcl Wiki. */
 #endif
+#endif /* WITH_TINPOT_ */
 
 #define MKD_EMBED		MKD_NOLINKS|MKD_NOIMAGE|MKD_TAGTEXT
 

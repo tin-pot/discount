@@ -11,50 +11,68 @@
 
 #define OS_WIN32 1
 
-/* discount feature macros - we want it all! */
+/*
+ * `discount` feature macros - we want them all!
+ */
+#ifndef WITH_ID_ANCHOR
 #define WITH_ID_ANCHOR 1
+#endif
+#ifndef WITH_FENCED_CODE
 #define WITH_FENCED_CODE 1
+#endif
+#ifndef WITH_GITHUB_TAGS
 #define WITH_GITHUB_TAGS 1
+#endif
+#ifndef USE_DISCOUNT_DL
 #define USE_DISCOUNT_DL 1
+#endif
+#ifndef USE_EXTRA_DL
 #define USE_EXTRA_DL 1
+#endif
 
 /*
  * <tin-pot@gmx.net> 2014-03-05:
  *
- * More `WITH_`* feature macros for this variant of `discount`.
+ * Some `WITH_`* feature macros for this variant of `discount`.
  */
 
 /*
  * Implement input/output encodings.
  */
+#ifndef WITH_ENCODINGS
 #define WITH_ENCODINGS 1
+#endif
 /*
  * Implement output of 
  * - "HTML 4.01" (ie "Strict" W3C HTML) and
  * - "HTML" (ie ISO/IEC 14445:2000 HTML)
  * document types in additon to "HTML 4.01 Transitional".
- * (And replace the XML `/>` with `>` when generating HTML.)
  */
+#ifndef WITH_DOCTYPES
 #define WITH_DOCTYPES 1
+#endif
 /*
- * Implement the `?[title](uri =WxH)` notation for a HTML <object>.
+ * Implement the `?[title](uri =WxH)` notation to specify an <object>.
  */
+#ifndef WITH_HTML_OBJECT
 #define WITH_HTML_OBJECT 1
+#endif
 /*
  * What this `WITH_TCL_WIKI` does is 
- *   - "in-house" and internal,
- *   - undocumented,
- *   - not what you want.
- * Don't use it, and don't complain if you *do*!
+ *  1. "in-house" and internal,
+ *  2. undocumented,
+ *  3. not what you want.
+ * Don't use it, or don't complain if you *do* ...
  */
 #ifndef WITH_TCL_WIKI
 #define WITH_TCL_WIKI 0
 #endif
 /*
- * Set if any of the extensions is used.
+ * The WITH_TINPOT_ macro is non-zero iff any of the extensions is used.
  */
-#define WITH_TINPOT (WITH_ENCODINGS   || WITH_DOCTYPES || \
-                     WITH_HTML_OBJECT || WITH_TCL_WIKI)
+#undef WITH_TINPOT_
+#define WITH_TINPOT_ (WITH_ENCODINGS   || WITH_DOCTYPES || \
+                      WITH_HTML_OBJECT || WITH_TCL_WIKI)
 
 /*
  * The Visual C++ "C" compiler has a `__inline` keyword implemented

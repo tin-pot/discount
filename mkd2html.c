@@ -36,10 +36,13 @@
  *		or "ISO/IEC 14445:200" document type declarations.
  *		The default is "HTML 4.01 Transitional".
  *
- * WITH_TINPOT:
+ * If *any* "tin-pot/discount" feature macro is set (and the
+ * macro WITH_TINPOT_ therefore evaluates to  non-zero, see "config.h"),
+ * then
  *
- * With this feature macro, footnotes (MKD_EXTRA_FOOTNOTE)
- * are enabled by default, and this option is provided:
+ *  1. are footnotes enabled by default in this program, and
+ *
+ *  2. is one more option available, namely:
  *
  *	-T
  *		Generate a rough table of contents and place it at
@@ -73,7 +76,7 @@
 
 char *pgm = "mkd2html";
 
-#if WITH_TINPOT
+#if WITH_TINPOT_
 #define DEFAULT_FLAGS (MKD_EXTRA_FOOTNOTE)
 #endif
 #if WITH_ENCODINGS
@@ -83,7 +86,7 @@ char *pgm = "mkd2html";
 #define OUT_ENCODING_MASK \
 	(MKD_OUT_ASCII | MKD_OUT_LATIN1 | MKD_IN_UTF8)
 #endif
-#if WITH_DOCTYPES || WITH_ENCODINGS
+#if WITH_TINPOT_
 #define SETBITS(var, val, mask) ((var) = (var) & ~(mask) | (val))
 #endif
 
@@ -137,7 +140,7 @@ char **argv;
     int i;
     FILE *input, *output; 
     STRING(char*) css, headers, footers;
-#if WITH_TINPOT
+#if WITH_TINPOT_
     mkd_flag_t flags = DEFAULT_FLAGS;
 #else
     const mkd_flag_t flags = 0;
@@ -172,7 +175,7 @@ char **argv;
 	    argc -= 2;
 	    argv += 2;
 	}
-#if WITH_TINPOT
+#if WITH_TINPOT_
 	else if ( argv[1][0] == '-' ) {
 	    char ch, *opt = argv[1];
 	    
@@ -215,10 +218,10 @@ char **argv;
 	    argc -= 1;
 	    argv += 1;
 	}
-#else /* WITH_TINPOT */
+#else /* WITH_TINPOT_ */
 	else
 	    break;
-#endif /* WITH_TINPOT */
+#endif /* WITH_TINPOT_ */
     }
 
     output = NULL;
@@ -283,7 +286,7 @@ char **argv;
     /* print a header */
 
     fprintf(output,
-#if WITH_DOCTYPES /* No `/>` in HTML, but Document Types! */
+#if WITH_DOCTYPES
 	"<!doctype html public\t\"%s\"%s%s%s>\n"
 	"<html>\n"
 	"<head>\n"
@@ -293,33 +296,36 @@ char **argv;
 	docdtd ? docdtd : "",
 	docdtd ? "\"" : "",
 	markdown_version,
-	(flags & MKD_XML) ? "/>" : ">");
+	(flags & MKD_XML) ? "/>" : ">"
 #else
 	"<!doctype html public \"-//W3C//DTD HTML 4.0 Transitional //EN\">\n"
 	"<html>\n"
 	"<head>\n"
-	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\">\n", markdown_version);
+	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\">\n",
+	markdown_version,
 #endif
+    );
 
     fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"
 #if WITH_ENCODINGS
 		   "\tcontent=\"text/html; charset=%s\">\n",
-		   charset);
+		   charset
 #else
-    );
+		   "\tcontent=\"text/html; charset=UTF-8\">\n"
 #endif
+    );
 
     for ( i=0; i < S(css); i++ )
 	fprintf(output, "  <link rel=\"stylesheet\"\n"
-#if WITH_DOCTYPES /* No `/>` in HTML! */
+#if WITH_TINPOT_ /* No `/>` in HTML! */
 			"        type=\"text/css\"\n"
 			"        href=\"%s\"%s\n",
-			T(css)[i],
-			(flags & MKD_XML) ? "/>" : ">");
+			T(css)[i], (flags & MKD_XML) ? "/>" : ">"
 #else
 			"        type=\"text/css\"\n"
-			"        href=\"%s\"/>\n", T(css)[i]);
+			"        href=\"%s\"/>\n", T(css)[i]
 #endif
+	);
 
     if ( h ) {
 	fprintf(output,"  <title>");
@@ -331,7 +337,7 @@ char **argv;
     fprintf(output, "</head>\n"
 		    "<body>\n");
 
-#if WITH_TINPOT
+#if WITH_TINPOT_
     if (flags & MKD_TOC)
 	mkd_generatetoc(mmiot, output);
 #endif

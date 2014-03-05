@@ -705,10 +705,10 @@ static void
 printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
 {
     char *edit;
-    
+
     if ( f->flags & IS_LABEL )
 	return;
-    
+
     Qstring(tag->link_pfx, f);
 	
     if ( tag->kind == IS_URL ) {
@@ -720,8 +720,8 @@ printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
 	    puturl(link + tag->szpat, size - tag->szpat, f, 0);
 #if WITH_HTML_OBJECT
     } else if (tag->kind == IS_MIME_URL) {
-        const char *type = getmime(link);
-        
+	const char *type = getmime(link);
+
 	if ( f->cb && f->cb->e_url && (edit = (*f->cb->e_url)(link, size, f->cb->e_data)) ) {
 	    puturl(edit, strlen(edit), f, 0);
 	    if ( f->cb->e_free ) (*f->cb->e_free)(edit, f->cb->e_data);
@@ -736,14 +736,14 @@ printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
 #endif
 #if WITH_TCL_WIKI
     } else if (tag->kind == IS_WIKI) {
-        char *url = wikiurl(f, link, size);
-        puturl(url, strlen(url), f, 0);
-        free(url);
+	char *url = wikiurl(f, link, size);
+	puturl(url, strlen(url), f, 0);
+	free(url);
 #endif
     } else
 	___mkd_reparse(link + tag->szpat, size - tag->szpat, MKD_TAGTEXT, f, 0);
 
-#if WITH_DOCTYPES /* A `<img .../>` ? -- Only in XML! */
+#if WITH_TINPOT_ /* A `<img .../>` ? -- Only in XML! */
     imaget.link_sfx = (f->flags & MKD_XML) ? "\" />" : "\">";
 #endif
 
@@ -782,7 +782,7 @@ extra_linky(MMIOT *f, Cstring text, Footnote *ref)
 	ref->flags |= REFERENCED;
 	ref->refnumber = ++ f->reference;
 	Qprintf(f,
-#if WITH_TINPOT /* Give footnote links a own class - "fnref". */
+#if WITH_TINPOT_ /* Give footnote links a own class - "fnref". */
 		"<sup id=\"%sref:%d\"><a class=\"fnref\" href=\"#%s:%d\" rel=\"footnote\">%d</a></sup>",
 #else
 		"<sup id=\"%sref:%d\"><a href=\"#%s:%d\" rel=\"footnote\">%d</a></sup>",
@@ -804,8 +804,10 @@ linkyformat(MMIOT *f, Cstring text, int image, Footnote *ref)
 
     if ( image == IMG)
 	tag = &imaget;
+#if WITH_HTML_OBJECT
     else if (image == OBJ) 
-        tag = &objt;
+	tag = &objt;
+#endif
     else if ( tag = pseudo(ref->link) ) {
 	if ( f->flags & (MKD_NO_EXT|MKD_SAFELINK) )
 	    return 0;
@@ -1425,7 +1427,7 @@ text(MMIOT *f)
 	case 0:     break;
 
 	case 3:     
-#if WITH_DOCTYPES /* A <br /> ? -- Only in XML! */
+#if WITH_TINPOT_ /* A <br /> ? -- Only in XML! */
 Qstring(tag_text(f) ? "  " : (f->flags & MKD_XML) ? "<br />" : "<br>", f);
 #else
 Qstring(tag_text(f) ? "  " : "<br/>", f);
@@ -1767,17 +1769,17 @@ printtable(Paragraph *pp, MMIOT *f)
 	 * parse and insert the table's `<THEAD>` row, or let some text
 	 * by the author pass through an extended syntax for Markdown
 	 * tables. One day this might really happen!
-         *
-         * [iso-html]:https://www.cs.tcd.ie/misc/15445/15445.html
-         * [iso-dtd]:https://www.cs.tcd.ie/misc/15445/15445.html#DTD
-         * [iso-ug]:https://www.cs.tcd.ie/misc/15445/UG.HTML#TABLE
-         * [html-spec-table]:http://www.w3.org/TR/html401/struct/tables.html#adef-summary
-         */
+	 *
+	 * [iso-html]:https://www.cs.tcd.ie/misc/15445/15445.html
+	 * [iso-dtd]:https://www.cs.tcd.ie/misc/15445/15445.html#DTD
+	 * [iso-ug]:https://www.cs.tcd.ie/misc/15445/UG.HTML#TABLE
+	 * [html-spec-table]:http://www.w3.org/TR/html401/struct/tables.html#adef-summary
+	 */
 
-        Qstring("<table summary=\"A Markdown-generated table.\">\n", f);
+	Qstring("<table summary=\"A Markdown-generated table.\">\n", f);
     } else 
 #endif
-        Qstring("<table>\n", f);
+	Qstring("<table>\n", f);
     
     Qstring("<thead>\n", f);
     hcols = splat(hdr, "th", align, 0, f);
@@ -1977,10 +1979,10 @@ display(Paragraph *p, MMIOT *f)
 	break;
 
     case HR:
-#if WITH_DOCTYPES /* A <hr /> ? -- Only in XML! */
+#if WITH_TINPOT_ /* A <hr /> ? -- Only in XML! */
 	Qstring((f->flags & MKD_XML) ? "<hr />" : "<hr>", f);
 #else
-	Qstring((f->flags & MKD_XML) ? "<hr />" : "<hr>", f);
+	Qstring(<hr />, f);
 #endif
 	break;
 
@@ -2016,13 +2018,13 @@ mkd_extra_footnotes(MMIOT *m)
 	return;
 
     
-#if WITH_DOCTYPES /* A <hr /> ? -- Only in XML! */
+#if WITH_TINPOT_ /* A <hr /> ? -- Only in XML! */
     Csprintf(&m->out, "\n<div class=\"footnotes\">\n%s\n<ol>\n",
-            (m->flags & MKD_XML) ? "<hr />" : "<hr>");
+	    (m->flags & MKD_XML) ? "<hr />" : "<hr>");
 #else
-    Csprintf(&m->out, "\n<div class=\"footnotes\">\n<hr />\n<ol>\n")
+    Csprintf(&m->out, "\n<div class=\"footnotes\">\n<hr />\n<ol>\n");
 #endif
-    
+
     for ( i=1; i <= m->reference; i++ ) {
 	for ( j=0; j < S(*m->footnotes); j++ ) {
 	    t = &T(*m->footnotes)[j];

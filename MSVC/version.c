@@ -53,9 +53,6 @@ char markdown_version[] = "2.1.7"
 #if WITH_HTML_OBJECT
 		" HTML_OBJECT"
 #endif
-#if WITH_TINPOT
-		" TIN-POT"
-#endif
 #if WITH_TCL_WIKI
 		" TCL-WIKI"
 #endif
