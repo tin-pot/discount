@@ -13,7 +13,42 @@
  *
  *   mkd2html -cs /~orc/pages.css syntax
  *     ( read syntax OR syntax.text, write syntax.html )
+ *
+ * ---------------------------------------------------------------------
+ *
+ * Martin Hofmann <tin-pot@gmx.net> 2014-03-05:
+ *
+ * If the respective feature macros are defined in "config.h",
+ * additional options are available:
+ *
+ * WITH_ENCODINGS:
+ *
+ * 	-l -u
+ *		Indicate that input is in ISO 8859-1 rsp UTF-8.
+ *
+ *	-A -L -U
+ *		Generate output in US-ASCII, ISO-8859-1, UTF-8.
+ *
+ * WITH_DOCTYPES:
+ *
+ *	-S -I
+ *		Generate "HTML 4.01" (ie "Strict"),
+ *		or "ISO/IEC 14445:200" document type declarations.
+ *		The default is "HTML 4.01 Transitional".
+ *
+ * WITH_TINPOT:
+ *
+ * With this feature macro, footnotes (MKD_EXTRA_FOOTNOTE)
+ * are enabled by default, and this option is provided:
+ *
+ *	-T
+ *		Generate a rough table of contents and place it at
+ *		the beginning of the <BODY> element.
+ *		(This is a preliminary feature.)
+ *
+ * ---------------------------------------------------------------------
  */
+
 /*
  * Copyright (C) 2007 David L Parsons.
  * The redistribution terms are provided in the COPYRIGHT file that must
@@ -39,15 +74,23 @@
 
 char *pgm = "mkd2html";
 
+#if WITH_TINPOT
 #define DEFAULT_FLAGS (MKD_EXTRA_FOOTNOTE)
+#else
+#define DEFAULT_FLAGS 0
+#endif
 
+#if WITH_ENCODINGS
 #define IN_ENCODING_MASK \
 	(MKD_IN_LATIN1 | MKD_IN_UTF8)
 	
 #define OUT_ENCODING_MASK \
 	(MKD_OUT_ASCII | MKD_OUT_LATIN1 | MKD_IN_UTF8)
-	
+#endif
+
+#if WITH_DOCTYPES || WITH_ENCODINGS
 #define SETBITS(var, val, mask) ((var) = (var) & ~(mask) | (val))
+#endif
 
 #ifndef HAVE_BASENAME
 char *
@@ -74,6 +117,21 @@ fail(char *why, ...)
     exit(1);
 }
 
+void
+usage(void)
+{
+    fprintf(stderr, "usage: %s "
+#if WITH_DOCTYPES
+	"[-S | -I] "
+#endif
+#if WITH_ENCODINGS
+	"[-A | -L | -U ] [-l] "
+#endif
+	"[-css URL] [-header text] "
+	"[-footer text] [ source [dest] ]\n", pgm);
+    exit(1);
+}
+
 
 main(argc, argv)
 char **argv;
@@ -87,9 +145,15 @@ char **argv;
     mkd_flag_t flags = DEFAULT_FLAGS;
     
     int strict = 0;
+
+#if WITH_ENCODINGS
     const char *charset = "UTF-8";
+#endif
+
+#if WITH_DOCTYPES
     const char *doctyp = "-//W3C//DTD HTML 4.01 Transitional//EN"; 
     const char *docdtd = "http://www.w3.org/TR/html4/loose.dtd";
+#endif
     
     CREATE(css);
     CREATE(headers);
@@ -116,6 +180,7 @@ char **argv;
 	    char ch, *opt = argv[1];
 	    
 	    while ((ch = *++opt) != '\0') switch (ch) {
+#if WITH_DOCTYPES
 	    case 'S':
     		doctyp=	"-//W3C//DTD HTML 4.01//EN"; 
     		docdtd=	"http://www.w3.org/TR/html4/strict.dtd";
@@ -126,6 +191,9 @@ char **argv;
 		docdtd = NULL;
 		SETBITS(flags, MKD_ISO, MKD_ISO);
 		break;
+#endif
+
+#if WITH_ENCODINGS
 	    case 'A':
 		charset = "US-ASCII";
 		SETBITS(flags, MKD_OUT_ASCII, OUT_ENCODING_MASK); 
@@ -141,14 +209,14 @@ char **argv;
 	    case 'l':
 		SETBITS(flags, MKD_IN_LATIN1, IN_ENCODING_MASK);
 		break;
+#endif
+#if WITH_TINPOT
 	    case 'T':
 		SETBITS(flags, MKD_TOC, MKD_TOC);
 		break;
+#endif
 	    default: 
-		fprintf(stderr, "usage: %s [-S | -I] [-A | -L | -U ] [-l] "
-			"[-css URL] [-header text] "
-			"[-footer text] [ source [dest] ]\n",       pgm);
-		exit(1);
+		usage();
 	    }
 	    argc -= 1;
 	    argv += 1;
@@ -206,13 +274,8 @@ char **argv;
 	    fail("can't write to %s", dest);
     }
 
-    if (input == NULL) {
-	fprintf(stderr,
-		"usage: %s [-S | -I] [-A | -L | -U ] [-l] [-T] "
-		"[-css URL] [-header text] [-footer text] [ source [dest] ]\n",
-		 pgm);
-	exit(1);
-    }
+    if (input == NULL)
+	usage();
 
     if ( (mmiot = mkd_in(input, flags)) == 0 )
 	fail("can't read %s", source ? source : "stdin");
@@ -223,6 +286,7 @@ char **argv;
 
     /* print a header */
 
+#if WITH_DOCTYPES
     fprintf(output,
 	"<!doctype html public\t\"%s\"%s%s%s>\n"
 	"<html>\n"
@@ -233,16 +297,24 @@ char **argv;
 	docdtd ? docdtd : "",
 	docdtd ? "\"" : "",
 	markdown_version);
-	
-	
-/*	docdecl[doctype],
-	docdtd[doctype] ? "\n\t\t\t\"" : "",
-	docdtd[doctype] ? docdtd[doctype] : "",
-	docdtd[doctype] ? "\"" : "", */
+#else
+    fprintf(output,
+	"<!doctype html public\t\"-//W3C//DTD HTML 4.01 Transitional//EN\n"
+	"\t\t\t\"http://www.w3.org/TR/html4/loose.dtd\"\n"
+	"<html>\n"
+	"<head>\n"
+	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\">\n",
+	markdown_version);
+#endif
     
+#if WITH_ENCODINGS
     fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"
-		   "        content=\"text/html; charset=%s\">\n",
+		   "\tcontent=\"text/html; charset=%s\">\n",
 		   charset);
+#else
+    fprintf(output,"  <meta http-equiv=\"Content-Type\"\n"
+		   "\tcontent=\"text/html; charset=UTF-8\">\n");
+#endif
 
     for ( i=0; i < S(css); i++ )
 	fprintf(output, "  <link rel=\"stylesheet\"\n"
@@ -259,8 +331,10 @@ char **argv;
     fprintf(output, "</head>\n"
 		    "<body>\n");
 
+#if WITH_TINPOT
     if (flags & MKD_TOC)
         mkd_generatetoc(mmiot, output);
+#endif
         
     /* print the compiled body */
     mkd_generatehtml(mmiot, output);

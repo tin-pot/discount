@@ -610,7 +610,7 @@ codeblock(Paragraph *p)
 }
 
 
-#ifdef WITH_FENCED_CODE
+#if WITH_FENCED_CODE
 static int
 iscodefence(Line *r, int size, line_type kind)
 {

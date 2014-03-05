@@ -101,43 +101,50 @@ typedef struct mmiot {
     char *ref_prefix;
     STRING(Footnote) *footnotes;
     DWORD flags;
-#define MKD_NOLINKS	0x00000001
-#define MKD_NOIMAGE	0x00000002
-#define MKD_NOPANTS	0x00000004
-#define MKD_NOHTML	0x00000008
-#define MKD_STRICT	0x00000010
-#define MKD_TAGTEXT	0x00000020
-#define MKD_NO_EXT	0x00000040
-#define MKD_CDATA	0x00000080
-#define MKD_NOSUPERSCRIPT 0x00000100
-#define MKD_NORELAXED	0x00000200
-#define MKD_NOTABLES	0x00000400
-#define MKD_NOSTRIKETHROUGH 0x00000800
-#define MKD_TOC		0x00001000
-#define MKD_1_COMPAT	0x00002000
-#define MKD_AUTOLINK	0x00004000
-#define MKD_SAFELINK	0x00008000
-#define MKD_NOHEADER	0x00010000
-#define MKD_TABSTOP	0x00020000
-#define MKD_NODIVQUOTE	0x00040000
-#define MKD_NOALPHALIST	0x00080000
-#define MKD_NODLIST	0x00100000
-#define MKD_EXTRA_FOOTNOTE 0x00200000
-#define MKD_NOSTYLE	0x00400000
+#define MKD_NOLINKS		0x00000001
+#define MKD_NOIMAGE		0x00000002
+#define MKD_NOPANTS		0x00000004
+#define MKD_NOHTML		0x00000008
+#define MKD_STRICT		0x00000010
+#define MKD_TAGTEXT		0x00000020
+#define MKD_NO_EXT		0x00000040
+#define MKD_CDATA		0x00000080
+#define MKD_NOSUPERSCRIPT	0x00000100
+#define MKD_NORELAXED		0x00000200
+#define MKD_NOTABLES		0x00000400
+#define MKD_NOSTRIKETHROUGH	0x00000800
+#define MKD_TOC			0x00001000
+#define MKD_1_COMPAT		0x00002000
+#define MKD_AUTOLINK		0x00004000
+#define MKD_SAFELINK		0x00008000
+#define MKD_NOHEADER		0x00010000
+#define MKD_TABSTOP		0x00020000
+#define MKD_NODIVQUOTE		0x00040000
+#define MKD_NOALPHALIST		0x00080000
+#define MKD_NODLIST		0x00100000
+#define MKD_EXTRA_FOOTNOTE	0x00200000
+#define MKD_NOSTYLE		0x00400000
+/*
+ * <tin-pot@gmx.net> 2014-03-05 : {
+ * Additional flags for tin-pot/discount
+ * features.
+ */
+#define MKD_XML			0x00800000      /* XML output: use `<... />`. */
+#define MKD_ISO			0x01000000      /* ISO HTML output: omit `type="a"` in <OL> etc. */
+#define MKD_OUT_UTF8		0x00000000      /* Output UTF-8 (default, hence zero bitmask!). */
+#define MKD_OUT_ASCII		0x02000000      /* Output ASCII. */
+#define MKD_OUT_LATIN1		0x04000000      /* Output ISO 8859-1 */
+#define MKD_IN_LATIN1		0x08000000      /* Input is in ISO 8859-1 */
+#define MKD_IN_UTF8		0x00000000      /* Input is in UTF-8 (default, hence zero bitmask!). */
 
-#define MKD_WIKI        0x00800000      /* make urlbase relative links for wiki `[pagename]` syntax */
-#define MKD_XML         0x01000000      /* XML <br/>  and <... />  tags. */
-#define MKD_ISO         0x02000000      /* ISO HTML - supress OL type attr. */
+#if WITH_TCL_WIKI
+#define MKD_WIKI		0x10000000      /* Perform tricks for Tcl Wiki. */
+#endif
+/* } <tin-pot@gmx.net> */
 
-#define MKD_OUT_UTF8    0x00000000      /* Output UTF-8. */
-#define MKD_OUT_ASCII   0x04000000      /* Output US-ASCII */
-#define MKD_OUT_LATIN1  0x08000000      /* Output ISO 8859-1 */
-#define MKD_IN_LATIN1   0x10000000      /* Input is in ISO 8859-1 */
-#define MKD_IN_UTF8     0x00000000      /* Input is in UTF-8 */
-
-#define IS_LABEL	0x20000000
-#define USER_FLAGS	0x1FFFFFFF
-#define INPUT_MASK	(MKD_NOHEADER|MKD_TABSTOP)
+#define IS_LABEL		0x20000000
+#define USER_FLAGS		0x1FFFFFFF
+#define INPUT_MASK		(MKD_NOHEADER|MKD_TABSTOP)
 
     Callback_data *cb;
 } MMIOT;

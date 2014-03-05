@@ -17,9 +17,10 @@
 #include "markdown.h"
 #include "amalloc.h"
 
-/* Values for `image`: */
 #define IMG 1
-#define OBJ 2
+#if WITH_HTML_OBJECT
+#define OBJ 2	/* Close to IMG properties, but not the same. */
+#endif
 
 typedef int (*stfu)(const void*,const void*);
 typedef void (*spanhandler)(MMIOT*,int);
@@ -526,18 +527,26 @@ typedef struct linkytype {
     int      flags;	/* reparse flags */
     int      kind;	/* tag is url or something else? */
 #define IS_URL	    0x01
+#if WITH_HTML_OBJECT
 #define IS_MIME_URL 0x02
+#endif
+#if WITH_TCL_WIKI
 #define IS_WIKI	    0x03
+#endif
 } linkytype;
 
+#if WITH_HTML_OBJECT
 static linkytype objt   = { 0, 0, "<object data=\"", "\"",
                              1, " title=\"", "\"></object>", MKD_NOIMAGE, IS_MIME_URL };
+#endif
 static linkytype imaget = { 0, 0, "<img src=\"", "\"",
 			     1, " title=\"", "\">", MKD_NOIMAGE|MKD_TAGTEXT, IS_URL };
 static linkytype linkt  = { 0, 0, "<a href=\"", "\"",
                              0, ">", "</a>", MKD_NOLINKS, IS_URL };
+#if WITH_TCL_WIKI
 static linkytype wikit  = { 0, 0, "<a href=\"", "\"",
                              0, ">", "</a>", MKD_NOLINKS, IS_WIKI };
+#endif
 
 /*
  * pseudo-protocols for [][];
@@ -571,6 +580,7 @@ pseudo(Cstring t)
     return 0;
 }
 
+#if WITH_TCL_WIKI
 /* generate url to wiki page.
  */
 static char *wikiurl(MMIOT *f, const char *link, size_t size)
@@ -592,44 +602,69 @@ static char *wikiurl(MMIOT *f, const char *link, size_t size)
     }
     return url;
 }
+#endif /* WITH_TCL_WIKI */
 
-/* get the mime type for a link url.
+/*
+ * <tin-pot@gmx.net> 2014-03-05:
+ * Get the mime type for a link URI used as the value of the
+ * `data` attribute in an `<OBJECT>`.
  */
 
+#if WITH_HTML_OBJECT
 const char *getmime(const char *link)
 {
     typedef char extstr[16];
-    /* Keep this table sorted! */
+    /*
+     * The list of known URI suffixes.
+     *
+     * **IMPORTANT:** Keep this table sorted alphabetically!
+     */
     const extstr ext[] = {
-        ".c",
-        ".cpp",
-        ".h",
-        ".htm",
-        ".html",
-        ".jpg",
-        ".mp3",
-        ".pdf",
-        ".png",
-        ".svg",
-        ".text",
-        ".txt",
-        ".xml",
+        ".c",		/* C source file. */
+        ".cpp",		/* C++ source file. */
+        ".h",		/* C or C++ header file. */
+        ".htm",		/* HTML file/page. */
+        ".html",	/* HTML file/page. */
+        ".jpg",		/* Image (JPG). */
+        ".mp3",		/* Audio (MP3). */
+        ".pdf",		/* Portable Document Format File. */
+        ".png",		/* Image (PNG). */
+        ".svg",		/* Drawing (PNG). */
+        ".text",	/* Text document. */
+        ".txt",		/* Text file. */
+        ".xml",		/* XML file/resource. */
     };
-    /* Keep this table adjusted to `ext`! */
+    /*
+     * The corresponding list of MIME types for URI suffixes.
+     *
+     * **IMPORTANT:** Keep this table aligned with the previous table!
+     */
     const char *const type[] = {
-        "text/plain", /* .c */
-        "text/plain", /* .cpp */
-        "text/plain", /* .h */
-        "text/html", /* .htm */
-        "text/html", /* .html */
-        "image/jpg", /* .jpg */
-        "audio/mp3", /* .mp3 */
-	"application/pdf", /* .pdf */
-        "image/png", /* .png */
-        "image/svg+xml", /* .svg */
-        "text/plain", /* .text */
-        "text/plain", /* .txt */
-        "image/svg+xml", /* .xml :HACK: Map .xml to SVG for TclWebserver! */
+	"text/plain",		/* .c */
+        "text/plain",		/* .cpp */
+        "text/plain",		/* .h */
+        "text/html",		/* .htm */
+        "text/html",		/* .html */
+        "image/jpg",		/* .jpg */
+        "audio/mp3",		/* .mp3 */
+	"application/pdf",	/* .pdf */
+        "image/png",		/* .png */
+        "image/svg+xml",	/* .svg */
+        "text/plain",		/* .text */
+        "text/plain",		/* .txt */
+#if WITH_TCL_WIKI	
+	/*
+         * :HACK: We can't use the `.svg` suffix and for now map `.xml`
+         * to the "SVG MIME type" to work around the "uncooperative"
+         * server configuration.
+	 */
+        "image/svg+xml",
+#else
+	/*
+         * This is the correct MIME type for a "generic" XML file.
+	 */
+        "text/xml",
+#endif
     };
     const char *linkext;
     const extstr *extelem;
@@ -660,8 +695,11 @@ const char *getmime(const char *link)
     }
     return NULL;
 }
+#endif /* WITH_HTML_OBJECT */
 
 /* print out the start of an `img' or `a' tag, applying callbacks as needed.
+ * 
+ * <tin-pot@gmx.net> 2014-03-05: Also does the guts of an HTML `<OBJECT>`.
  */
 static void
 printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
@@ -680,6 +718,7 @@ printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
 	}
 	else
 	    puturl(link + tag->szpat, size - tag->szpat, f, 0);
+#if WITH_HTML_OBJECT
     } else if (tag->kind == IS_MIME_URL) {
         const char *type = getmime(link);
         
@@ -694,14 +733,19 @@ printlinkyref(MMIOT *f, linkytype *tag, char *link, int size)
 	    Qstring("\" type =\"", f);
 	    Qstring((char*)type, f);
 	}
+#endif
+#if WITH_TCL_WIKI
     } else if (tag->kind == IS_WIKI) {
         char *url = wikiurl(f, link, size);
         puturl(url, strlen(url), f, 0);
         free(url);
+#endif
     } else
 	___mkd_reparse(link + tag->szpat, size - tag->szpat, MKD_TAGTEXT, f, 0);
 
+#if WITH_DOCTYPES /* A `<img .../>` ? -- Only in XML! */
     imaget.link_sfx = (f->flags & MKD_XML) ? "\" />" : "\">";
+#endif
 
     Qstring(tag->link_sfx, f);
 
@@ -737,7 +781,12 @@ extra_linky(MMIOT *f, Cstring text, Footnote *ref)
     else {
 	ref->flags |= REFERENCED;
 	ref->refnumber = ++ f->reference;
-	Qprintf(f, "<sup id=\"%sref:%d\"><a class=\"fnref\" href=\"#%s:%d\" rel=\"footnote\">%d</a></sup>",
+	Qprintf(f,
+#if WITH_TINPOT /* Give footnote links a own class - "fnref". */
+		"<sup id=\"%sref:%d\"><a class=\"fnref\" href=\"#%s:%d\" rel=\"footnote\">%d</a></sup>",
+#else
+		"<sup id=\"%sref:%d\"><a href=\"#%s:%d\" rel=\"footnote\">%d</a></sup>",
+#endif
 		p_or_nothing(f), ref->refnumber,
 		p_or_nothing(f), ref->refnumber, ref->refnumber);
     }
@@ -857,12 +906,14 @@ linkylinky(int image, MMIOT *f)
 			status = extra_linky(f,name,ref);
 		    else
 			status = linkyformat(f, name, image, ref);
+#if WITH_TCL_WIKI
 		} else if (f->flags & MKD_WIKI && f->cb->e_data != NULL) {
 		    printlinkyref(f, &wikit, T(name), S(name));
 		    Qchar('>', f);
 		    Qwrite(T(name), S(name), f);
 		    Qstring("</a>", f);
 		    status = 1;
+#endif
 	        }
 	    }
 	}
@@ -967,8 +1018,10 @@ code(MMIOT *f, char *s, int length)
 	    Qstring("  ", f);
 	else if ( c == '\\' && (i < length-1) && escaped(f, s[i+1]) )
 	    cputc(s[++i], f);
+#if WITH_TCL_WIKI
 	else if ( c == '[' && f->flags & MKD_WIKI && f->cb->e_data == NULL)
 	    Qstring("\\[", f);
+#endif
 	else
 	    cputc(c, f);
 } /* code */
@@ -1371,7 +1424,12 @@ text(MMIOT *f)
 	switch (c) {
 	case 0:     break;
 
-	case 3:     Qstring(tag_text(f) ? "  " : (f->flags & MKD_XML) ? "<br/>" : "<br>", f);
+	case 3:     
+#if WITH_DOCTYPES /* A <br /> ? -- Only in XML! */
+Qstring(tag_text(f) ? "  " : (f->flags & MKD_XML) ? "<br />" : "<br>", f);
+#else
+Qstring(tag_text(f) ? "  " : "<br/>", f);
+#endif
 		    break;
 
 	case '>':   if ( tag_text(f) )
@@ -1394,14 +1452,16 @@ text(MMIOT *f)
 		    else
 			Qchar(c, f);
 		    break;
+#if WITH_HTML_OBJECT /* Not much difference to case '!' ... */
 	case '?':   if ( peek(f,1) == '[' ) {
 			pull(f);
 			if ( tag_text(f) || !linkylinky(OBJ, f) )
-			    Qstring("![", f);
+			    Qstring("?[", f);
 		    }
 		    else
 			Qchar(c, f);
 		    break;
+#endif
 	case '[':   if ( tag_text(f) || !linkylinky(0, f) )
 			Qchar(c, f);
 		    break;
@@ -1506,9 +1566,12 @@ text(MMIOT *f)
 		    case EOF:	Qchar('\\', f);
 				break;
 				
-		    default:    if ( escaped(f,c) || strchr(">#.-+{}]![*_\\()`", c) != NULL ) {
+		    default:	if ( escaped(f,c) ||
+				     strchr(">#.-+{}]![*_\\()`", c) ) {
+#if WITH_TCL_WIKI
 				    if ((f->flags & MKD_WIKI) != 0 && f->cb->e_data == NULL)
-				        Qchar('\\', f);
+					Qchar('\\', f);
+#endif
 				    Qchar(c, f);
 				} else {
 				    Qchar('\\', f);
@@ -1669,6 +1732,7 @@ printtable(Paragraph *pp, MMIOT *f)
 	start = 1+end;
     }
 
+#if WITH_DOCTYPES
     if (f->flags & MKD_ISO) {
 	/*
 	 * MKD_ISO specific
@@ -1711,9 +1775,9 @@ printtable(Paragraph *pp, MMIOT *f)
          */
 
         Qstring("<table summary=\"A Markdown-generated table.\">\n", f);
-    } else {
+    } else 
+#endif
         Qstring("<table>\n", f);
-    }
     
     Qstring("<thead>\n", f);
     hcols = splat(hdr, "th", align, 0, f);
@@ -1913,7 +1977,11 @@ display(Paragraph *p, MMIOT *f)
 	break;
 
     case HR:
+#if WITH_DOCTYPES /* A <hr /> ? -- Only in XML! */
 	Qstring((f->flags & MKD_XML) ? "<hr />" : "<hr>", f);
+#else
+	Qstring((f->flags & MKD_XML) ? "<hr />" : "<hr>", f);
+#endif
 	break;
 
     case HDR:
@@ -1948,8 +2016,12 @@ mkd_extra_footnotes(MMIOT *m)
 	return;
 
     
+#if WITH_DOCTYPES /* A <hr /> ? -- Only in XML! */
     Csprintf(&m->out, "\n<div class=\"footnotes\">\n%s\n<ol>\n",
             (m->flags & MKD_XML) ? "<hr />" : "<hr>");
+#else
+    Csprintf(&m->out, "\n<div class=\"footnotes\">\n<hr />\n<ol>\n")
+#endif
     
     for ( i=1; i <= m->reference; i++ ) {
 	for ( j=0; j < S(*m->footnotes); j++ ) {

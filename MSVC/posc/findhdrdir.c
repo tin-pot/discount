@@ -210,7 +210,7 @@ char *findhdrloc(const char *header)
     if (includeline == NULL)
         PANIC(("No include line for %s in '%s'!\n", header, iname));
     else {
-        char *start, *end, *dir;
+        char *start, *end;
 
         start = strchr(includeline, '\"');
         if (start == NULL) 

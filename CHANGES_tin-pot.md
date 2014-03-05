@@ -74,7 +74,7 @@ respects:
 
 - `generate.c`: **ADD:** New code checks `MKD_WIKI` and `IS_WIKI`; new
   function `wikiurl()`; new *linkytypes* `wikit` and `objt` and related
-  `IS_WIKI` and `IS_URL_MIME` values. Output `summary` attribute in
+  `IS_WIKI` and `IS_MIME_URL` values. Output `summary` attribute in
   `<table>` when generating ISO HTML.
 
 - `generate.c`: **ADD:** Check `MKD_ISO` and supress/emit some

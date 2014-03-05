@@ -175,9 +175,12 @@ mkd_string(const char *buf, int len, DWORD flags)
 }
  
 /*
- * Encoding stuff follows ...
+ * All encoding stuff gets done here, and is used in the "encoding"
+ * variant of `generatehtml()`.
  */
- 
+
+#if WITH_ENCODINGS
+
 #define ISUTF8_LEAD2(c)    (0xC0 == ((c) & 0xE0U))
 #define ISUTF8_LEAD3(c)    (0xE0 == ((c) & 0xF0U))
 #define ISUTF8_LEAD4(c)    (0xF0 == ((c) & 0xF1U))
@@ -204,19 +207,19 @@ fromutf8(const char *const str, long *pucs)
     /*
      * Check leading octet of this sequence.
      */
-    if (ISUTF8_TRAIL(octet)) {                /* INVALID first octet. */
-        return 0;
-    } else if (ISUTF8_LEAD2(octet)) {             /* 2-byte sequence. */
-        num = 2;
+    if (ISUTF8_TRAIL(octet)) {
+        return 0;			/* INVALID first octet.       */
+    } else if (ISUTF8_LEAD2(octet)) {
+        num = 2;			/* 2-byte sequence.           */
         codepoint = VALUTF8_LEAD2(octet);
-    } else if (ISUTF8_LEAD3(octet)) {             /* 3-byte sequence. */
-        num = 3;
+    } else if (ISUTF8_LEAD3(octet)) {
+        num = 3;			/* 3-byte sequence.           */
         codepoint = VALUTF8_LEAD3(octet);
-    } else if (ISUTF8_LEAD4(octet)) {             /* 4-byte sequence. */
-        num = 4;
+    } else if (ISUTF8_LEAD4(octet)) {
+        num = 4;			/* 4-byte sequence.           */
         codepoint = VALUTF8_LEAD4(octet);
-    } else {                           /* VALID single octet (ASCII). */
-        num = 1;
+    } else {
+        num = 1;		       	/* single (ASCII) octet.      */
         codepoint = octet;
     }
         
@@ -236,7 +239,7 @@ fromutf8(const char *const str, long *pucs)
 
 
 /*
- * Write input ISO 8859-1 to US-ASCII or ISO 8859-1.
+ * Convert ISO 8859-1 input to ASCII or ISO 8859-1 output.
  */
 
 static void
@@ -267,7 +270,7 @@ encode_la(char *doc, int szdoc, FILE *output, int ascii)
 
 
 /*
- * Write input ISO 8859 to UTF-8.
+ * Convert ISO 8895-1 input to UTF-8 output.
  */
 static void
 encode_lu(char *doc, int szdoc, FILE *output)
@@ -293,7 +296,7 @@ encode_lu(char *doc, int szdoc, FILE *output)
 
 
 /*
- * Write US-ASCII or ISO 8859-1.
+ * Convert UTF-8 input to ASCII or ISO 8859-1 output.
  */
 static void
 encode_a(char *doc, int szdoc, FILE *output, int ascii)
@@ -328,7 +331,7 @@ encode_a(char *doc, int szdoc, FILE *output, int ascii)
             else 
                 fprintf(output, "&#%lu;", (codepoint & 0x1FFFFFL));
         } else {
-            /* Not a UTF-8 sequence? Could be ISO 8859. */
+            /* Not a UTF-8 sequence? Suppose ISO 8859-1. */
             len = 1;
             switch (codepoint = *doc) {
             case '\0': return;
@@ -353,7 +356,7 @@ encode_a(char *doc, int szdoc, FILE *output, int ascii)
 }
 
 /*
- * Write UTF-8.
+ * Copy UTF-8 input to UTF-8 output.
  */
 static void
 encode_u(char *doc, int szdoc, FILE *output)
@@ -367,34 +370,41 @@ encode_u(char *doc, int szdoc, FILE *output)
         else
             break;
 }
+#endif /* WITH_ENCODINGS */
 
 /* write the html to a file (xmlified if necessary)
+ *
+ * <tin-pot@gmx.net> 2014-03-05:
+ *
+ * (... and re-coded if necessary).
  */
 
-#define OUT_MASK (MKD_OUT_ASCII | MKD_OUT_LATIN1 | MKD_OUT_UTF8)
-#define IN_MASK (MKD_IN_LATIN1 | MKD_IN_UTF8)
-
+#if WITH_ENCODINGS
+#define OUT_MASK	(MKD_OUT_ASCII | MKD_OUT_LATIN1 | MKD_OUT_UTF8)
+#define IN_MASK		(MKD_IN_LATIN1 | MKD_IN_UTF8)
 int
 mkd_generatehtml(Document *p, FILE *output)
 {
     char *doc;
     int szdoc;
-    int ascii = (p->ctx->flags & OUT_MASK) == MKD_OUT_ASCII;
-    int utf8  = (p->ctx->flags & OUT_MASK) == MKD_OUT_UTF8;
-    int inlatin1 = (p->ctx->flags & IN_MASK) == MKD_IN_LATIN1;
+    int ascii    = (p->ctx->flags & OUT_MASK) == MKD_OUT_ASCII;
+    int utf8     = (p->ctx->flags & OUT_MASK) == MKD_OUT_UTF8;
+    int inlatin1 = (p->ctx->flags & IN_MASK)  == MKD_IN_LATIN1;
 
     if ( (szdoc = mkd_document(p, &doc)) != EOF ) {
         if ( p->ctx->flags & MKD_CDATA )
             mkd_generatexml(doc, szdoc, output);
-        else if (inlatin1) {
-	    if (utf8)
+        else if (inlatin1) {	/* Input is Latin-1 ... */
+	    if (utf8)		/* ... convert to UTF-8 output. */
                 encode_lu(doc, szdoc, output);
-	    else
+	    else		/* ... copy to Latin-1 output,
+				 *     or convert to ASCII output. */
                 encode_la(doc, szdoc, output, ascii);
-	} else {
-	    if (utf8)
+	} else {		/* Input is UTF-8 ... */
+	    if (utf8)		/* ... copy to UTF-8 output. */
                 encode_u(doc, szdoc, output);
-            else 
+            else 		/* ... convert to Latin-1
+				 *     or to ASCII output. */
                 encode_a(doc, szdoc, output, ascii);
 	}
         putc('\n', output);
@@ -402,6 +412,24 @@ mkd_generatehtml(Document *p, FILE *output)
     }
     return -1;
 }
+#else
+int
+mkd_generatehtml(Document *p, FILE *output)
+{
+    char *doc;
+    int szdoc;
+
+    if ( (szdoc = mkd_document(p, &doc)) != EOF ) {
+	if ( p->ctx->flags & MKD_CDATA )
+	    mkd_generatexml(doc, szdoc, output);
+	else
+	    fwrite(doc, szdoc, 1, output);
+	putc('\n', output);
+	return 0;
+    }
+    return -1;
+}
+#endif /* WITH_ENCODINGS */
 
 
 /* convert some markdown text to html

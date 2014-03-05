@@ -1,7 +1,10 @@
 #include "config.h"
 
 char markdown_version[] = VERSION
-                "/wiki" /* With flag `-f wiki`. */
+/*
+ * This is "tin-pot/discount" on _github_.
+ */
+		"/<http://github.com/tin-pot/discount>"
 #if @TABSTOP@ != 4
 		" TAB=@TABSTOP@"
 #endif
