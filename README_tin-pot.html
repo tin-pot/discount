@@ -1,36 +1,41 @@
-<!doctype html public "ISO/IEC 15445:2000//DTD HTML//EN">
+<!doctype html public	"ISO/IEC 15445:2000//DTD HTML//EN">
 <html>
 <head>
-  <meta name="GENERATOR" content="mkd2html 2.1.6/Win32 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
+  <meta name="GENERATOR" content="mkd2html 2.1.7/Win32 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
   <meta http-equiv="Content-Type"
-        content="text/html; charset=US-ASCII">
+        content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet"
         type="text/css"
         href="MSVC/posc/default.css">
-  <title>README file for tin-pot/discount   </title>
+  <title>README file for &lsquo;tin-pot/discount&rsquo;</title>
 </head>
 <body>
-<h1>The Markdown tool &ldquo;discount&rdquo; on Windows: <code>tin-pot/discount</code></h1>
+<h1>The Markdown tool &ldquo;discount&rdquo; on <em>Windows</em>:<br>&ldquo;<em>tin-pot/discount</em>&rdquo;</h1>
 
-<p>This repository is a clone of <a href="http://www.pell.portland.or.us/~orc/Code/discount/">David Parsons' implementation</a> in C
-of (a processor for) <a href="http://daringfireball.net/projects/markdown/">John Gruber&rsquo;s &ldquo;Markdown&rdquo; markup language</a>,
-with added support to build the package with Visual Studio on Windows.
-There are also some added command line options of the tools and one new
-flag value of the library.</p>
+<p>This repository is a fork of <a href="http://github.com/orc/discount/">David Parsons' repository</a>
+containing his <a href="http://www.pell.portland.or.us/~orc/Code/discount/">implementation</a> in C of (a processor for) <a href="http://daringfireball.net/projects/markdown/">John
+Gruber&rsquo;s &ldquo;Markdown&rdquo; markup language</a>, with</p>
 
-<p>See also the home page of this distribution at <em>github</em>: <a href="http://github.com/tin-pot/discount/">tin-pot/discount</a>.</p>
+<ul class="num">
+<li><p>added support to build the package with <em>Visual C++</em> on <em>Windows</em>,</p></li>
+<li><p>and some minor new features.</p></li>
+</ul>
 
-<p>In the following, the term &ldquo;<em>Unix</em>&rdquo; refers to all the Unix-like
-platforms that <code>discount</code> does target originally.</p>
 
-<h2>1  Modifications</h2>
+<p>See also the home page of this distribution at <em>github</em>: <a href="http://github.com/tin-pot/discount/">tin-
+pot/discount</a>.</p>
+
+<p>In the following, the term &ldquo;<em>UNIX</em>&rdquo; refers to all the <em>UNIX</em>-like
+platforms that <code>discount</code> does originally target.</p>
+
+<h2>1  Modifications</h2>
 
 <p>The modifications added in this distribution are:</p>
 
-<ul>
+<ul class="num">
 <li><p>Added pre-configured files</p>
 
-<ul>
+<ul class="num">
 <li><code>version.c</code>,</li>
 <li><code>mkdio.h</code>, and</li>
 <li><code>config.h</code>,</li>
@@ -38,49 +43,39 @@ platforms that <code>discount</code> does target originally.</p>
 
 
 <p>in <code>MSVC/</code> so that no <code>configure.sh</code> run&mdash;which generates these files
-on Unix&mdash;is needed on Windows.</p></li>
+on <em>UNIX</em>&mdash;is needed on <em>Windows</em>.</p></li>
 <li><p>Added project files for all executables and libraries in <code>MSVC/</code>.</p></li>
-<li><p>Added supporting files for building on Windows in <code>MSVC/posc/</code>,
-including the <a href="http://freegetopt.sourceforge.net/"><code>freegetopt</code></a> implementation of Unix&rsquo;s <code>getopt()</code>
+<li><p>Added supporting files for building on <em>Windows</em> in <code>MSVC/posc/</code>,
+including the <a href="http://freegetopt.sourceforge.net/"><code>freegetopt</code></a> implementation of <em>UNIX</em>&rsquo;s <code>getopt()</code>
 function which is used by <code>main.c</code>.</p></li>
 </ul>
 
 
 <p>See the <a href="CHANGES_tin-pot.html">CHANGES</a> file for more details.</p>
 
-<h2>2  Building/Installing</h2>
+<h2>2  Building/Installing</h2>
 
-<p>The package should build out of the box with Visual Studio 2003.NET or
-Visual Studio 2008 or newer (later versions of Visual Studio will import
-and convert the project files).</p>
+<p>The package should build &ldquo;out of the box&rdquo; with <em>Visual Studio 2003.NET</em> or
+<em>Visual Studio 2008</em> or newer (later versions of <em>Visual Studio</em> will import
+and upgrade the project files).</p>
 
 <p>The generated executable are statically linked: they only depend on
 <code>kernel32.dll</code>. Place them wherever you like on your <code>PATH</code>.</p>
 
-<h2>3  About the Port</h2>
+<h2>3  About the Port</h2>
 
-<p>Porting to Windows was done with a fairly general technique, which
+<p>Porting to <em>Windows</em> was done with a fairly general technique, which
 presents to the compiler a &ldquo;faked&rdquo; environment of header files on
-top of the &ldquo;real&rdquo; header files of MSVC. All this is contained in the
-<code>MSVC/posc</code> directory. See the <a href="MSVC/posc/README.html"><code>MSVC/posc/README.html</code></a> file there for
-explanations.</p>
+top of the &ldquo;real&rdquo; header files of <em>Visual C++</em>. All this is contained in the
+<code>MSVC/posc</code> directory. See the <a href="MSVC/posc/README.html"><code>MSVC/posc/README</code></a> file
+there for explanations.</p>
 
 <p>All <code>discount</code> source files in the project root directory are
-unmodified. Their need for functions like <code>strncasecmp()</code> (Unix), or
+unmodified. Their need for functions like <code>strncasecmp()</code> (<em>UNIX</em>), or
 <code>vsnprintf()</code> (C99), or <code>getopt()</code> gets satisfied completely out of
 files in <code>posc</code>.</p>
 
 <p>The included <code>getopt()</code> implementation is <a href="http://freegetopt.sourceforge.net/">freegetopt</a>, its license
 is in the file <code>LICENSE-freegetopt</code>.</p>
-
-<p>
-  <a href="http://validator.w3.org/check?uri=referer">
-    <img src="http://validator.w3.org/images/v15445" 
-         alt="Valid ISO/IEC 15445:2000">
-  </a>
-</p>
-
-
-
 </body>
 </html>

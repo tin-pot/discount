@@ -9,9 +9,9 @@ Changes in this distribution of `discount`
 1  Overview
 -----------
 
-For the most part, the "[_discount/tin-pot_][gh-tp]" sources are
-identical to those in David Parsons' "[_discount/orc_][gh-orc]"
-repository (after merging his repository into "_discount/tin-pot_" from
+For the most part, the "[_tin-pot/discount_][gh-tp]" sources are
+identical to those in David Parsons' "[_orc/discount_][gh-orc]"
+repository (after merging his repository into "_tin-pot/discount_" from
 time to time).
 
 Building upon David Parsons' work, this distribution has two goals:
@@ -29,7 +29,7 @@ respects:
    provided, as well as
 
 2. files (in `MSVC/posc/`) to allow building the rather "*UNIX*ish"
-   `discount` package on Windows --- using (the _C_ part of) any version
+   `discount` package on _Windows_---using (the _C_ part of) any version
    or edition of _Visual C++_ without additional requirements.
 
 3. New options for `mkd2html` (most just set a corresponding flag):
