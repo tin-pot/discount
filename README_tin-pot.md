@@ -61,8 +61,8 @@ The generated executable are statically linked: they only depend on
 Porting to _Windows_ was done with a fairly general technique, which
 presents to the compiler a "faked" environment of header files on
 top of the "real" header files of _Visual C++_. All this is contained in the
-`MSVC/posc` directory. See the [`MSVC/posc/README`][posc] file
-there for explanations.
+`MSVC/posc` directory. See the [`MSVC/posc/README.md`][posc] (or
+[`MSVC/posc/README.html`][posc-h]) there for explanations.
 
 All `discount` source files in the project root directory are
 unmodified. Their need for functions like `strncasecmp()` (_UNIX_), or
@@ -78,6 +78,7 @@ is in the file `LICENSE-freegetopt`.
 [dp]:http://www.pell.portland.or.us/~orc/Code/discount/
 [md]:http://daringfireball.net/projects/markdown/
 [go]:http://freegetopt.sourceforge.net/
-[posc]:MSVC/posc/README.html
+[posc]:MSVC/posc/README.md
+[posc-h]:MSVC/posc/README.html
 
 
