@@ -1,24 +1,20 @@
-% Porting C source code using faux standard headers
-% Martin Hofmann
-% 2012-01-23        
 
 Porting C code using faux standard headers
 ==========================================
 
->%center%
-> Martin Hofmann  
-> [`tin-pot@gmx.net`](mailto:tin-pot@gmx.net)  
-> 2014-01-23
+<p style="text-align:center;">Martin Hofmann<br>
+<a href="mailto:tin-pot@gmx.net"><code>tin-pot@gmx.net</code></a><br>
+2014-01-23</p>
 
 
->%abstract%
-> A common stumbling block when porting C source software are
-> functions that are missing on the target platform, albeit often
-> common and standardized like C99's `round()` function or POSIX's
-> `strcasecmp()`. By the technique presented here, these "little"
-> functions can be added to the compilation for porting, without
-> the need to change either the source code or the installed
-> compiler and environment.
+<p style="text-align:center; font-size:smaller">
+A common stumbling block when porting C source software are
+functions that are missing on the target platform, albeit often
+common and standardized like C99's <code>round()</code> function or POSIX's
+<code>strcasecmp()</code>. By the technique presented here, these "little"
+functions can be added to the compilation for porting, without
+the need to change either the source code or the installed
+compiler and environment.</p>
 
  
 Motivation  
