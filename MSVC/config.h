@@ -79,7 +79,7 @@
  * in Visual Studio 2008 and later, see
  * <http://msdn.microsoft.com/de-de/library/cx3b23a3%28v=vs.90%29.aspx>
  */
-#if _MSC_VER >= 1500 /* Compiler Ver. 15, Visual Studio 2008 */
+#if _MSC_VER >= 1500 /* VC 9.0, MSC_VER 15, Visual Studio 2008 */
 #define inline __inline
 #else
 #define inline 
