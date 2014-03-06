@@ -1,9 +1,9 @@
 <!doctype html public	"ISO/IEC 15445:2000//DTD HTML//EN">
 <html>
 <head>
-  <meta name="GENERATOR" content="mkd2html 2.1.7/Win32 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
+  <meta name="GENERATOR" content="mkd2html 2.1.7/<http://github.com/tin-pot/discount> TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE ENCODINGS DOCTYPES HTML_OBJECT">
   <meta http-equiv="Content-Type"
-        content="text/html; charset=ISO-8859-1">
+	content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet"
         type="text/css"
         href="MSVC/posc/default.css">
@@ -12,7 +12,7 @@
 <body>
 <h1>Changes in this distribution of <code>discount</code></h1>
 
-<h2>1  Overview</h2>
+<h2>1   Overview</h2>
 
 <p>For the most part, the &ldquo;<a href="https://github.com/tin-pot/discount/"><em>tin-pot/discount</em></a>&rdquo; sources are
 identical to those in David Parsons' &ldquo;<a href="https://github.com/Orc/discount/"><em>orc/discount</em></a>&rdquo;
@@ -23,7 +23,7 @@ time to time).</p>
 
 <ul class="num">
 <li><p>Allow an &ldquo;out-of-the-box&rdquo; build on <em>Windows</em> using <em>Visual C++</em> (or
-any <em>Standard C</em> compiler),</p></li>
+possibly any <em>Standard C</em> compiler),</p></li>
 <li><p>add some features that I deemed useful, mostly visible as new options
 for <code>mkd2html</code>.</p></li>
 </ul>
@@ -33,61 +33,109 @@ for <code>mkd2html</code>.</p></li>
 respects:</p>
 
 <ol class="num">
-<li><p>Project files for MS Visual C++ 2003 and 2008 (in <code>MSVC/</code>) are
-provided, as well as</p></li>
-<li><p>files (in <code>MSVC/posc/</code>) to allow building the rather &ldquo;<em>UNIX</em>ish&rdquo;
-<code>discount</code> package on <em>Windows</em>&mdash;using (the <em>C</em> part of) any version
-or edition of <em>Visual C++</em> without additional requirements.</p></li>
-<li><p>New options for <code>mkd2html</code> (most just set a corresponding flag):
-<code>-S</code> and <code>-I</code> to choose <em>HTML 4.01 Strict</em> or <em>ISO 15445:2000</em>
-as the output <em>document type</em> instead of the default <em>HTML 4.01
-Transitional</em>.</p></li>
-<li><p>When the output is &ldquo;ISO HTML&rdquo; (<code>-I</code>):</p>
+<li><p>Project files for <em>Visual C++ 2003.NET</em> and <em>Visual Studio 2008</em> are
+provided in the <code>MSVC/</code> directory, as well as</p></li>
+<li><p>files (in the <code>MSVC/posc/</code> directory) that allow building the rather
+&ldquo;<em>UNIX</em>ish&rdquo; <code>discount</code> package on <em>Windows</em>&mdash;using (the <em>C</em> part
+of) any version or edition<sup id="fnref:1"><a class="fnref" href="#fn:1" rel="footnote">1</a></sup> of <em>Visual C++</em> without additional
+requirements.</p></li>
+</ol>
+
+
+<p>Some new features are also available if the associated &ldquo;feature macro&rdquo;
+in <code>"config.h"</code> is defined to evaluate to non-zero.</p>
+
+<p>If none of these macros is &ldquo;switched on&rdquo;, the resulting programs should
+be functionally equivalent to those from the &ldquo;<em>orc/discount</em>&rdquo; code base.</p>
+
+<h3>1.1   The <code>WITH_ENCODINGS</code> feature</h3>
+
+<p>Enables processing of input and generating of output text in any of the
+encodings:</p>
+
+<ol class="num">
+<li>US-ASCII,</li>
+<li>ISO 8859-1,</li>
+<li>UTF-8.</li>
+</ol>
+
+
+<p>In <code>mkd2html</code>, the options <code>-l</code>, <code>-u</code>, <code>-A</code>, <code>-L</code>, <code>-U</code> select these
+encodings.</p>
+
+<h3>1.2   The <code>WITH_DOCTYPES</code> feature</h3>
+
+<p>Enables <code>mkd2html</code> to generate HTML with any of the document types:</p>
+
+<ol class="num">
+<li><em>ISO 15445:2000</em>,</li>
+<li><em>HTML 4.01</em> (&ldquo;Strict&rdquo;),</li>
+<li><em>HTML 4.01 Transitional</em>.</li>
+</ol>
+
+
+<p>In <code>mkd2html</code>, the options <code>-I</code> and <code>-S</code> select the first two of these
+document types, <em>Transitional</em> is the default.</p>
+
+<p>When the output is &ldquo;ISO HTML&rdquo; (<code>-I</code>):</p>
 
 <ul class="num">
 <li><p>don&rsquo;t write <code>width</code> and <code>height</code> attributes for images and objects;</p></li>
 <li><p>don&rsquo;t write a <code>type="a"</code> attribute for &ldquo;alphabetic&rdquo; <code>&lt;OL&gt;</code> lists,
 but emit a <code>class="alf"</code> attribute for &ldquo;alphabetic&rdquo; lists, and
-<code>class="num"</code> else;</p></li>
-<li><p>generate a <code>summary</code> attribute in each <code>&lt;table&gt;</code> (the attribute is
+<code>class="num"</code> otherwise;</p></li>
+<li><p>generate a <code>summary</code> attribute in each <code>&lt;table&gt;</code> (this attribute is
 required in &ldquo;ISO HTML&rdquo;).</p></li>
 </ul>
-</li>
-<li><p>Two new options <code>-l</code> and <code>-u</code> to choose the input encoding: <code>ISO-8859-1</code>
-or <code>UTF-8</code>.</p></li>
-<li><p>Three new options <code>-A</code>, <code>-L</code>, and <code>-U</code> to choose the output encoding:
-<code>US-ASCII</code>, <code>ISO-8859-1</code>, or <code>UTF-8</code>.</p></li>
-<li><p>An option <code>-T</code> to generate a Table of Contents, and place it at
-the beginning of the document (<em>This &ldquo;feature&rdquo; is coarse and
-preliminary!</em>).</p></li>
-<li><p>A new syntax modeled after the Markdown notation &ldquo;<code>![text](uri
-=WxH)</code>&rdquo; for images (<code>&lt;img&gt;</code>), which is very similar but generates
-<code>&lt;object&gt;</code> elements (with a MIME type derived from the suffix of the
-URI):</p>
 
-<pre><code>?[text](uri =WxH)
-</code></pre></li>
-<li><p>The new flag value <code>wiki</code> to produce a variant of output that is
-somewhat easier to post-process by Wiki software.</p></li>
+
+<h3>1.3   The <code>WITH_HTML_OBJECT</code> feature</h3>
+
+<p>Introduces a new syntax, modeled after the existing <em>Markdown</em> notation</p>
+
+<pre><code>![title](uri =WxH)
+</code></pre>
+
+<p>for <code>&lt;IMG&gt;</code> elements, that does create an <code>&lt;OBJECT&gt;</code> element, so that
+any external object can be embedded in the generated HTML document. The
+syntax for this is</p>
+
+<pre><code>?[title](uri =WxH)
+</code></pre>
+
+<p>where the MIME type of the object is derived from the URI&rsquo;s suffix.</p>
+
+<h3>1.4   Common changes</h3>
+
+<p>If any of the mentioned &ldquo;feature macros&rdquo; is enabled, there are also some
+small changes implied:</p>
+
+<ol class="num">
+<li><p>An option <code>-T</code> for <code>mkd2html</code> to generate a Table of Contents, and
+place it at the beginning of the document (<em>This &ldquo;feature&rdquo; is coarse
+and preliminary!</em>).</p></li>
+<li><p>When generating (any style of) HTML output, no XML <code>&lt;... /&gt;</code> tags are
+generated for empty elements (like <code>&lt;BR&gt;</code>, <code>&lt;HR&gt;</code>), instead they are
+written as <code>&lt;...&gt;</code>, as HTML requires.</p></li>
 </ol>
 
 
-<h2>2  Changes to <code>discount</code> source files</h2>
+<h2>2   Changes to <code>discount</code> source files</h2>
 
 <ul class="num">
-<li><p><code>generate.c</code>: <strong>ADD:</strong> New code checks <code>MKD_WIKI</code> and <code>IS_WIKI</code>; new
-function <code>wikiurl()</code>; new <em>linkytypes</em> <code>wikit</code> and <code>objt</code> and related
-<code>IS_WIKI</code> and <code>IS_MIME_URL</code> values. Output <code>summary</code> attribute in
-<code>&lt;table&gt;</code> when generating ISO HTML.</p></li>
+<li><p><code>generate.c</code>: <strong>ADD:</strong> New code checks <code>MKD_XML</code> to suppress &ldquo;<code>/&gt;</code>&rdquo;
+in HTML; new <em>linkytype</em> <code>objt</code> and related <code>IS_MIME_URL</code> value. New
+value <code>OBJ</code> in additon to <code>IMG</code> for the <code>image</code> parameter of various
+functions.</p></li>
 <li><p><code>generate.c</code>: <strong>ADD:</strong> Check <code>MKD_ISO</code> and supress/emit some
-attributes in &ldquo;ISO mode&rdquo;.</p></li>
+attributes in &ldquo;ISO mode&rdquo;, output <code>summary</code> attribute in <code>&lt;table&gt;</code>.</p></li>
 <li><p><code>generate.c</code>: <strong>ADD:</strong> Process &ldquo;Object&rdquo; syntax into <code>&lt;object&gt;</code>
 elements.</p></li>
 <li><p><code>markdown.h</code>: <strong>ADD:</strong> Definition of new <code>MKD_</code>* bit mask values.
 <strong>Important:</strong> must match definition in <code>mkdio.h.in</code>!</p></li>
+<li><p><code>mkd2html.c</code>: <strong>ADD:</strong> Options for the new features.</p></li>
 <li><p><code>mkd2html.c</code>: <strong>ADD:</strong> Enable footnotes by default, and generate them.</p></li>
 <li><p><code>mkd2hmtl.c</code>: <strong>ADD:</strong> Generate TOC if requested by <code>-T</code>.</p></li>
-<li><p><code>pgm_options.c</code>: <strong>ADD:</strong> Detect flag <code>-f wiki</code>.</p></li>
 </ul>
 
 
@@ -108,9 +156,9 @@ corresponding template file:</p>
 
 <ul class="num">
 <li><p><code>version.c.in</code>: <strong>ADD:</strong> A suffix added to the version identification
-shown in the <code>markdown -V</code> output: <code>"-wiki"</code>. This differentiates it
-from the version information shown by an <em>original</em> <code>markdown</code> built
-from <code>discount/orc</code>.</p></li>
+shown in the <code>markdown -V</code> output, to differentiate it from the
+version information shown by an <em>original</em> <code>markdown</code> built from the
+&ldquo;<em>orc/discount</em>&rdquo; repository.</p></li>
 <li><p><code>mkdio.h.in</code>: <strong>ADD:</strong> Define new flag bit-values <code>MKD_</code>*.
 <strong>Important:</strong> They must match the definition in <code>markdown.h</code>!</p></li>
 </ul>
@@ -120,30 +168,33 @@ from <code>discount/orc</code>.</p></li>
 
 <ul class="num">
 <li><code>VERSION</code>: This should only contain a numeric version identification.
-The version information output by <code>markdown -V</code> is modified in
-<code>version.c.in</code>.</li>
+The version information output by <code>markdown -V</code> is composed in
+<code>version.c.in</code>. The current version is <code>2.1.7</code>.</li>
 </ul>
 
 
 <h2>5  Added files and directories</h2>
 
-<ul class="num">
-<li><p><code>MSVC/</code>: All files in this directory are new, written by Martin
-Hofmann (<a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#x6f;&#58;&#116;&#105;&#110;&#45;&#x70;&#x6f;&#116;&#64;&#103;&#109;&#x78;&#46;&#x6e;&#x65;&#x74;">&#x74;&#x69;&#x6e;&#45;&#x70;&#x6f;&#x74;&#64;&#x67;&#x6d;&#x78;&#x2e;&#x6e;&#101;&#116;</a>), except for these files:</p>
+<p>In directory <code>MSVC/</code>: All files in this directory are new, written by
+Martin Hofmann <code>&lt;tin-pot@gmx.net&gt;</code>, except for these files:</p>
 
 <ul class="num">
-<li> <code>ansidecl.h</code>, <code>ansidecl_1996.h</code>, and <code>ansidecl_2001.h</code> are
- <em>Copyright &copy; 1991&ndash;2001 Free Software Foundation</em>.</li>
-<li> <code>getopt.c</code> and <code>getopt.h</code> are <em>Copyright &copy; 2000&ndash;2003 Mark K.
- Kim</em>.</li>
-<li> <code>inttypes.h</code>, <code>stdint.h</code> are <em>Copyright &copy; 2006 Alexander
- Chemeris</em>.</li>
+<li><p><code>ansidecl.h</code>, <code>ansidecl_1996.h</code>, and <code>ansidecl_2001.h</code> are <em>Copyright
+&copy; 1991&ndash;2001 Free Software Foundation</em>.</p></li>
+<li><p><code>getopt.c</code> and <code>getopt.h</code> are <em>Copyright &copy; 2000&ndash;2003 Mark K. Kim</em>.</p></li>
+<li><p><code>inttypes.h</code>, <code>stdint.h</code> are <em>Copyright &copy; 2006 Alexander Chemeris</em>.</p></li>
 </ul>
 
 
-<p>   These files contain their own license conditions, see the contents
-   of <code>MSVC/posc/</code>.</p></li>
-</ul>
+<p>These files contain their own license conditions, see the contents of
+<code>MSVC/posc/</code>.</p>
+<div class="footnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>I only did try out <em>2003.NET</em>, and <em>2008</em> yet, but I see no reason otherwise. <a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
 
 </body>
 </html>

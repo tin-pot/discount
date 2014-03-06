@@ -1,9 +1,9 @@
 <!doctype html public	"ISO/IEC 15445:2000//DTD HTML//EN">
 <html>
 <head>
-  <meta name="GENERATOR" content="mkd2html 2.1.7/Win32 TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE">
+  <meta name="GENERATOR" content="mkd2html 2.1.7/<http://github.com/tin-pot/discount> TAB=8 DL=BOTH ID-ANCHOR GITHUB-TAGS FENCED-CODE ENCODINGS DOCTYPES HTML_OBJECT">
   <meta http-equiv="Content-Type"
-        content="text/html; charset=ISO-8859-1">
+	content="text/html; charset=ISO-8859-1">
   <link rel="stylesheet"
         type="text/css"
         href="MSVC/posc/default.css">
@@ -42,38 +42,39 @@ platforms that <code>discount</code> does originally target.</p>
 </ul>
 
 
-<p>in <code>MSVC/</code> so that no <code>configure.sh</code> run&mdash;which generates these files
-on <em>UNIX</em>&mdash;is needed on <em>Windows</em>.</p></li>
-<li><p>Added project files for all executables and libraries in <code>MSVC/</code>.</p></li>
+<p>in the directory <code>MSVC/</code> so that no <code>configure.sh</code> run&mdash;which
+generates these files on <em>UNIX</em>&mdash;is needed on <em>Windows</em>.</p></li>
+<li><p>Added <em>Visual Studio</em> project files for all executables and libraries
+in <code>MSVC/</code>.</p></li>
 <li><p>Added supporting files for building on <em>Windows</em> in <code>MSVC/posc/</code>,
 including the <a href="http://freegetopt.sourceforge.net/"><code>freegetopt</code></a> implementation of <em>UNIX</em>&rsquo;s <code>getopt()</code>
 function which is used by <code>main.c</code>.</p></li>
+<li><p>Some new features are also available, see the
+<a href="CHANGES_tin-pot.html">CHANGES</a> file for more details.</p></li>
 </ul>
 
 
-<p>See the <a href="CHANGES_tin-pot.html">CHANGES</a> file for more details.</p>
-
 <h2>2  Building/Installing</h2>
 
-<p>The package should build &ldquo;out of the box&rdquo; with <em>Visual Studio 2003.NET</em> or
-<em>Visual Studio 2008</em> or newer (later versions of <em>Visual Studio</em> will import
-and upgrade the project files).</p>
+<p>The package should build &ldquo;out of the box&rdquo; with <em>Visual Studio 2003.NET</em>
+or <em>Visual Studio 2008</em> or newer (newer versions of <em>Visual Studio</em> will
+import and upgrade the project files).</p>
 
 <p>The generated executable are statically linked: they only depend on
 <code>kernel32.dll</code>. Place them wherever you like on your <code>PATH</code>.</p>
 
 <h2>3  About the Port</h2>
 
-<p>Porting to <em>Windows</em> was done with a fairly general technique, which
-presents to the compiler a &ldquo;faked&rdquo; environment of header files on
-top of the &ldquo;real&rdquo; header files of <em>Visual C++</em>. All this is contained in the
-<code>MSVC/posc</code> directory. See the <a href="MSVC/posc/README.md"><code>MSVC/posc/README.md</code></a> (or
-<a href="MSVC/posc/README.html"><code>MSVC/posc/README.html</code></a>) there for explanations.</p>
+<p>Porting to <em>Windows</em> was done using a fairly general technique, which
+presents to the compiler an environment of &ldquo;faked&rdquo; standard header files
+on top of the &ldquo;real&rdquo; header files of <em>Visual C++</em>. All this is contained
+in the <code>MSVC/posc</code> directory. See the <a href="MSVC/posc/README.html"><code>MSVC/posc/README</code></a> file
+there for explanations.</p>
 
-<p>All <code>discount</code> source files in the project root directory are
-unmodified. Their need for functions like <code>strncasecmp()</code> (<em>UNIX</em>), or
-<code>vsnprintf()</code> (C99), or <code>getopt()</code> gets satisfied completely out of
-files in <code>posc</code>.</p>
+<p>All <code>discount</code> source files in the project root directory are unmodified
+(except for new features, that is). Their dependency on functions like
+<code>strncasecmp()</code> (<em>UNIX</em>), or <code>vsnprintf()</code> (C99), or <code>getopt()</code> gets
+satisfied completely out of files in <code>posc</code>.</p>
 
 <p>The included <code>getopt()</code> implementation is <a href="http://freegetopt.sourceforge.net/">freegetopt</a>, its license
 is in the file <code>LICENSE-freegetopt</code>.</p>
