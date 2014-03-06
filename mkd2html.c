@@ -218,7 +218,6 @@ char **argv;
 	    argc -= 1;
 	    argv += 1;
 	}
-#else /* WITH_TINPOT_ */
 	else
 	    break;
 #endif /* WITH_TINPOT_ */
@@ -302,7 +301,7 @@ char **argv;
 	"<html>\n"
 	"<head>\n"
 	"  <meta name=\"GENERATOR\" content=\"mkd2html %s\">\n",
-	markdown_version,
+	markdown_version
 #endif
     );
 
