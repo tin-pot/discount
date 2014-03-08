@@ -34,8 +34,9 @@ LIBS_Debug	=
     
 ### File groups
 
-PRODUCTS = $(TARGETS) $(JUNK)			# All generated files.
-JUNK = *.obj *.manifest *.idb *.ncb	# All "disposable" files.
+PRODUCTS = $(TARGETS) $(OTHER) $(JUNK)	# All generated files.
+OTHER = *.pdb 				# Not a target, not disposable.
+JUNK = *.obj *.manifest *.idb *.ilk *.ncb # All "disposable" files.
 CONF_FILE = build_env.bat		# File to store configuration.
 
 ### Configuration setup ################################################
