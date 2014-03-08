@@ -148,7 +148,7 @@
 			RelativePath="..\INSTALL">
 		</File>
 		<File
-			RelativePath="..\..\README">
+			RelativePath="..\README.txt">
 		</File>
 	</Files>
 	<Globals>
