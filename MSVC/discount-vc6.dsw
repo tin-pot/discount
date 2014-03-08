@@ -1,0 +1,98 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "discount"=.\discount-vc6.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name markdown
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name posc
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "makepage"=.\makepage-vc6.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name markdown
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name posc
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "markdown"=.\markdown-vc6.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name posc
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "mkd2html"=.\mkd2html-vc6.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name markdown
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name posc
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "posc"=.\posc-vc6.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
