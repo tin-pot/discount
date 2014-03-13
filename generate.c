@@ -540,9 +540,10 @@ static linkytype objt   = { 0, 0, "<object data=\"", "\"",
                              1, " title=\"", "\"></object>", MKD_NOIMAGE, IS_MIME_URL };
 static linkytype imaget = { 0, 0, "<img src=\"", "\"",
 			     1, " title=\"", "\">", MKD_NOIMAGE|MKD_TAGTEXT, IS_URL };
-#endif
+#else
 static linkytype imaget = { 0, 0, "<img src=\"", "\"",
 			     1, " alt=\"", "\">", MKD_NOIMAGE|MKD_TAGTEXT, IS_URL };
+#endif
 static linkytype linkt  = { 0, 0, "<a href=\"", "\"",
                              0, ">", "</a>", MKD_NOLINKS, IS_URL };
 #if WITH_TCL_WIKI
