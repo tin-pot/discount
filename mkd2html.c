@@ -223,7 +223,7 @@ char **argv;
 #endif /* WITH_TINPOT_ */
     }
 
-    output = NULL;
+    output = stdout;
     input = stdin;
     
     if (argc > 1) {
