@@ -42,13 +42,38 @@
  *
  *  1. are footnotes enabled by default in this program, and
  *
- *  2. is one more option available, namely:
+ *  2. are two more options available, namely:
  *
  *	-T
  *		Generate a rough table of contents and place it at
  *		the beginning of the <BODY> element.
  *		(This is a preliminary feature.)
- *
+ *	-r str
+  		Pass text through in unmodified form if it is delimited
+  		by user-defined markup. If the argument string `str` has
+  		the form
+  
+  		    :string1:string2:
+  
+  		then text `string` enclosed between `string1` and `string2` will
+  		be treated as if by `[](raw:string)` - except that it may also
+  		contain a closing parenthesis `)` ...
+ 
+		If the argument string `str` has the form
+		
+		    :string1:string2:out1:out2:
+
+		then the raw text will be enclosed between `out1` and `out2` in
+		the HTML output (both `out1` and `out2` may be empty strings).
+
+		You don't have to use a colon `:` to separate the substrings, any
+		printable character - given as the first character of the argument
+		value - will do, as long it does not occur in your substrings:
+		
+		    +string1+string2+
+
+		is equivalent to the pattern given above.
+  
  * ---------------------------------------------------------------------
  */
 /*
@@ -61,6 +86,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #ifdef HAVE_BASENAME
 # ifdef HAVE_LIBGEN_H
 #  include <libgen.h>
@@ -88,6 +114,7 @@ char *pgm = "mkd2html";
 #endif
 #if WITH_TINPOT_
 #define SETBITS(var, val, mask) ((var) = (var) & ~(mask) | (val))
+static const char *ASCIIMathDelim = NULL;
 #endif
 
 #ifndef HAVE_BASENAME
@@ -124,6 +151,9 @@ usage(void)
 #endif
 #if WITH_ENCODINGS
 	"[-A | -L | -U ] [-l] "
+#endif
+#if WITH_TINPOT_
+	"[-T] [-r str] "
 #endif
 	"[-css URL] [-header text] "
 	"[-footer text] [ source [dest] ]\n", pgm);
@@ -178,6 +208,7 @@ char **argv;
 #if WITH_TINPOT_
 	else if ( argv[1][0] == '-' ) {
 	    char ch, *opt = argv[1];
+    	    extern int rawarg(char *);
 	    
 	    while ((ch = *++opt) != '\0') switch (ch) {
 #if WITH_DOCTYPES
@@ -211,6 +242,54 @@ char **argv;
 #endif /* WITH_ENCODINGS */.
 	    case 'T':
 		SETBITS(flags, MKD_TOC, MKD_TOC);
+		break;
+	    case 'r':
+		if (opt[1] != '\0') {
+    		    rawarg(opt+1);
+    		    opt += strlen(opt) - 1;
+		} else {
+		    rawarg(argv[2]);
+		    --argc, ++argv;
+		}
+		break;
+	    case 'a':
+		{
+		    static char arg1[32] = ":`:`:&#xF8F8;:&#xF8F8;:"; // U+F8F8 (PUA)
+		    static char arg2[] = ":$$:$$:";
+		    static char arg3[] = ":$:$:";
+		    static char delim[4];
+		    
+		    if (opt[1] != '\0') {
+			/*
+			 * User-defined ASCIIMath delimiter.
+			 */
+			char ch = opt[1];
+			if (ch == '\\') {
+			    int n;
+			    switch (opt[2]) {
+			    case 'u': n = sscanf(opt + 3, "%x", &ch);
+				if (n != 1) usage();
+				break;
+			    default:
+				usage();
+			    }
+			}
+			arg1[1] = arg1[3] = ch;
+			delim[0] = ch;
+			delim[1] = '\0';
+			ASCIIMathDelim = delim;
+			if (ch == arg1[0]) {
+			    const char alt = '!';
+			    char *p = strchr(arg1+5, ':');
+			    assert(p != NULL);
+			    arg1[0] = arg1[2] = arg1[4] = *p = alt;
+			}
+			opt += strlen(opt) - 1;
+		    }
+		    rawarg(arg1);
+		    rawarg(arg2);
+		    rawarg(arg3);
+		}
 		break;
 	    default: 
 		usage();
@@ -333,6 +412,12 @@ char **argv;
     }
     for ( i=0; i < S(headers); i++ )
 	fprintf(output, "  %s\n", T(headers)[i]);
+#if 0 && WITH_TINPOT_ /* I can't get `ASCIIMathML.js` to grok this. */
+    if (ASCIIMathDelim != NULL) {
+	fprintf(output, "  <script type=\"text/javascript\">AMdelimiter1 = \"%s\"; "
+	                "AMescape1 = \"\\\\%s\"; </script>\n", ASCIIMathDelim, ASCIIMathDelim);
+    }
+#endif
     fprintf(output, "</head>\n"
 		    "<body>\n");
 
