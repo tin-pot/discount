@@ -1377,6 +1377,125 @@ smartypants(int c, int *flags, MMIOT *f)
     return 0;
 } /* smartypants */
 
+/* <tin-pot@gmx.net> 2014-04-24:
+ * Pass text through without interpreting if it is delimited in a user-defined fashion.
+ */
+#define RAW_MAX 128U
+
+struct {
+    char ch0[RAW_MAX+1];				/* Initial char of begin[] */
+    /*const*/ char *begin[RAW_MAX], *end[RAW_MAX];	/* Delimiting input mark-up */
+    /*const*/ char *otag[RAW_MAX], *etag[RAW_MAX];	/* Delimiting output mark-up */
+} rawdef = {
+    "",
+    { NULL }, { NULL },
+    { NULL }, { NULL }
+};
+
+int
+rawarg(char *arg)
+{
+    int sep;
+    char *psep, *pend;
+    /*const*/ char *begin, *end;
+    /*const*/ char *otag = NULL, *etag = NULL;
+    size_t nraw = strlen(rawdef.ch0);
+    
+    if (arg == NULL || arg[0] == '\0') {
+        return -1;
+    }
+    if (nraw >= RAW_MAX) {
+        return -2;
+    }
+    sep = *arg++;
+    pend = arg + strlen(arg);
+    
+    if ((psep = strchr(arg, sep)) == NULL) {
+        return -3;
+    }
+    *psep++ = '\0';
+    begin = arg;
+    
+    arg = psep;
+    if ((psep = strchr(arg, sep)) == NULL) {
+        psep = pend;
+    }
+    *psep++ = '\0';
+    end = arg;
+    
+    if (psep < pend) {
+        arg = psep;
+        if ((psep = strchr(arg, sep)) == NULL) {
+            return -4;
+        }
+        *psep++ = '\0';
+        otag = arg;
+        
+        arg = psep;
+        if ((psep = strchr(arg, sep)) == NULL) {
+            psep = pend;
+        }
+        *psep++ = '\0';
+        etag = arg;
+    }
+    
+    rawdef.ch0[nraw]	= begin[0];
+    rawdef.ch0[nraw+1]	= '\0';
+    rawdef.begin[nraw]	= begin;
+    rawdef.end[nraw]	= end;
+    rawdef.otag[nraw]	= (otag == NULL) ? begin : otag;
+    rawdef.etag[nraw]	= (etag == NULL) ? end   : etag;
+    return ++nraw;
+}
+
+static int
+rawhandler(MMIOT *f, int rawchar)
+{
+    int tick = nrticks(0, rawchar, f);
+    const char *pdelim;
+    char delim;
+    
+    if ( (pdelim = strchr(rawdef.ch0, rawchar)) == NULL )
+	return 0; /* No raw text here. */
+    else
+        delim = *pdelim;
+        
+    if ( tick > 1 ) {
+	return 0; /* Double-ticked code - not our job! */
+    } else {
+        size_t k;
+        const size_t nraw = strlen(rawdef.ch0);
+        
+        char *textbegin, *textend;
+        size_t lenbegin, lenend, lenraw;
+        
+        textbegin = cursor(f)-1;
+        for (k = 0; k < nraw; ++k) {
+            const char *begin = rawdef.begin[k];
+	    lenbegin = strlen(begin);
+	    if (strncmp(textbegin, begin, lenbegin) == 0) 
+		break;
+        }
+        if (k == nraw)
+	    return 0; /* No begin match, no raw text. */
+
+	lenend = strlen(rawdef.end[k]);
+	textend = strstr(textbegin + lenbegin, rawdef.end[k]);
+	if (textend == NULL)
+	    return 0; /* No end match, no raw text. */
+	    
+	lenraw = textend - (textbegin + lenbegin);
+	if (lenraw == 0)
+	    return 0; /* No empty raw allowed. */
+
+	if (rawdef.otag[k] != NULL) Qstring(rawdef.otag[k], f);
+	Qwrite(textbegin + lenbegin, lenraw, f);
+	if (rawdef.etag[k] != NULL) Qstring(rawdef.etag[k], f);
+	shift(f, (int)(lenbegin + lenraw + lenend - 1));
+    }
+
+    return 1;
+}
 
 /* process a body of text encased in some sort of tick marks.   If it
  * works, generate the output and return 1, otherwise just return 0 and
@@ -1424,8 +1543,12 @@ text(MMIOT *f)
         if (c == EOF)
           break;
 
+	if ( rawhandler(f, c) )
+	  continue;
+	  
 	if ( smartypants(c, &smartyflags, f) )
 	    continue;
+	    
 	switch (c) {
 	case 0:     break;
 
