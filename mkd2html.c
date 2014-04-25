@@ -161,6 +161,7 @@ usage(void)
 }
 
 
+int
 main(argc, argv)
 char **argv;
 {
