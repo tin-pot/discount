@@ -8,3 +8,13 @@
 /MSVC/Win32
 /MSVC/Debug
 /MSVC/Release
+MSVC\Backup*/
+*.ncb
+*.pdb
+*.suo
+*.opensdf
+*.sdf
+*.filters
+*.user
+*.obj
+*.log
