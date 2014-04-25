@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>posc</ProjectName>
+    <ProjectGuid>{3AADAE84-EBC9-430D-909C-ADAD3CFC338C}</ProjectGuid>
+    <RootNamespace>posc</RootNamespace>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.61030.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\posc\</IntDir>
+    <NMakeBuildCommandLine>cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(Configuration) all</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(Configuration) distclean all</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(Configuration) clean</NMakeCleanCommandLine>
+    <NMakeOutput>$(ProjectDir)$(Platform)\$(Configuration)\posc.lib</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\posc\</IntDir>
+    <NMakeBuildCommandLine>cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(Configuration) all</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(Configuration) distclean all</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cd $(ProjectDir)posc &amp;&amp; nmake CONF=$(Configuration) clean</NMakeCleanCommandLine>
+    <NMakeOutput>$(ProjectDir)$(Platform)\$(Configuration)\posc.lib</NMakeOutput>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="posc\findhdrdir.c" />
+    <ClCompile Include="posc\posc_getopt.c" />
+    <ClCompile Include="posc\posc_snprintf.c" />
+    <ClCompile Include="posc\posc_strdup.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="posc\ansidecl.h" />
+    <ClInclude Include="posc\ansidecl_1996.h" />
+    <ClInclude Include="posc\ansidecl_2001.h" />
+    <ClInclude Include="posc\getopt.h" />
+    <ClInclude Include="posc\inttypes.h" />
+    <ClInclude Include="posc\posc.h" />
+    <ClInclude Include="posc\posc_hdrdir.h" />
+    <ClInclude Include="posc\stdarg.h" />
+    <ClInclude Include="posc\stdbool.h" />
+    <ClInclude Include="posc\stddef.h" />
+    <ClInclude Include="posc\stdint.h" />
+    <ClInclude Include="posc\stdio.h" />
+    <ClInclude Include="posc\string.h" />
+    <ClInclude Include="posc\strings.h" />
+    <ClInclude Include="posc\unistd.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="posc\LICENSE" />
+    <None Include="posc\LICENSE-freegetopt" />
+    <None Include="posc\Makefile" />
+    <None Include="posc\README" />
+    <None Include="posc\README-freegetopt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
