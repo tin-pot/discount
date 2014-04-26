@@ -161,6 +161,7 @@ usage(void)
 }
 
 
+int
 main(argc, argv)
 char **argv;
 {
@@ -290,6 +291,7 @@ char **argv;
 		    rawarg(arg1);
 		    rawarg(arg2);
 		    rawarg(arg3);
+		    flags |= MKD_NOSUPERSCRIPT | MKD_NOPANTS; /* Disable over-eager processing. */
 		}
 		break;
 	    default: 

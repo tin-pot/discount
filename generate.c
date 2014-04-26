@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "config.h"
 
@@ -1382,55 +1383,118 @@ smartypants(int c, int *flags, MMIOT *f)
  */
 #define RAW_MAX 128U
 
-struct {
-    char ch0[RAW_MAX+1];				/* Initial char of begin[] */
-    /*const*/ char *begin[RAW_MAX], *end[RAW_MAX];	/* Delimiting input mark-up */
-    /*const*/ char *otag[RAW_MAX], *etag[RAW_MAX];	/* Delimiting output mark-up */
-} rawdef = {
-    "",
-    { NULL }, { NULL },
-    { NULL }, { NULL }
+struct RawDef {
+    /*const*/ char *begin, *end;	/* Delimiting input mark-up */
+    /*const*/ char *otag, *etag;	/* Delimiting output mark-up */
+} rawdef[RAW_MAX] = {
+    { { NULL }, { NULL },
+      { NULL }, { NULL } }
 };
+char rawchr0[RAW_MAX+1];		/* Initial char of rawdef[].begin */
+size_t rawnum = 0U;
+
+int
+rawcmp(const void *lhs, const void *rhs)
+{
+    const struct RawDef *const plhd = lhs,
+	                *const prhd = rhs;
+    int cmp = strcmp(plhd->begin, prhd->begin);
+    /*
+     * Inverse relation, because we sort lexicographically descending,
+     * so that any prefix of a string comes *after* the longer string.
+     */
+    return -cmp;
+}
+
+int
+rawbsr(const void *lhs, const void *rhs)
+{
+    const struct RawDef *const prhd = rhs;
+    const char *begin = (const char *)lhs;
+    int cmp = strcmp(begin, prhd->begin);
+    /*
+     * Inverse relation, because we sort lexicographically descending,
+     * so that any prefix of a string comes *after* the longer string.
+     */
+    return -cmp;
+}
+
+int
+rawsort(void)
+{
+    size_t k;
+
+    qsort(rawdef, rawnum, sizeof rawdef[0], rawcmp);
+    for (k = 0; k < rawnum; ++k) 
+	rawchr0[k] = rawdef[k].begin[0];
+    return (int)rawnum;
+}
+
+struct RawDef *
+rawdefine(char *begin)
+{
+    struct RawDef *def;
+
+    def = bsearch(begin, rawdef, rawnum, sizeof rawdef[0], rawbsr);
+    if (def == NULL) {
+        if (rawnum >= RAW_MAX)
+            return NULL;
+        else
+	    def = rawdef + rawnum++;
+    }
+
+    rawchr0[def - rawdef   ] = begin[0];
+    rawchr0[def - rawdef +1] = '\0';
+
+    def->begin	= begin;
+
+    return def;
+}
 
 int
 rawarg(char *arg)
 {
     int sep;
     char *psep, *pend;
-    /*const*/ char *begin, *end;
-    /*const*/ char *otag = NULL, *etag = NULL;
-    size_t nraw = strlen(rawdef.ch0);
+    char *begin, *end;
+    char *otag = NULL, *etag = NULL;
+    struct RawDef *def;
     
-    if (arg == NULL || arg[0] == '\0') {
+    if (arg == NULL || (sep = arg[0]) == '\0') {
         return -1;
     }
-    if (nraw >= RAW_MAX) {
+
+    /*
+     * Extract first field into "begin".
+     */
+    ++arg; pend = arg + strlen(arg);
+    if ((psep = strchr(arg, sep)) == NULL) {
         return -2;
     }
-    sep = *arg++;
-    pend = arg + strlen(arg);
+    *psep++ = '\0'; begin = arg;
     
-    if ((psep = strchr(arg, sep)) == NULL) {
-        return -3;
-    }
-    *psep++ = '\0';
-    begin = arg;
-    
+    /*
+     * Extract second field into "end".
+     */
     arg = psep;
     if ((psep = strchr(arg, sep)) == NULL) {
         psep = pend;
     }
-    *psep++ = '\0';
-    end = arg;
+    *psep++ = '\0'; end = arg;
     
     if (psep < pend) {
+	/*
+	 * Extract third field into "otag".
+	 */
         arg = psep;
         if ((psep = strchr(arg, sep)) == NULL) {
-            return -4;
+            return -3;
         }
-        *psep++ = '\0';
-        otag = arg;
+        *psep++ = '\0'; otag = arg;
         
+	/*
+	 * Extract fourth field into "etag".
+	 */
         arg = psep;
         if ((psep = strchr(arg, sep)) == NULL) {
             psep = pend;
@@ -1439,62 +1503,93 @@ rawarg(char *arg)
         etag = arg;
     }
     
-    rawdef.ch0[nraw]	= begin[0];
-    rawdef.ch0[nraw+1]	= '\0';
-    rawdef.begin[nraw]	= begin;
-    rawdef.end[nraw]	= end;
-    rawdef.otag[nraw]	= (otag == NULL) ? begin : otag;
-    rawdef.etag[nraw]	= (etag == NULL) ? end   : etag;
-    return ++nraw;
+    /*
+     * Add or overwrite definition for "begin".
+     */
+    if ( (def = rawdefine(begin)) != NULL ) {
+        def->end	= end;
+        def->otag	= (otag == NULL) ? begin : otag;
+        def->etag	= (etag == NULL) ? end   : etag;
+        return rawsort();
+    } else {
+	return -4; /* Table full. */
+    }
 }
 
 static int
 rawhandler(MMIOT *f, int rawchar)
 {
-    int tick = nrticks(0, rawchar, f);
     const char *pdelim;
     char delim;
+    size_t k;
+    char *textbegin, *textend;
+    size_t lenbegin, lenend, lenraw;
     
-    if ( (pdelim = strchr(rawdef.ch0, rawchar)) == NULL )
-	return 0; /* No raw text here. */
+    /*
+     * Find first defined "raw begin" delimiter where initial 
+     * character matches rawchar.
+     */
+    if ( (pdelim = strchr(rawchr0, rawchar)) == NULL )
+	return 0; /* No initial character => no raw text here. */
     else
         delim = *pdelim;
-        
-    if ( tick > 1 ) {
-	return 0; /* Double-ticked code - not our job! */
-    } else {
-        size_t k;
-        const size_t nraw = strlen(rawdef.ch0);
-        
-        char *textbegin, *textend;
-        size_t lenbegin, lenend, lenraw;
-        
-        textbegin = cursor(f)-1;
-        for (k = 0; k < nraw; ++k) {
-            const char *begin = rawdef.begin[k];
-	    lenbegin = strlen(begin);
-	    if (strncmp(textbegin, begin, lenbegin) == 0) 
-		break;
-        }
-        if (k == nraw)
-	    return 0; /* No begin match, no raw text. */
 
-	lenend = strlen(rawdef.end[k]);
-	textend = strstr(textbegin + lenbegin, rawdef.end[k]);
-	if (textend == NULL)
-	    return 0; /* No end match, no raw text. */
-	    
-	lenraw = textend - (textbegin + lenbegin);
-	if (lenraw == 0)
-	    return 0; /* No empty raw allowed. */
+    /*
+     * Check if any "raw begin" delimiter matches in full length.
+     */
+    textbegin = cursor(f)-1;
 
-	if (rawdef.otag[k] != NULL) Qstring(rawdef.otag[k], f);
-	Qwrite(textbegin + lenbegin, lenraw, f);
-	if (rawdef.etag[k] != NULL) Qstring(rawdef.etag[k], f);
-	shift(f, (int)(lenbegin + lenraw + lenend - 1));
+    for (k = (size_t)(pdelim - rawchr0); k < rawnum;  ++k) {
+	const char *begin = rawdef[k].begin;
+
+	if (rawchr0[k] != delim) {
+	    return 0;  /* No matching "begin" delimiter => no raw text. */
+	}
+	assert(begin != NULL);
+	lenbegin = strlen(begin);
+	assert(lenbegin > 0U);
+        
+	if (strncmp(textbegin, begin, lenbegin) == 0) 
+	    break;
     }
+    if (k == rawnum)
+	return 0; /* No matching "begin" delimiter => no raw text. */
 
-    return 1;
+    /*
+     * Check if there is a matching "raw end" delimiter ahead. 
+     */
+    assert(rawdef[k].end != NULL);
+    lenend = strlen(rawdef[k].end);
+    assert(lenend > 0U);
+
+    if ( (textend = strstr(textbegin + lenbegin, rawdef[k].end)) == NULL )
+	return 0; /* No matching end for begin found => no raw text. */
+    
+    /*
+     * Found both "begin" and "end" delimiters.
+     */
+    if ( (lenraw = textend - (textbegin + lenbegin)) == 0 ) {
+	/*
+	 * Two adjacent delimiters - output the first, forget the second.
+	 * For example, using `%` as delimiter, write `%%` to get a literal
+	 * percent sign in (non-code-span) _Markdown_ text.
+	 */
+	Qchar(delim, f);
+	shift(f, 1);
+	return 1;
+    } else {
+	/*
+	 * Two delimiters with text in between => this is the raw text
+	 * we'v been waitin' for!
+	 */
+        assert(rawdef[k].otag != NULL);
+        assert(rawdef[k].etag != NULL);
+        Qstring(rawdef[k].otag, f);
+        Qwrite(textbegin + lenbegin, lenraw, f);
+        Qstring(rawdef[k].etag, f);
+        shift(f, (int)(lenbegin + lenraw + lenend - 1));
+        return 1;
+    }
 }
 
 /* process a body of text encased in some sort of tick marks.   If it
