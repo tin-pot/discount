@@ -262,8 +262,9 @@ char **argv;
 		    if (opt[1] != '\0') {
 			/*
 			 * User-defined ASCIIMath delimiter.
+			 * Must be in range U+0021..U+00FF (for now).
 			 */
-			char ch = opt[1];
+			int ch = opt[1];
 			if (ch == '\\') {
 			    int n;
 			    switch (opt[2]) {
