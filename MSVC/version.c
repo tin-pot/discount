@@ -11,7 +11,7 @@ char markdown_version[] = "2.1.7"
 /*
  * This is "tin-pot/discount" on _github_.
  */
-		"/<http://github.com/tin-pot/discount>"
+                " (http://github.com/tin-pot/discount)"
 
 #if TABSTOP != 4
                 " TAB=" STR(TABSTOP)
