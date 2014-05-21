@@ -14,6 +14,10 @@
 
 #include "config.h"
 
+#if HAVE_STRCASECMP 
+#define stricmp strcasecmp
+#endif
+
 #include "cstring.h"
 #include "markdown.h"
 #include "amalloc.h"
@@ -1387,8 +1391,7 @@ struct RawDef {
     /*const*/ char *begin, *end;	/* Delimiting input mark-up */
     /*const*/ char *otag, *etag;	/* Delimiting output mark-up */
 } rawdef[RAW_MAX] = {
-    { { NULL }, { NULL },
-      { NULL }, { NULL } }
+    { NULL , NULL, NULL , NULL }
 };
 char rawchr0[RAW_MAX+1];		/* Initial char of rawdef[].begin */
 size_t rawnum = 0U;
