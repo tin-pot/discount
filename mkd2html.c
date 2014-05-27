@@ -240,7 +240,7 @@ char **argv;
 	    case 'l':
 		SETBITS(flags, MKD_IN_LATIN1, IN_ENCODING_MASK);
 		break;
-#endif /* WITH_ENCODINGS */.
+#endif /* WITH_ENCODINGS */
 	    case 'T':
 		SETBITS(flags, MKD_TOC, MKD_TOC);
 		break;

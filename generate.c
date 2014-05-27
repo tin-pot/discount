@@ -692,10 +692,12 @@ const char *getmime(const char *link)
 	    break;
     if (*linkext == '.' && lenext < 16) {
         char key[16];
+        typedef int (*cmpfunc)(const void *, const void *);
+        cmpfunc cf = (cmpfunc)stricmp;
         
         strncpy(key, linkext, lenext);
         key[lenext] = '\0';
-	extelem = bsearch(key, ext, nelem, szelem, stricmp);
+	extelem = bsearch(key, ext, nelem, szelem, cf);
 	if (extelem != NULL) {
 	    const size_t idx = (size_t)(extelem - &ext[0]);
 	    return type[idx];
